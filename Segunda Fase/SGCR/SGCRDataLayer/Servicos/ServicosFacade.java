@@ -96,4 +96,9 @@ public class ServicosFacade {
 		throw new UnsupportedOperationException();
 	}
 
+	public List<Servico> listaPedidosPendentes(){
+		//TODO
+		throw new UnsupportedOperationException();
+	}
+
 }
