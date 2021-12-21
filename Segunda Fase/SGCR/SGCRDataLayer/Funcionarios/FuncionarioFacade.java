@@ -41,7 +41,11 @@ public class FuncionarioFacade {
 	 * @param id
 	 * @param password
 	 */
-	public boolean verificaCredenciais(String id, String password) {
+	//-1 login incorreto
+	// 0 funcionario balcao
+	// 1 tecnico
+	// 2 gestor
+	public int verificaCredenciais(String id, String password) {
 		// TODO - implement FuncionarioFacade.verificaCredenciais
 		throw new UnsupportedOperationException();
 	}

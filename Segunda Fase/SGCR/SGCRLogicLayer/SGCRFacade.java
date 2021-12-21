@@ -1,5 +1,6 @@
 package SGCRLogicLayer;
 
+import SGCRDataLayer.Clientes.*;
 import SGCRDataLayer.Funcionarios.*;
 import SGCRDataLayer.PedidosDeOrcamento.*;
 import SGCRDataLayer.Servicos.*;
@@ -9,12 +10,19 @@ import java.util.Map;
 import java.util.TreeSet;
 
 public class SGCRFacade implements iSGCR {
-
+	private ClientesFacade clientesFacade;
+	private FuncionarioFacade funcionarioFacade;
+	private PedidosFacade pedidosFacade;
+	private ServicosFacade servicosFacade;
 	private int permissao;
 	private String idUtilizador;
 
 	@Override
 	public boolean login(String ID, String Password) {
+		if(funcionarioFacade.verificaCredenciais(ID,Password)!=-1){
+			idUtilizador=ID;
+			return true;
+		}
 		return false;
 	}
 
