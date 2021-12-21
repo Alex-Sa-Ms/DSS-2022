@@ -1,8 +1,10 @@
 package SGCRDataLayer.Funcionarios;
 
+import java.util.HashSet;
+
 public class Tecnico extends Funcionario {
 
-	private HashSet<java.lang.String> servicos;
+	private HashSet<String> servicos;
 	private int nRepProgramadasConcluidas;
 	private int nRepExpressoConcluidas;
 	private float duracaoMediaRepProg;

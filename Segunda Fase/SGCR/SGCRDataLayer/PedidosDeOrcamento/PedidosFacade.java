@@ -4,7 +4,7 @@ import java.util.*;
 
 public class PedidosFacade {
 
-	Collection<PedidoOrcamento> filaPedidos;
+	Deque<PedidoOrcamento> filaPedidos;
 
 	/**
 	 * 

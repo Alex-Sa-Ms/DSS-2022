@@ -1,11 +1,13 @@
 package SGCRDataLayer.Clientes;
 
+import java.util.Set;
+
 public class FichaCliente {
 
 	private String Nome;
-	private java.lang.String NIF;
-	private java.lang.String Email;
-	private java.util.Set<java.lang.String> equipamentos;
+	private String NIF;
+	private String Email;
+	private Set<String> equipamentos;
 
 	/**
 	 * 

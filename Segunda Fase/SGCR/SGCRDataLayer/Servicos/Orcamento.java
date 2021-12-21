@@ -1,15 +1,15 @@
 package SGCRDataLayer.Servicos;
 
-import java.util.*;
+import java.util.List;
 
 public class Orcamento {
 
-	Collection<Passo> passos;
+	List<Passo> passos;
 	private float precoPrevisto;
 	private int tempoPrevisto;
-	private java.lang.String descricao;
+	private String descricao;
 
-	public boolean addPassosOrçamento() {
+	public boolean addPassosOrcamento() {
 		// TODO - implement Orcamento.addPassosOrçamento
 		throw new UnsupportedOperationException();
 	}
@@ -23,7 +23,7 @@ public class Orcamento {
 	 * 
 	 * @param indice
 	 */
-	public void removerPassoOrçamento(int indice) {
+	public void removerPassoOrcamento(int indice) {
 		// TODO - implement Orcamento.removerPassoOrçamento
 		throw new UnsupportedOperationException();
 	}

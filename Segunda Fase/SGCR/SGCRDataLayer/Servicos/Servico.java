@@ -1,10 +1,12 @@
 package SGCRDataLayer.Servicos;
 
+import java.time.LocalDateTime;
+
 public abstract class Servico {
 
 	EstadoServico estado;
 	private String id;
-	private java.time.LocalDateTime dataConclusao;
+	private LocalDateTime dataConclusao;
 	private String idTecnico;
 	private String idCliente;
 	private Boolean Abandonado;

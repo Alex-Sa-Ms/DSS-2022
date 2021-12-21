@@ -1,8 +1,13 @@
 package SGCRDataLayer.Servicos;
 
+import java.util.Deque;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
 public class ServicosFacade {
 
-	HashMap estados;
+	Map<EstadoServico,Map<String,Servico>> estados;
 	Servico arquivados;
 	private Deque<String> filaServicos;
 

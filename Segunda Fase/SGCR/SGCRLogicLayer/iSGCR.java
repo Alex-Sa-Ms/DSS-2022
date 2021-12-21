@@ -1,6 +1,12 @@
+package SGCRLogicLayer;
+
 import SGCRDataLayer.PedidosDeOrcamento.*;
 import SGCRDataLayer.Servicos.*;
 import SGCRDataLayer.Funcionarios.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
 public interface iSGCR {
 
@@ -30,7 +36,7 @@ public interface iSGCR {
 	 * 
 	 * @param NIF
 	 */
-	List<Servicos> listarServicosProntosLevantamento(java.lang.String NIF);
+	List<Servico> listarServicosProntosLevantamento(java.lang.String NIF);
 
 	/**
 	 * 

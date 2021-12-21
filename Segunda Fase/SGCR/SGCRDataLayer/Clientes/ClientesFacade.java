@@ -1,8 +1,10 @@
 package SGCRDataLayer.Clientes;
 
+import java.util.Map;
+
 public class ClientesFacade {
 
-	FichaCliente clientes;
+	Map<String,FichaCliente> clientes;
 	private int idProxEquipamento;
 
 	/**
@@ -39,7 +41,7 @@ public class ClientesFacade {
 	 * @param idEquip
 	 * @param NIF
 	 */
-	public boolean addEquipCliente(String idEquip, Cliente NIF) {
+	public boolean addEquipCliente(String idEquip, FichaCliente NIF) {
 		// TODO - implement ClientesFacade.addEquipCliente
 		throw new UnsupportedOperationException();
 	}

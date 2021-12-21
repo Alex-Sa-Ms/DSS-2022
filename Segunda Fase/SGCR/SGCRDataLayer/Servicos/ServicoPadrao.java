@@ -4,7 +4,7 @@ import java.util.*;
 
 public class ServicoPadrao extends Servico {
 
-	Collection<Passo> passos;
+	List<Passo> passos;
 	Orcamento orcamento;
 	private float custoAtual;
 	private int passoAtualOrcamento;
