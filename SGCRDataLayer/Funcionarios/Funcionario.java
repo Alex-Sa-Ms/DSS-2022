@@ -1,3 +1,5 @@
+package SGCRDataLayer.Funcionarios;
+
 public abstract class Funcionario {
 
 	private String id;

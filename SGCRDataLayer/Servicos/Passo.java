@@ -1,3 +1,5 @@
+package SGCRDataLayer.Servicos;
+
 public class Passo {
 
 	private float custo;

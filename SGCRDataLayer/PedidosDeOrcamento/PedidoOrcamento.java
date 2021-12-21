@@ -1,3 +1,5 @@
+package SGCRDataLayer.PedidosDeOrcamento;
+
 public class PedidoOrcamento {
 
 	private java.lang.String idEquipamento;

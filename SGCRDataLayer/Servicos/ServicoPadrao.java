@@ -1,3 +1,5 @@
+package SGCRDataLayer.Servicos;
+
 import java.util.*;
 
 public class ServicoPadrao extends Servico {
@@ -18,13 +20,13 @@ public class ServicoPadrao extends Servico {
 		throw new UnsupportedOperationException();
 	}
 
-	public void proxPasso() {
+	public Passo proxPasso() {
 		// TODO - implement ServicoPadrao.proxPasso
 		throw new UnsupportedOperationException();
 	}
 
-	public Passo getPasso() {
-		// TODO - implement ServicoPadrao.getPasso
+	public Passo getPassoAtual() {
+		// TODO - implement ServicoPadrao.getPassoAtual
 		throw new UnsupportedOperationException();
 	}
 
@@ -33,7 +35,7 @@ public class ServicoPadrao extends Servico {
 		throw new UnsupportedOperationException();
 	}
 
-	public void getCusto() {
+	public float getCusto() {
 		// TODO - implement ServicoPadrao.getCusto
 		throw new UnsupportedOperationException();
 	}

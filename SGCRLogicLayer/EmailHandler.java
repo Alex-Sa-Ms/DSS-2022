@@ -1,3 +1,5 @@
+package SGCRLogicLayer;
+
 public class EmailHandler {
 
 	public void emailExcesso() {

@@ -1,3 +1,5 @@
+package SGCRDataLayer.Servicos;
+
 import java.util.*;
 
 public class Orcamento {
@@ -7,7 +9,7 @@ public class Orcamento {
 	private int tempoPrevisto;
 	private java.lang.String descricao;
 
-	public boolean addPassosOrcamento() {
+	public boolean addPassosOrçamento() {
 		// TODO - implement Orcamento.addPassosOrçamento
 		throw new UnsupportedOperationException();
 	}
@@ -21,7 +23,7 @@ public class Orcamento {
 	 * 
 	 * @param indice
 	 */
-	public void removerPassoOrcamento(int indice) {
+	public void removerPassoOrçamento(int indice) {
 		// TODO - implement Orcamento.removerPassoOrçamento
 		throw new UnsupportedOperationException();
 	}

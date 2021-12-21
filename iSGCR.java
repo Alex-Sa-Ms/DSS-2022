@@ -1,4 +1,6 @@
-import java.util.List;
+import SGCRDataLayer.PedidosDeOrcamento.*;
+import SGCRDataLayer.Servicos.*;
+import SGCRDataLayer.Funcionarios.*;
 
 public interface iSGCR {
 
@@ -9,21 +11,26 @@ public interface iSGCR {
 	 */
 	boolean login(java.lang.String ID, java.lang.String Password);
 
+	boolean logOut();
+
+	void encerraAplicacao();
+
 	List<PedidoOrcamento> listarPedidos();
 
-	List<Servico> listarServicosPendentes();
+	List<Servico> listarServiçosPendentes();
 
 	/**
 	 * 
-	 * @param novo
+	 * @param descricao
+	 * @param nifCliente
 	 */
-	boolean criarNovoPedido(PedidoOrcamento novo);
+	boolean criarNovoPedido(String descricao, String nifCliente);
 
 	/**
 	 * 
 	 * @param NIF
 	 */
-	List<Servico> listarServicosConcluidos(java.lang.String NIF);
+	List<Servicos> listarServicosProntosLevantamento(java.lang.String NIF);
 
 	/**
 	 * 
@@ -42,24 +49,32 @@ public interface iSGCR {
 	 * @param novo
 	 * @param NIF
 	 */
-	boolean criarServicoExpresso(ServicoExpresso novo, java.lang.String NIF);
+	boolean criarServiçoExpresso(ServicoExpresso novo, java.lang.String NIF);
 
 	/**
 	 * 
-	 * @param nova
+	 * @param nome
+	 * @param nif
+	 * @param email
 	 */
-	boolean criaFichaCliente(FichaCliente nova);
+	boolean criaFichaCliente(String nome, String nif, String email);
 
 	PedidoOrcamento resolverPedido();
 
 	/**
 	 * 
-	 * @param orcamento
+	 * @param pedido
+	 * @param passos
+	 */
+	boolean criaServicoPadrao(PedidoOrcamento pedido, List<Passo> passos);
+
+	/**
+	 * 
 	 * @param pedido
 	 */
-	boolean criaServicoPadrao(Orcamento orcamento, PedidoOrcamento pedido);
+	boolean rejeitaPedidoOrcamento(PedidoOrcamento pedido);
 
-	String comecarServico();
+	Servico comecarServico();
 
 	/**
 	 * 
@@ -85,7 +100,13 @@ public interface iSGCR {
 	 * 
 	 * @param IDServico
 	 */
-	boolean interrromperServico(String IDServico);
+	boolean interromperServico(String IDServico);
+
+	/**
+	 * 
+	 * @param IDServico
+	 */
+	boolean concluiServico(String IDServico);
 
 	/**
 	 * 
@@ -94,5 +115,31 @@ public interface iSGCR {
 	Passo retomarServico(String IDServico);
 
 	void estatisticas();
+
+	/**
+	 * 
+	 * @param idEquip
+	 */
+	boolean entregaEquipamento(String idEquip);
+
+	/**
+	 * 
+	 * @param id
+	 * @param password
+	 */
+	boolean adicionaTecnico(String id, String password);
+
+	/**
+	 * 
+	 * @param id
+	 * @param password
+	 */
+	boolean adicionaFuncBalcao(String id, String password);
+
+	List<FuncionarioBalcao> listarFuncionariosBalcao();
+
+	List<Tecnico> listarTecnicos();
+
+	Map<String, TreeSet<Servico>> listaIntervencoes();
 
 }
