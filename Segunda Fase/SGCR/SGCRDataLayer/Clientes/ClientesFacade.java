@@ -46,7 +46,7 @@ public class ClientesFacade {
 		throw new UnsupportedOperationException();
 	}
 
-	public int getIdProxEquip() {
+	public String getIdProxEquip() {
 		// TODO - implement ClientesFacade.getIdProxEquip
 		throw new UnsupportedOperationException();
 	}

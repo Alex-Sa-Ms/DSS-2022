@@ -1,6 +1,6 @@
 package SGCRDataLayer.Clientes;
 
-import java.util.Set;
+import java.util.*;
 
 public class FichaCliente {
 
