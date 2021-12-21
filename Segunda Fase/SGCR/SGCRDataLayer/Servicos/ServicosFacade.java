@@ -101,4 +101,9 @@ public class ServicosFacade {
 		throw new UnsupportedOperationException();
 	}
 
+	public boolean addServicoPadraoIrreparavel(String idEquip, String descricao){
+		//TODO
+		throw new UnsupportedOperationException();
+	}
+
 }

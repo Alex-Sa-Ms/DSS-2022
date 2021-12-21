@@ -4,10 +4,23 @@ import java.util.*;
 
 public class ServicoPadrao extends Servico {
 
-	List<Passo> passos;
-	Orcamento orcamento;
+	private List<Passo> passos;
+	private Orcamento orcamento;
 	private float custoAtual;
 	private int passoAtualOrcamento;
+
+	public ServicoPadrao(String id, String idTecnico, String idCliente, List<Passo> passos, String descricao) {
+		setId(id);
+		setIdCliente(idCliente);
+		setIdTecnico(idTecnico);
+		setEstado(EstadoServico.AguardarConfirmacao);
+		setAbandonado(false);
+		setDataConclusao(null);
+		passos    			= new ArrayList<>();
+		orcamento 			= new Orcamento(passos, descricao);
+		custoAtual 			= 0;
+		passoAtualOrcamento = 0; //TODO - Ver se é neste valor q deve começar
+	}
 
 	/**
 	 * 

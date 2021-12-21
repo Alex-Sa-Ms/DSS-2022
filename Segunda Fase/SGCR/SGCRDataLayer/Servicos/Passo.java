@@ -13,9 +13,17 @@ public class Passo {
 		this.tempo 	   = tempo;
 	}
 
-	public Passo clone(){
-		//TODO
-		return null;
-	}
+	public Passo clone(){ return new Passo(custo, descricao, tempo); }
 
+	public float getCusto() { return custo; }
+
+	public void setCusto(float custo) { this.custo = custo; }
+
+	public String getDescricao() { return descricao; }
+
+	public void setDescricao(String descricao) { this.descricao = descricao; }
+
+	public int getTempo() { return tempo; }
+
+	public void setTempo(int tempo) { this.tempo = tempo; }
 }
