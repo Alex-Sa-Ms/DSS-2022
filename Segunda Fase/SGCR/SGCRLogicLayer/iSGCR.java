@@ -23,7 +23,7 @@ public interface iSGCR {
 
 	List<PedidoOrcamento> listarPedidos();
 
-	List<Servico> listarServiçosPendentes();
+	List<Servico> listarServicosPendentes();
 
 	/**
 	 * 
@@ -55,7 +55,7 @@ public interface iSGCR {
 	 * @param novo
 	 * @param NIF
 	 */
-	boolean criarServiçoExpresso(ServicoExpresso novo, java.lang.String NIF);
+	boolean criarServicoExpresso(ServicoExpresso novo, java.lang.String NIF);
 
 	/**
 	 * 

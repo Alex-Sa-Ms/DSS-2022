@@ -34,9 +34,10 @@ public class SGCRFacade implements iSGCR {
 	}
 
 	@Override
-	public List<Servico> listarServiçosPendentes() {
+	public List<Servico> listarServicosPendentes() {
 		return null;
 	}
+
 
 	@Override
 	public boolean criarNovoPedido(String descricao, String nifCliente) {
@@ -149,7 +150,7 @@ public class SGCRFacade implements iSGCR {
 	}
 
 	@Override
-	public boolean criarServiçoExpresso(ServicoExpresso novo, String NIF) {
+	public boolean criarServicoExpresso(ServicoExpresso novo, String NIF) {
 		return false;
 	}
 }
