@@ -1,27 +1,11 @@
 package SGCRDataLayer.Clientes;
 
-import java.util.Map;
+import java.util.*;
 
 public class ClientesFacade {
 
 	Map<String,FichaCliente> clientes;
 	private int idProxEquipamento;
-
-	public Map<String, FichaCliente> getClientes() {
-		return clientes;
-	}
-
-	public void setClientes(Map<String, FichaCliente> clientes) {
-		this.clientes = clientes;
-	}
-
-	public int getIdProxEquipamento() {
-		return idProxEquipamento;
-	}
-
-	public void setIdProxEquipamento(int idProxEquipamento) {
-		this.idProxEquipamento = idProxEquipamento;
-	}
 
 	/**
 	 * 
@@ -30,8 +14,10 @@ public class ClientesFacade {
 	 * @param Email
 	 */
 	public boolean criaFichaCliente(String Nome, String NIF, String Email) {
-		// TODO - implement ClientesFacade.criaFichaCliente
-		throw new UnsupportedOperationException();
+
+		clientes.put(NIF, new FichaCliente(Nome, NIF, Email));
+
+		return clientes.containsKey(NIF);
 	}
 
 	/**
@@ -39,8 +25,8 @@ public class ClientesFacade {
 	 * @param NIF
 	 */
 	public FichaCliente getFichaCliente(String NIF) {
-		// TODO - implement ClientesFacade.getFichaCliente
-		throw new UnsupportedOperationException();
+
+		return clientes.get(NIF).clone();
 	}
 
 	/**
@@ -48,8 +34,11 @@ public class ClientesFacade {
 	 * @param Email
 	 */
 	public FichaCliente getFichaClientePorEmail(String Email) {
-		// TODO - implement ClientesFacade.getFichaClientePorEmail
-		throw new UnsupportedOperationException();
+
+		for (Map.Entry<String,FichaCliente> entry : clientes.entrySet()){
+			if(entry.getValue().getEmail().equals(Email)) return entry.getValue().clone();
+		}
+		return null;
 	}
 
 	/**
@@ -57,14 +46,14 @@ public class ClientesFacade {
 	 * @param idEquip
 	 * @param NIF
 	 */
-	public boolean addEquipCliente(String idEquip, FichaCliente NIF) {
-		// TODO - implement ClientesFacade.addEquipCliente
-		throw new UnsupportedOperationException();
+	public boolean addEquipCliente(String idEquip, String NIF) {
+
+		return clientes.get(NIF).addEquip(idEquip);
 	}
 
 	public String getIdProxEquip() {
-		// TODO - implement ClientesFacade.getIdProxEquip
-		throw new UnsupportedOperationException();
+		String id = String.valueOf(idProxEquipamento);
+		idProxEquipamento++;
+		return id;
 	}
-
 }

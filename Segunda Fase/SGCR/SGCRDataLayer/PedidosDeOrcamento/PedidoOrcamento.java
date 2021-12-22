@@ -6,6 +6,12 @@ public class PedidoOrcamento {
 	private String descricao;
 	private String NIFCliente;
 
+	public PedidoOrcamento(String idEquipamento, String descricao, String NIFCliente) {
+		this.idEquipamento = idEquipamento;
+		this.descricao = descricao;
+		this.NIFCliente = NIFCliente;
+	}
+
 	public String getIdEquipamento() {
 		return idEquipamento;
 	}
