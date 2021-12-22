@@ -7,6 +7,17 @@ public class ClientesFacade {
 	Map<String,FichaCliente> clientes;
 	private int idProxEquipamento;
 
+
+	public ClientesFacade() {
+		this.clientes = new HashMap<>();
+		this.idProxEquipamento = 1;
+	}
+
+	public ClientesFacade(Map<String, FichaCliente> clientes, int idProxEquipamento) {
+		this.clientes = clientes;
+		this.idProxEquipamento = idProxEquipamento;
+	}
+
 	/**
 	 * 
 	 * @param Nome
