@@ -102,20 +102,31 @@ public class ServicoPadrao extends Servico {
 	 */
 	public Passo proxPasso() {
 		//Guarda o tempo utilizado para executar o passo atual, e atualiza a variavel custoAtual, antes de saltar para o próximo passo
-		Passo passo = getUltimoPassoLista();
+
+		Passo passo = getPassoAtual();
+
 		if(passo != null) {
 			passo.addTempo(Tempo.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
 			custoAtual += passo.getCustoPecas() + passo.getTempo() * orcamento.getPrecoHora();
 		}
 
+		passoAtual++;
+
 		passoAtualOrcamento++;
+
 		inicioPassoAtual = System.currentTimeMillis();
+
 		Passo novoPasso  = orcamento.getPasso(passoAtualOrcamento);
 
-		if(novoPasso != null) {
+		if(novoPasso != null && (passos.size()==0 || passoAtual == (passos.size()-1))){
 			passos.add(novoPasso);
-			return passos.get(passos.size() - 1).clone();
+			return passos.get(passoAtual).clone();
 		}
+		else if(passos.get(passoAtual) != null){
+			 passoAtualOrcamento --;
+			 return passos.get(passoAtual).clone();
+		}
+		
 		return null;
 	}
 
@@ -125,7 +136,7 @@ public class ServicoPadrao extends Servico {
 	 */
 	public Passo getPassoAtual() {
 		if(passos.size() > 0)
-			return passos.get(passos.size() - 1).clone();
+			return passos.get(passoAtual).clone();
 		return null;
 	}
 
