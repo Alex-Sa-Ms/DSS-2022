@@ -108,6 +108,14 @@ public class FuncionarioFacade {
 		throw new UnsupportedOperationException();
 	}
 
+	public Map<String, Funcionario> getFuncionarios() {
+		return funcionarios;
+	}
+
+	public void setFuncionarios(Map<String, Funcionario> funcionarios) {
+		this.funcionarios = funcionarios;
+	}
+
 	/**
 	 * 
 	 * @param idTecnico
