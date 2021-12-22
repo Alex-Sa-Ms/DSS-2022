@@ -13,4 +13,12 @@ public class ServicoExpresso extends Servico {
 		//TODO
 		return false;
 	}
+
+	@Override
+	public int compareTo(Object o) {
+		if(o instanceof Servico){
+			return super.getDataConclusao().compareTo(((Servico) o).getDataConclusao());
+		}
+		return -1;
+	}
 }

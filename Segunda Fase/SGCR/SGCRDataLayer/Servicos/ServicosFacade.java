@@ -1,9 +1,7 @@
 package SGCRDataLayer.Servicos;
 
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ServicosFacade {
 
@@ -21,6 +19,15 @@ public class ServicosFacade {
 		throw new UnsupportedOperationException();
 	}
 
+	public List<Servico> getServicos() {
+		List<Servico> servicos = new ArrayList<>();
+		for (Map<String,Servico> m:this.estados.values()){
+			for (Servico s: m.values()){
+				servicos.add(s.clone());
+			}
+		}
+		return servicos;
+	}
 	/**
 	 * 
 	 * @param idEquip
@@ -106,7 +113,27 @@ public class ServicosFacade {
 		throw new UnsupportedOperationException();
 	}
 
-	public boolean getProxServico(String idTecnico){
+	public Servico getProxServico(String idTecnico){ //todo alex, meu corno, achos que esta merda alguma vez retorna bolean?
+		//TODO                                       //ja alterei aqui mas altera no diagrama de classes
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean addPasso(String ID, Passo passo, int index){ //TODO adiciona ao diagrama de classes
+		//TODO
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean interrompeServico(String IDServico){ //TODO adiciona ao diagrama de classes
+		//TODO
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean concluiServico(String IDServico){ //TODO adiciona ao diagrama de classes
+		//TODO
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean retomaServico(String IDServico){ //TODO adiciona ao diagrama de classes
 		//TODO
 		throw new UnsupportedOperationException();
 	}

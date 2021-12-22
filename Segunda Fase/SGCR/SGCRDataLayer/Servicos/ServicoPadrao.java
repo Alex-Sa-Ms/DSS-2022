@@ -51,7 +51,13 @@ public class ServicoPadrao extends Servico {
 		passoAtualOrcamento = 0; //TODO - Ver se é neste valor q deve começar
 	}
 
-
+	public List<Passo> getPassos() {
+		List<Passo> novaLista = new ArrayList<>();
+		for (Passo p: this.passos){
+			novaLista.add(p.clone());
+		}
+		return passos;
+	}
 	/**
 	 * 
 	 * @param custo
@@ -126,5 +132,19 @@ public class ServicoPadrao extends Servico {
 			return true;
 		}
 		return false;
+	}
+	public float duracaoPassos(){ //todo adicionar ao diagrama de classes
+		return 0;  //todo
+	}
+	public float duracaoPassosPrevistos(){//todo adicionar ao diagrama de classes
+		return 0; //todo
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		if(o instanceof Servico){
+			return super.getDataConclusao().compareTo(((Servico) o).getDataConclusao());
+		}
+		return -1;
 	}
 }

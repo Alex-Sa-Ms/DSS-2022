@@ -50,10 +50,10 @@ public interface iSGCR {
 
 	/**
 	 * 
-	 * @param novo
+	 * @param custo
 	 * @param NIF
 	 */
-	boolean criarServicoExpresso(ServicoExpresso novo, java.lang.String NIF);
+	boolean criarServicoExpresso(Float custo, java.lang.String NIF); //todo mudar parametros do diagrama (a interface não fornece um id para o equipamento)
 
 	/**
 	 * 

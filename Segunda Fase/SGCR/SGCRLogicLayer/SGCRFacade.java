@@ -6,6 +6,7 @@ import SGCRDataLayer.PedidosDeOrcamento.*;
 import SGCRDataLayer.Servicos.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SGCRFacade implements iSGCR {
 	private ClientesFacade clientesFacade;
@@ -63,10 +64,10 @@ public class SGCRFacade implements iSGCR {
 	}
 
 	private boolean prontoParaLevantar(Servico s){
-		return (s.getEstadoServico() == EstadoServico.OrcamentoRecusado ||
-				s.getEstadoServico() ==	EstadoServico.Irreparavel ||
-				s.getEstadoServico() ==	EstadoServico.Concluido ||
-				s.getEstadoServico() ==	EstadoServico.Expirado);
+		return (s.getEstado() == EstadoServico.OrcamentoRecusado ||
+				s.getEstado() ==	EstadoServico.Irreparavel ||
+				s.getEstado() ==	EstadoServico.Concluido ||
+				s.getEstado() ==	EstadoServico.Expirado);
 	}
 
 	@Override
@@ -115,14 +116,14 @@ public class SGCRFacade implements iSGCR {
 	@Override
 	public boolean criaServicoPadrao(PedidoOrcamento pedido, List<Passo> passos) {
 		if(permissao==1){
-			return servicosFacade.addServicoPadrao(pedido.getIdEquipamento(),pedido.getDescricao(),passos);
+			return servicosFacade.addServicoPadrao(pedido.getIdEquipamento(),pedido.getDescricao(),passos); //todo addServicoPadrao vai precisar de mais argumentos
 		} return false;
 	}
 
 	@Override
 	public boolean rejeitaPedidoOrcamento(PedidoOrcamento pedido) {
 		if(permissao==1){
-			if(addServicoIrreparavel(pedido.getIdEquipamento(),pedido.getDescricao())){
+			if(servicosFacade.addServicoPadraoIrreparavel(pedido.getIdEquipamento(),pedido.getDescricao())){
 				EmailHandler.emailIrreparavel();
 				return true;
 			}
@@ -135,7 +136,7 @@ public class SGCRFacade implements iSGCR {
 		if (permissao==1){
 			Servico servico = servicosFacade.getProxServico(idUtilizador);
 			if(servico!=null){
-				funcionarioFacade.addServicoTecnico(idUtilizador,servico.getID()); //TODO cagamos no caso de se isto retornar falso?
+				funcionarioFacade.addServicoTecnico(idUtilizador,servico.getId()); // cagamos no caso de se isto retornar falso?
 				return servico;
 			}
 		}
@@ -153,68 +154,111 @@ public class SGCRFacade implements iSGCR {
 	@Override
 	public List<Passo> listarPassosServico(String IDServico) {
 		if(permissao==1){
-			return ((ServicoPadrao)servicosFacade.getServico(IDServico).getPassos());
+			return ((ServicoPadrao)servicosFacade.getServico(IDServico)).getPassos();
 		}
 		return null;
 	}
 
 	@Override
 	public boolean addPassoServico(String ID, Passo passo, int index) {
+		if (permissao==1){
+			return servicosFacade.addPasso(ID,passo,index);
+		}
 		return false;
 	}
 
 	@Override
 	public boolean interromperServico(String IDServico) {
+		if (permissao==1){
+			return servicosFacade.interrompeServico(IDServico);
+		}
 		return false;
 	}
 
 	@Override
 	public boolean concluiServico(String IDServico) {
+		if (permissao==1){
+			Servico s;
+			if((s= servicosFacade.getServico(IDServico))!=null){
+				servicosFacade.concluiServico(IDServico);            //nao lidamos com o falso aqui
+				if(s instanceof ServicoPadrao)
+					funcionarioFacade.incNrRepProgConcluidas(idUtilizador
+							,((ServicoPadrao) s).duracaoPassos(),((ServicoPadrao) s).duracaoPassosPrevistos());
+				else funcionarioFacade.incNrRepExpConcluidas(idUtilizador);  //assumindo que não criamos novos servicos
+				return true;
+			}
+		}
 		return false;
 	}
 
 	@Override
 	public Passo retomarServico(String IDServico) {
+		if (permissao==1){
+			Servico s = servicosFacade.getServico(IDServico);
+			if(s instanceof ServicoPadrao && funcionarioFacade.listarServicosTecnico(idUtilizador).contains(IDServico)){
+				servicosFacade.retomaServico(IDServico);          //nao fazemos verificacao caso de falso
+				return ((ServicoPadrao) s).getPassoAtual();
+			}
+		}
 		return null;
 	}
 
 	@Override
-	public void estatisticas() {
-
+	public void estatisticas() { //todo não sei o que faz (retorna void?)
 	}
 
 	@Override
-	public boolean entregaEquipamento(String idEquip) {
+	public boolean entregaEquipamento(String idEquip) { //todo Alex, temos um entregarEquipamento sendo que este metodo é repetido
 		return false;
 	}
 
 	@Override
 	public boolean adicionaTecnico(String id, String password) {
+		if(permissao==2){
+			return funcionarioFacade.addTecnico(id,password);
+		}
 		return false;
 	}
 
 	@Override
 	public boolean adicionaFuncBalcao(String id, String password) {
+		if(permissao==2){
+			return funcionarioFacade.addFuncBalcao(id,password);
+		}
 		return false;
 	}
 
 	@Override
 	public List<FuncionarioBalcao> listarFuncionariosBalcao() {
+		if(permissao==2){
+			return funcionarioFacade.listarFuncionariosBalcao();
+		}
 		return null;
 	}
 
 	@Override
 	public List<Tecnico> listarTecnicos() {
+		if(permissao==2){
+			return funcionarioFacade.listarTecnicos();
+		}
 		return null;
 	}
 
 	@Override
 	public Map<String, TreeSet<Servico>> listaIntervencoes() {
+		if(permissao==2) {
+			return servicosFacade.getServicos().stream().collect(Collectors.
+					groupingBy(Servico::getIdTecnico, Collectors.toCollection(TreeSet::new))); //Ordem natural imposta pelo comparable do servico
+		}
 		return null;
 	}
 
 	@Override
-	public boolean criarServicoExpresso(ServicoExpresso novo, String NIF) {
+	public boolean criarServicoExpresso(Float custo, String NIF) {
+		if(permissao==0) {
+			funcionarioFacade.incNrRececoes(idUtilizador);
+			return servicosFacade.addServicoExpresso(clientesFacade.getIdProxEquip(),custo); //todo addServicoExpresso vai precisar de mais argumentos
+		}
 		return false;
 	}
 }

@@ -2,7 +2,7 @@ package SGCRDataLayer.Servicos;
 
 import java.time.LocalDateTime;
 
-public abstract class Servico {
+public abstract class Servico implements Comparable{
 
 	private EstadoServico estado;
 	private String id;
@@ -48,4 +48,8 @@ public abstract class Servico {
 	public void setDataConclusao(LocalDateTime dataConclusao) { this.dataConclusao = dataConclusao; }
 
 	public void setAbandonado(Boolean abandonado) { this.abandonado = abandonado; }
+
+	public Servico clone(){ //todo dar overwritte nas subclasses
+		return this; //todo Acabar isto
+	}
 }
