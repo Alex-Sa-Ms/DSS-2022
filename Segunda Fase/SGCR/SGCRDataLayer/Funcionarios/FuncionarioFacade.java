@@ -33,10 +33,10 @@ public class FuncionarioFacade {
 	 * @param id
 	 */
 	public Funcionario getFuncionario(String id) {
-		Tecnico a = new Tecnico();
-		FuncionarioBalcao b = new FuncionarioBalcao();
-		if(funcionarios.get(id).getClass().equals(a.getClass())) return ((Tecnico) funcionarios.get(id)).clone();
-		if(funcionarios.get(id).getClass().equals(b.getClass())) return ((FuncionarioBalcao) funcionarios.get(id)).clone();
+
+		if(funcionarios.get(id) instanceof Tecnico) return ((Tecnico) funcionarios.get(id)).clone();
+		if(funcionarios.get(id) instanceof FuncionarioBalcao) return ((FuncionarioBalcao) funcionarios.get(id)).clone();
+
 		return ((Gestor) funcionarios.get(id)).clone();
 	}
 
@@ -51,16 +51,13 @@ public class FuncionarioFacade {
 	// 2 gestor
 	public int verificaCredenciais(String id, String password) {
 		if(funcionarios.containsKey(id)) {
-			FuncionarioBalcao a = new FuncionarioBalcao();
-			Tecnico b = new Tecnico();
-			Gestor c = new Gestor();
+
 			if(funcionarios.get(id).getPassword().equals(password)) {
-				if (funcionarios.get(id).getClass().equals(a.getClass())) return 0;
-				if (funcionarios.get(id).getClass().equals(b.getClass())) return 1;
-				if (funcionarios.get(id).getClass().equals(c.getClass())) return 2;
+				if (funcionarios.get(id) instanceof FuncionarioBalcao) return 0;
+				if (funcionarios.get(id) instanceof Tecnico) return 1;
+				if (funcionarios.get(id) instanceof Gestor) return 2;
 			}
 		}
-
 		return (-1);
 	}
 
@@ -114,19 +111,19 @@ public class FuncionarioFacade {
 	}
 
 	public List<Tecnico> listarTecnicos() {
-		List<Tecnico> tecs = new ArrayList<Tecnico>();
-		Tecnico a = new Tecnico();
+		List<Tecnico> tecs = new ArrayList<>();
+
 		for(Map.Entry<String, Funcionario> entry: funcionarios.entrySet()){
-			if(entry.getValue().getClass().equals(a.getClass())) tecs.add(((Tecnico) entry.getValue()).clone());
+			if(entry.getValue() instanceof Tecnico) tecs.add(((Tecnico) entry.getValue()).clone());
 		}
 		return tecs;
 	}
 
 	public List<FuncionarioBalcao> listarFuncionariosBalcao() {
-		List<FuncionarioBalcao> fb = new ArrayList<FuncionarioBalcao>();
-		FuncionarioBalcao a = new FuncionarioBalcao();
+		List<FuncionarioBalcao> fb = new ArrayList<>();
+
 		for(Map.Entry<String, Funcionario> entry: funcionarios.entrySet()){
-			if(entry.getValue().getClass().equals(a.getClass())) fb.add(((FuncionarioBalcao) entry.getValue()).clone());
+			if(entry.getValue() instanceof FuncionarioBalcao) fb.add(((FuncionarioBalcao) entry.getValue()).clone());
 		}
 		return fb;
 	}

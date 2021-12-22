@@ -10,9 +10,6 @@ public class Tecnico extends Funcionario {
 	private float duracaoMediaPrevistaRepProg;
 
 
-	public Tecnico() {
-	}
-
 	public Tecnico(String id, String password) {
 		setId(id);
 		setPassword(password);

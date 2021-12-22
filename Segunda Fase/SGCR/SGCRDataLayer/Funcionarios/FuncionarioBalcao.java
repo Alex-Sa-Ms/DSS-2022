@@ -4,9 +4,7 @@ public class FuncionarioBalcao extends Funcionario {
 
 	private int nRececoes;
 	private int nEntregas;
-
-	public FuncionarioBalcao() {
-	}
+	
 
 	public FuncionarioBalcao(String id, String password) {
 		setId(id);
