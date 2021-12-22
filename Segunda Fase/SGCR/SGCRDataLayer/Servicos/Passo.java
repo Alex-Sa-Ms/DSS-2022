@@ -2,28 +2,39 @@ package SGCRDataLayer.Servicos;
 
 public class Passo {
 
-	private float custo;
+	private float custoPecas;
 	private String descricao;
-	private int tempo;
+	private float tempo;
 
-	public Passo(float custo, String descricao, int tempo) {
-		if(custo < 0 || tempo < 0 || descricao == null) throw new IllegalArgumentException();
-		this.custo 	   = custo;
-		this.descricao = descricao;
-		this.tempo 	   = tempo;
+	/** Construtor para os passos de orçamento. Não se espera que sejam modificados **/
+	public Passo(float custoPecas, String descricao, float tempo) {
+		if(custoPecas < 0 || tempo < 0 || descricao == null) throw new IllegalArgumentException();
+		this.custoPecas = custoPecas;
+		this.descricao  = descricao;
+		this.tempo 	    = tempo;
 	}
 
-	public Passo clone(){ return new Passo(custo, descricao, tempo); }
+	/** Construtor para os passos do servico. Valores podem vir a ser alterados **/
+	public Passo(float custoPecas, String descricao) {
+		if(custoPecas < 0 || descricao == null) throw new IllegalArgumentException();
+		this.custoPecas = custoPecas;
+		this.descricao  = descricao;
+		this.tempo 	    = 0;
+	}
 
-	public float getCusto() { return custo; }
+	public Passo clone(){ return new Passo(custoPecas, descricao, tempo); }
 
-	public void setCusto(float custo) { this.custo = custo; }
+	public float getCustoPecas() { return custoPecas; }
+
+	public void setCustoPecas(float custoPecas) { this.custoPecas = custoPecas; }
 
 	public String getDescricao() { return descricao; }
 
 	public void setDescricao(String descricao) { this.descricao = descricao; }
 
-	public int getTempo() { return tempo; }
+	public float getTempo() { return tempo; }
 
-	public void setTempo(int tempo) { this.tempo = tempo; }
+	public void setTempo(float tempo) { this.tempo = tempo; }
+
+	public void addTempo(float tempo) { this.tempo += tempo; }
 }

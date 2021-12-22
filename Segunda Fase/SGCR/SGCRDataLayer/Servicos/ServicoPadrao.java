@@ -3,6 +3,7 @@ package SGCRDataLayer.Servicos;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import SGCRLogicLayer.Horas;
 
 public class ServicoPadrao extends Servico {
 
@@ -10,10 +11,9 @@ public class ServicoPadrao extends Servico {
 	private Orcamento orcamento;
 	private float custoAtual;
 	private int passoAtualOrcamento;
-	//TODO - adicionar tempoPassoAtual aqui e no diagrama de classes, e alterar todos os metodos necessarios (neste momento nao estao a contabilizar os preços por tempo)
-	//TODO - passo tem de ter custoPecas isolado
+	private long inicioPassoAtual;
 
-	//Construtores
+	// ****** Construtores ******
 
 	private void AuxiliarConstrutor(String id, String idCliente, List<Passo> passosOrcamento, String descricaoOrcamento){
 		setId(id);
@@ -41,8 +41,7 @@ public class ServicoPadrao extends Servico {
 		setDataConclusao(LocalDateTime.now());
 	}
 
-
-	//Clone
+	// ****** Clone ******
 
 	private ServicoPadrao(ServicoPadrao sp) {
 		setEstado(sp.getEstado());
@@ -53,7 +52,7 @@ public class ServicoPadrao extends Servico {
 		setDataConclusao(sp.getDataConclusao());
 		this.passos              = sp.getPassos();
 		this.orcamento           = sp.getOrcamento();
-		this.custoAtual          = sp.getCustoAtual();
+		this.custoAtual          = sp.getCusto();
 		this.passoAtualOrcamento = sp.getPassoAtualOrcamento();
 	}
 
@@ -63,7 +62,7 @@ public class ServicoPadrao extends Servico {
 	}
 
 
-	//getters e setters
+	// ****** getters e setters ******
 
 	//TODO: Luis acho q n é esta Lista de passos q tu queres!! Mas sim a do orçamento
 	//return orcamento.listarPassosOrcamento();
@@ -71,9 +70,17 @@ public class ServicoPadrao extends Servico {
 
 	public Orcamento getOrcamento() { return orcamento.clone(); }
 
-	private float getCustoAtual() { return custoAtual; }
+	/**
+	 * @return float que indica o custo do serviço até ao momento
+	 */
+	private float getCusto() { return custoAtual; }
 
 	private int getPassoAtualOrcamento() { return passoAtualOrcamento; }
+
+	private Passo getUltimoPassoLista(){
+		if(passos.size() > 0) return passos.get(passos.size() - 1);
+		return null;
+	}
 
 	/**
 	 * 
@@ -85,9 +92,21 @@ public class ServicoPadrao extends Servico {
 		passos.add(new Passo(custo, descricao, tempo));
 	}
 
+	/**
+	 * @return Próximo 'Passo' a ser executado, ou 'null' caso não exista.
+	 */
 	public Passo proxPasso() {
+		//Guarda o tempo utilizado para executar o passo atual, e atualiza a variavel custoAtual, antes de saltar para o próximo passo
+		Passo passo = getUltimoPassoLista();
+		if(passo != null) {
+			passo.addTempo(Horas.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
+			custoAtual += passo.getCustoPecas() + passo.getTempo() * orcamento.getPrecoHora();
+		}
+
 		passoAtualOrcamento++;
-		Passo novoPasso = orcamento.getPasso(passoAtualOrcamento);
+		inicioPassoAtual = System.currentTimeMillis();
+		Passo novoPasso  = orcamento.getPasso(passoAtualOrcamento);
+
 		if(novoPasso != null) {
 			passos.add(novoPasso);
 			return passos.get(passos.size() - 1).clone();
@@ -95,25 +114,25 @@ public class ServicoPadrao extends Servico {
 		return null;
 	}
 
+	/**
+	 * Usado para retomar um servico
+	 * @return
+	 */
 	public Passo getPassoAtual() {
 		if(passos.size() > 0)
 			return passos.get(passos.size() - 1).clone();
 		return null;
 	}
 
+	/**
+	 * @return 'false' se o custo atual atingir 120% do valor do orçamento, ou 'true' caso contrário
+	 */
 	public boolean verificaCusto() {
-		// TODO - implement ServicoPadrao.verificaCusto
-		throw new UnsupportedOperationException();
+		if(custoAtual > orcamento.getPrecoPrevisto() * 1.2) return false;
+		return true;
 	}
 
-	public float getCusto() {
-		// TODO - implement ServicoPadrao.getCusto
-		throw new UnsupportedOperationException();
-	}
-
-
-
-	// Mudar Estado
+	// ****** Mudar Estado ******
 
 	@Override
 	public boolean mudaEstado(EstadoServico estado) {
@@ -143,6 +162,11 @@ public class ServicoPadrao extends Servico {
 
 	private boolean interromperOuConcluirOuIrreparavel(EstadoServico estado){
 		if(estado == EstadoServico.Irreparavel || estado == EstadoServico.Concluido || estado == EstadoServico.Interrompido){
+
+			//Guarda o tempo utilizado para executar o passo atual
+			if(passos.size() > 0)
+				passos.get(passos.size() - 1).addTempo(Horas.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
+
 			setEstado(estado);
 			return true;
 		}
@@ -151,22 +175,34 @@ public class ServicoPadrao extends Servico {
 
 	private boolean retomarServico(EstadoServico estado){
 		if(estado == EstadoServico.EmExecucao){
+
+			//Volta a contar o tempo
+			inicioPassoAtual = System.currentTimeMillis();
+
 			setEstado(estado);
 			return true;
 		}
 		return false;
 	}
 
-	public float duracaoPassos(){ //todo adicionar ao diagrama de classes
-		return 0;  //todo
+	/**
+	 * @return float indicando o tempo gasto, para realizar os passos, até ao passo atual.
+	 */
+	public float duracaoPassos(){
+		float tempo = 0;
+		for(Passo p : passos) tempo += p.getTempo();
+		return tempo;
 	}
 
-	public float duracaoPassosPrevistos(){//todo adicionar ao diagrama de classes
-		return 0; //todo
+	/**
+	 * @return float indicando o tempo previsto, para realizar todos passos.
+	 */
+	public float duracaoPassosPrevistos(){
+		return orcamento.getTempoPrevisto();
 	}
 
 
-	// Auxiliares
+	// ****** uxiliares ******
 
 	@Override
 	public int compareTo(Object o) {
