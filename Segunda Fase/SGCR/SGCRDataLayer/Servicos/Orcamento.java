@@ -7,26 +7,22 @@ import java.util.stream.Collectors;
 public class Orcamento {
 
 	private final List<Passo> passos;
-	private final float precoPrevisto;
-	private final int tempoPrevisto;
+	private float precoPrevisto;
+	private int tempoPrevisto;
 	private final String descricao;
 
 	public Orcamento(List<Passo> passos, String descricao) {
 		if(descricao == null) throw new IllegalArgumentException();
 		this.passos        = passos == null ? new ArrayList<>() : passos.stream().map(Passo::clone).collect(Collectors.toList());
-		this.precoPrevisto = calculaPrecoPrevisto();
-		this.tempoPrevisto = calculaTempoPrevisto();
 		this.descricao     = descricao;
+		calculaValoresPrevisto();
 	}
 
-	private int calculaTempoPrevisto() {
-		//TODO
-		return 0;
-	}
-
-	private float calculaPrecoPrevisto() {
-		//TODO
-		return 0;
+	private void calculaValoresPrevisto(){
+		for(Passo p : passos){
+			precoPrevisto += p.getCusto();
+			tempoPrevisto += p.getTempo();
+		}
 	}
 
 	public List<Passo> listarPassosOrcamento() {
@@ -39,7 +35,5 @@ public class Orcamento {
 
 	public String getDescricao() { return descricao; }
 
-	public Orcamento clone(){
-		return new Orcamento(this.passos, this.descricao);
-	}
+	public Orcamento clone(){ return new Orcamento(this.passos, this.descricao); }
 }

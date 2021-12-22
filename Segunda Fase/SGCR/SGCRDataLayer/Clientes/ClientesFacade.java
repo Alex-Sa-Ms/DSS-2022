@@ -7,6 +7,22 @@ public class ClientesFacade {
 	Map<String,FichaCliente> clientes;
 	private int idProxEquipamento;
 
+	public Map<String, FichaCliente> getClientes() {
+		return clientes;
+	}
+
+	public void setClientes(Map<String, FichaCliente> clientes) {
+		this.clientes = clientes;
+	}
+
+	public int getIdProxEquipamento() {
+		return idProxEquipamento;
+	}
+
+	public void setIdProxEquipamento(int idProxEquipamento) {
+		this.idProxEquipamento = idProxEquipamento;
+	}
+
 	/**
 	 * 
 	 * @param Nome

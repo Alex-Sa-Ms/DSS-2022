@@ -6,6 +6,14 @@ public class PedidosFacade {
 
 	Deque<PedidoOrcamento> filaPedidos;
 
+	public Deque<PedidoOrcamento> getFilaPedidos() {
+		return filaPedidos;
+	}
+
+	public void setFilaPedidos(Deque<PedidoOrcamento> filaPedidos) {
+		this.filaPedidos = filaPedidos;
+	}
+
 	/**
 	 * 
 	 * @param descricao

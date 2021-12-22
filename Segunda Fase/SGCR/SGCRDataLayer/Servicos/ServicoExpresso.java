@@ -8,4 +8,9 @@ public class ServicoExpresso extends Servico {
 		return this.custo;
 	}
 
+	@Override
+	public boolean mudaEstado(EstadoServico estado) {
+		//TODO
+		return false;
+	}
 }

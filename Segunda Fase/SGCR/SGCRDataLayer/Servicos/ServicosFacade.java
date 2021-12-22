@@ -8,7 +8,7 @@ import java.util.TreeSet;
 public class ServicosFacade {
 
 	Map<EstadoServico,Map<String,Servico>> estados;
-	Servico arquivados;
+	List<Servico> arquivados;
 	private Deque<String> filaServicos;
 
 	/**
@@ -97,6 +97,16 @@ public class ServicosFacade {
 	}
 
 	public List<Servico> listaPedidosPendentes(){
+		//TODO
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean addServicoPadraoIrreparavel(String idEquip, String descricao){
+		//TODO
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean getProxServico(String idTecnico){
 		//TODO
 		throw new UnsupportedOperationException();
 	}
