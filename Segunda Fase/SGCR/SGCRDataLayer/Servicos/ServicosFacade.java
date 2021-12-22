@@ -106,4 +106,9 @@ public class ServicosFacade {
 		throw new UnsupportedOperationException();
 	}
 
+	public boolean getProxServico(String idTecnico){
+		//TODO
+		throw new UnsupportedOperationException();
+	}
+
 }

@@ -18,15 +18,7 @@ public abstract class Servico {
 	 * 
 	 * @param estado
 	 */
-	public boolean mudaEstado(EstadoServico estado) {
-		// TODO - implement Servico.mudaEstado
-		throw new UnsupportedOperationException();
-	}
-
-	private boolean aceitarOuRejeitarOrcamento(){
-		//TODO
-		return false;
-	}
+	public abstract boolean mudaEstado(EstadoServico estado);
 
 	//Getters
 
