@@ -15,13 +15,11 @@ public interface iSGCR {
 	 * @param ID
 	 * @param Password
 	 */
-	boolean login(java.lang.String ID, java.lang.String Password);
+	int login(java.lang.String ID, java.lang.String Password);
 
 	boolean logOut();
 
 	void encerraAplicacao();
-
-	List<PedidoOrcamento> listarPedidos();
 
 	List<Servico> listarServicosPendentes();
 

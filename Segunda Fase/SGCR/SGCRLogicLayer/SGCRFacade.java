@@ -5,9 +5,7 @@ import SGCRDataLayer.Funcionarios.*;
 import SGCRDataLayer.PedidosDeOrcamento.*;
 import SGCRDataLayer.Servicos.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 
 public class SGCRFacade implements iSGCR {
 	private ClientesFacade clientesFacade;
@@ -18,37 +16,39 @@ public class SGCRFacade implements iSGCR {
 	private String idUtilizador;
 
 	@Override
-	public boolean login(String ID, String Password) {
-		if(funcionarioFacade.verificaCredenciais(ID,Password)!=-1){
+	public int login(String ID, String Password) {
+		if((permissao=funcionarioFacade.verificaCredenciais(ID,Password))!=-1){
 			idUtilizador=ID;
-			return true;
 		}
-		return false;
+		return permissao;
 	}
 
 	@Override
 	public boolean logOut() {
-		return false;
+		if (permissao!=-1 && idUtilizador!=null){
+			permissao=-1;
+			idUtilizador=null;
+			return true;
+		}else return false;
 	}
 
 	@Override
-	public void encerraAplicacao() {
-
+	public void encerraAplicacao() { //Serialize
+		logOut();
 	}
 
 	@Override
-	public List<PedidoOrcamento> listarPedidos() {
-		return null;
-	}
-
-	@Override
-	public List<Servico> listarServicosPendentes() {
-		return null;
+	public List<Servico> listarServicosPendentes() {  //Skipped
+		return new ArrayList<>();
 	}
 
 
 	@Override
 	public boolean criarNovoPedido(String descricao, String nifCliente) {
+		if(clientesFacade.getFichaCliente(nifCliente)!=null){
+			pedidosFacade.addPedido(descricao, clientesFacade.getIdProxEquip() ,nifCliente);
+			return true;
+		}
 		return false;
 	}
 

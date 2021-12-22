@@ -1,31 +1,39 @@
 package SGCRDataLayer.Servicos;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Orcamento {
 
-	List<Passo> passos;
+	private final List<Passo> passos;
 	private float precoPrevisto;
 	private int tempoPrevisto;
-	private String descricao;
+	private final String descricao;
 
-	public boolean addPassosOrcamento() {
-		// TODO - implement Orcamento.addPassosOrçamento
-		throw new UnsupportedOperationException();
+	public Orcamento(List<Passo> passos, String descricao) {
+		if(descricao == null) throw new IllegalArgumentException();
+		this.passos        = passos == null ? new ArrayList<>() : passos.stream().map(Passo::clone).collect(Collectors.toList());
+		this.descricao     = descricao;
+		calculaValoresPrevisto();
+	}
+
+	private void calculaValoresPrevisto(){
+		for(Passo p : passos){
+			precoPrevisto += p.getCusto();
+			tempoPrevisto += p.getTempo();
+		}
 	}
 
 	public List<Passo> listarPassosOrcamento() {
-		// TODO - implement Orcamento.listarPassosOrcamento
-		throw new UnsupportedOperationException();
+		return passos.stream().map(Passo::clone).collect(Collectors.toList());
 	}
 
-	/**
-	 * 
-	 * @param indice
-	 */
-	public void removerPassoOrcamento(int indice) {
-		// TODO - implement Orcamento.removerPassoOrçamento
-		throw new UnsupportedOperationException();
-	}
+	public float getPrecoPrevisto() { return precoPrevisto; }
 
+	public int getTempoPrevisto() { return tempoPrevisto; }
+
+	public String getDescricao() { return descricao; }
+
+	public Orcamento clone(){ return new Orcamento(this.passos, this.descricao); }
 }
