@@ -19,6 +19,46 @@ public class Tecnico extends Funcionario {
 		throw new UnsupportedOperationException();
 	}
 
+	public HashSet<String> getServicos() {
+		return servicos;
+	}
+
+	public void setServicos(HashSet<String> servicos) {
+		this.servicos = servicos;
+	}
+
+	public int getnRepProgramadasConcluidas() {
+		return nRepProgramadasConcluidas;
+	}
+
+	public void setnRepProgramadasConcluidas(int nRepProgramadasConcluidas) {
+		this.nRepProgramadasConcluidas = nRepProgramadasConcluidas;
+	}
+
+	public int getnRepExpressoConcluidas() {
+		return nRepExpressoConcluidas;
+	}
+
+	public void setnRepExpressoConcluidas(int nRepExpressoConcluidas) {
+		this.nRepExpressoConcluidas = nRepExpressoConcluidas;
+	}
+
+	public float getDuracaoMediaRepProg() {
+		return duracaoMediaRepProg;
+	}
+
+	public void setDuracaoMediaRepProg(float duracaoMediaRepProg) {
+		this.duracaoMediaRepProg = duracaoMediaRepProg;
+	}
+
+	public float getDuracaoMediaPrevistaRepProg() {
+		return duracaoMediaPrevistaRepProg;
+	}
+
+	public void setDuracaoMediaPrevistaRepProg(float duracaoMediaPrevistaRepProg) {
+		this.duracaoMediaPrevistaRepProg = duracaoMediaPrevistaRepProg;
+	}
+
 	/**
 	 * 
 	 * @param duracao
