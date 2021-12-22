@@ -3,27 +3,58 @@ package SGCRDataLayer.Funcionarios;
 import java.util.HashSet;
 
 public class Tecnico extends Funcionario {
-
 	private HashSet<String> servicos;
 	private int nRepProgramadasConcluidas;
 	private int nRepExpressoConcluidas;
 	private float duracaoMediaRepProg;
 	private float duracaoMediaPrevistaRepProg;
 
+
+	public Tecnico() {
+	}
+
+	public Tecnico(String id, String password) {
+		setId(id);
+		setPassword(password);
+		servicos = new HashSet<>();
+		nRepExpressoConcluidas = 0;
+		nRepProgramadasConcluidas = 0;
+		duracaoMediaPrevistaRepProg = 0;
+		duracaoMediaRepProg = 0;
+	}
+
+	public Tecnico(
+			String id,
+			String password,
+			HashSet<String> servicos,
+			int nRepProgramadasConcluidas,
+			int nRepExpressoConcluidas,
+			float duracaoMediaRepProg,
+			float duracaoMediaPrevistaRepProg) {
+		setId(id);
+		setPassword(password);
+		this.servicos = servicos;
+		this.nRepProgramadasConcluidas = nRepProgramadasConcluidas;
+		this.nRepExpressoConcluidas = nRepExpressoConcluidas;
+		this.duracaoMediaRepProg = duracaoMediaRepProg;
+		this.duracaoMediaPrevistaRepProg = duracaoMediaPrevistaRepProg;
+	}
+
+
 	/**
 	 * 
 	 * @param id
 	 */
 	public boolean addServico(String id) {
-		// TODO - implement Tecnico.addServico
-		throw new UnsupportedOperationException();
+		return servicos.add(id);
 	}
+
 
 	public HashSet<String> getServicos() {
 		return servicos;
 	}
 
-	public void setServicos(HashSet<String> servicos) {
+	protected void setServicos(HashSet<String> servicos) {
 		this.servicos = servicos;
 	}
 
@@ -31,7 +62,7 @@ public class Tecnico extends Funcionario {
 		return nRepProgramadasConcluidas;
 	}
 
-	public void setnRepProgramadasConcluidas(int nRepProgramadasConcluidas) {
+	protected void setnRepProgramadasConcluidas(int nRepProgramadasConcluidas) {
 		this.nRepProgramadasConcluidas = nRepProgramadasConcluidas;
 	}
 
@@ -39,7 +70,7 @@ public class Tecnico extends Funcionario {
 		return nRepExpressoConcluidas;
 	}
 
-	public void setnRepExpressoConcluidas(int nRepExpressoConcluidas) {
+	protected void setnRepExpressoConcluidas(int nRepExpressoConcluidas) {
 		this.nRepExpressoConcluidas = nRepExpressoConcluidas;
 	}
 
@@ -47,7 +78,7 @@ public class Tecnico extends Funcionario {
 		return duracaoMediaRepProg;
 	}
 
-	public void setDuracaoMediaRepProg(float duracaoMediaRepProg) {
+	protected void setDuracaoMediaRepProg(float duracaoMediaRepProg) {
 		this.duracaoMediaRepProg = duracaoMediaRepProg;
 	}
 
@@ -55,7 +86,7 @@ public class Tecnico extends Funcionario {
 		return duracaoMediaPrevistaRepProg;
 	}
 
-	public void setDuracaoMediaPrevistaRepProg(float duracaoMediaPrevistaRepProg) {
+	protected void setDuracaoMediaPrevistaRepProg(float duracaoMediaPrevistaRepProg) {
 		this.duracaoMediaPrevistaRepProg = duracaoMediaPrevistaRepProg;
 	}
 
@@ -65,13 +96,24 @@ public class Tecnico extends Funcionario {
 	 * @param duracaoPrevista
 	 */
 	public void incNrRepProgConcluidas(float duracao, float duracaoPrevista) {
-		// TODO - implement Tecnico.incNrRepProgConcluidas
-		throw new UnsupportedOperationException();
+		duracaoMediaRepProg         += duracao;
+		duracaoMediaPrevistaRepProg += duracaoPrevista;
+		nRepProgramadasConcluidas++;
 	}
 
 	public void incNrRepExpConcluidas() {
-		// TODO - implement Tecnico.incNrRepExpConcluidas
-		throw new UnsupportedOperationException();
+		nRepExpressoConcluidas++;
+	}
+
+	public Tecnico clone(){
+		return new Tecnico(
+				this.getId(),
+				this.getPassword(),
+				this.getServicos(),
+				this.getnRepProgramadasConcluidas(),
+				this.getnRepExpressoConcluidas(),
+				this.getDuracaoMediaRepProg(),
+				this.getDuracaoMediaPrevistaRepProg());
 	}
 
 }

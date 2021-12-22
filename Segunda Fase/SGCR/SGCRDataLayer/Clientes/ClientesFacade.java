@@ -47,8 +47,9 @@ public class ClientesFacade {
 	 * @param NIF
 	 */
 	public boolean addEquipCliente(String idEquip, String NIF) {
-
-		return clientes.get(NIF).addEquip(idEquip);
+		if(!clientes.containsKey(NIF)) return false;
+		clientes.get(NIF).addEquip(idEquip);
+		return true;
 	}
 
 	public String getIdProxEquip() {

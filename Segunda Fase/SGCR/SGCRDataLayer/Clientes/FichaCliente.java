@@ -66,9 +66,9 @@ public class FichaCliente {
 	 * 
 	 * @param idEquip
 	 */
-	public boolean addEquip(String idEquip) {
+	public void addEquip(String idEquip) {
 
-		return equipamentos.add(idEquip);
+		equipamentos.add(idEquip);
 	}
 
 	public FichaCliente clone(){

@@ -1,5 +1,6 @@
 package SGCRDataLayer.Funcionarios;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -13,8 +14,8 @@ public class FuncionarioFacade {
 	 * @param password
 	 */
 	public boolean addTecnico(String id, String password) {
-		// TODO - implement FuncionarioFacade.addTecnico
-		throw new UnsupportedOperationException();
+		funcionarios.put(id, new Tecnico(id,password));
+		return funcionarios.containsKey(id);
 	}
 
 	/**
@@ -23,8 +24,8 @@ public class FuncionarioFacade {
 	 * @param password
 	 */
 	public boolean addFuncBalcao(String id, String password) {
-		// TODO - implement FuncionarioFacade.addFuncBalcao
-		throw new UnsupportedOperationException();
+		funcionarios.put(id, new FuncionarioBalcao(id,password));
+		return funcionarios.containsKey(id);
 	}
 
 	/**
@@ -32,8 +33,11 @@ public class FuncionarioFacade {
 	 * @param id
 	 */
 	public Funcionario getFuncionario(String id) {
-		// TODO - implement FuncionarioFacade.getFuncionario
-		throw new UnsupportedOperationException();
+		Tecnico a = new Tecnico();
+		FuncionarioBalcao b = new FuncionarioBalcao();
+		if(funcionarios.get(id).getClass().equals(a.getClass())) return ((Tecnico) funcionarios.get(id)).clone();
+		if(funcionarios.get(id).getClass().equals(b.getClass())) return ((FuncionarioBalcao) funcionarios.get(id)).clone();
+		return ((Gestor) funcionarios.get(id)).clone();
 	}
 
 	/**
@@ -46,8 +50,18 @@ public class FuncionarioFacade {
 	// 1 tecnico
 	// 2 gestor
 	public int verificaCredenciais(String id, String password) {
-		// TODO - implement FuncionarioFacade.verificaCredenciais
-		throw new UnsupportedOperationException();
+		if(funcionarios.containsKey(id)) {
+			FuncionarioBalcao a = new FuncionarioBalcao();
+			Tecnico b = new Tecnico();
+			Gestor c = new Gestor();
+			if(funcionarios.get(id).getPassword().equals(password)) {
+				if (funcionarios.get(id).getClass().equals(a.getClass())) return 0;
+				if (funcionarios.get(id).getClass().equals(b.getClass())) return 1;
+				if (funcionarios.get(id).getClass().equals(c.getClass())) return 2;
+			}
+		}
+
+		return (-1);
 	}
 
 	/**
@@ -55,8 +69,9 @@ public class FuncionarioFacade {
 	 * @param idFuncBalcao
 	 */
 	public boolean incNrRececoes(String idFuncBalcao) {
-		// TODO - implement FuncionarioFacade.incNrRececoes
-		throw new UnsupportedOperationException();
+		if(!funcionarios.containsKey(idFuncBalcao)) return false;
+		((FuncionarioBalcao) funcionarios.get(idFuncBalcao)).incNrRececoes();
+		return true;
 	}
 
 	/**
@@ -64,8 +79,9 @@ public class FuncionarioFacade {
 	 * @param idFuncBalcao
 	 */
 	public boolean incNrEntregas(String idFuncBalcao) {
-		// TODO - implement FuncionarioFacade.incNrEntregas
-		throw new UnsupportedOperationException();
+		if(!funcionarios.containsKey(idFuncBalcao)) return false;
+		((FuncionarioBalcao) funcionarios.get(idFuncBalcao)).incNrEntregas();
+		return true;
 	}
 
 	/**
@@ -74,8 +90,9 @@ public class FuncionarioFacade {
 	 * @param idServico
 	 */
 	public boolean addServicoTecnico(String idTecnico, String idServico) {
-		// TODO - implement FuncionarioFacade.addServicoTecnico
-		throw new UnsupportedOperationException();
+		if(!funcionarios.containsKey(idServico)) return false;
+		((Tecnico) funcionarios.get(idTecnico)).addServico(idServico);
+		return true;
 	}
 
 	/**
@@ -85,8 +102,7 @@ public class FuncionarioFacade {
 	 * @param duracaoPrevista
 	 */
 	public void incNrRepProgConcluidas(String idTecnico, float duracao, float duracaoPrevista) {
-		// TODO - implement FuncionarioFacade.incNrRepProgConcluidas
-		throw new UnsupportedOperationException();
+		((Tecnico) funcionarios.get(idTecnico)).incNrRepProgConcluidas(duracao,duracaoPrevista);
 	}
 
 	/**
@@ -94,26 +110,25 @@ public class FuncionarioFacade {
 	 * @param idTecnico
 	 */
 	public void incNrRepExpConcluidas(String idTecnico) {
-		// TODO - implement FuncionarioFacade.incNrRepExpConcluidas
-		throw new UnsupportedOperationException();
+		((Tecnico) funcionarios.get(idTecnico)).incNrRepExpConcluidas();
 	}
 
 	public List<Tecnico> listarTecnicos() {
-		// TODO - implement FuncionarioFacade.listarTecnicos
-		throw new UnsupportedOperationException();
+		List<Tecnico> tecs = new ArrayList<Tecnico>();
+		Tecnico a = new Tecnico();
+		for(Map.Entry<String, Funcionario> entry: funcionarios.entrySet()){
+			if(entry.getValue().getClass().equals(a.getClass())) tecs.add(((Tecnico) entry.getValue()).clone());
+		}
+		return tecs;
 	}
 
 	public List<FuncionarioBalcao> listarFuncionariosBalcao() {
-		// TODO - implement FuncionarioFacade.listarFuncionariosBalcao
-		throw new UnsupportedOperationException();
-	}
-
-	public Map<String, Funcionario> getFuncionarios() {
-		return funcionarios;
-	}
-
-	public void setFuncionarios(Map<String, Funcionario> funcionarios) {
-		this.funcionarios = funcionarios;
+		List<FuncionarioBalcao> fb = new ArrayList<FuncionarioBalcao>();
+		FuncionarioBalcao a = new FuncionarioBalcao();
+		for(Map.Entry<String, Funcionario> entry: funcionarios.entrySet()){
+			if(entry.getValue().getClass().equals(a.getClass())) fb.add(((FuncionarioBalcao) entry.getValue()).clone());
+		}
+		return fb;
 	}
 
 	/**
@@ -121,8 +136,8 @@ public class FuncionarioFacade {
 	 * @param idTecnico
 	 */
 	public List<String> listarServicosTecnico(String idTecnico) {
-		// TODO - implement FuncionarioFacade.listarServicosTecnico
-		throw new UnsupportedOperationException();
+		List<String> serv = new ArrayList<>();
+		((Tecnico) funcionarios.get(idTecnico)).getServicos().addAll(serv);
+		return serv;
 	}
-
 }

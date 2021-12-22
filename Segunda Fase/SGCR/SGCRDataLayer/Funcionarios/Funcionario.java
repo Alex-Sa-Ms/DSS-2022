@@ -1,5 +1,7 @@
 package SGCRDataLayer.Funcionarios;
 
+import java.util.HashSet;
+
 public abstract class Funcionario {
 
 	private String id;
@@ -9,7 +11,7 @@ public abstract class Funcionario {
 		return id;
 	}
 
-	public void setId(String id) {
+	protected void setId(String id) {
 		this.id = id;
 	}
 
@@ -17,7 +19,9 @@ public abstract class Funcionario {
 		return password;
 	}
 
-	public void setPassword(String password) {
+	protected void setPassword(String password) {
 		this.password = password;
 	}
+
+
 }

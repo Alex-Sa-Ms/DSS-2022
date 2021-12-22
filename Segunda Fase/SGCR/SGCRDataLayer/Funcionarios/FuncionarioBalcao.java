@@ -5,6 +5,23 @@ public class FuncionarioBalcao extends Funcionario {
 	private int nRececoes;
 	private int nEntregas;
 
+	public FuncionarioBalcao() {
+	}
+
+	public FuncionarioBalcao(String id, String password) {
+		setId(id);
+		setPassword(password);
+		this.nRececoes = 0;
+		this.nEntregas = 0;
+	}
+
+	public FuncionarioBalcao(String id, String password, int nRececoes, int nEntregas) {
+		setId(id);
+		setPassword(password);
+		this.nRececoes = nRececoes;
+		this.nEntregas = nEntregas;
+	}
+
 	public int getnRececoes() {
 		return nRececoes;
 	}
@@ -22,13 +39,14 @@ public class FuncionarioBalcao extends Funcionario {
 	}
 
 	public void incNrRececoes() {
-		// TODO - implement FuncionarioBalcao.incNrRececoes
-		throw new UnsupportedOperationException();
+		nRececoes++;
 	}
 
 	public void incNrEntregas() {
-		// TODO - implement FuncionarioBalcao.incNrEntregas
-		throw new UnsupportedOperationException();
+		nEntregas++;
 	}
 
+	public FuncionarioBalcao clone(){
+		return new FuncionarioBalcao(this.getId(),this.getPassword(),this.getnRececoes(), this.getnEntregas());
+	}
 }
