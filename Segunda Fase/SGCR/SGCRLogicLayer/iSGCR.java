@@ -142,4 +142,5 @@ public interface iSGCR {
 
 	List<Servico> listarServicosInterrompidos(String idTecnico);
 
+	boolean existeCliente(String idCliente);
 }

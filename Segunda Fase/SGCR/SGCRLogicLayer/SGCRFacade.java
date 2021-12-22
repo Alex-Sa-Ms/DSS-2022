@@ -257,6 +257,12 @@ public class SGCRFacade implements iSGCR {
 	}
 
 	@Override
+	//TODO
+	public boolean existeCliente(String idCliente) {
+		return false;
+	}
+
+	@Override
 	public boolean criarServicoExpresso(Float custo, String NIF) {
 		if(permissao==0) {
 			funcionarioFacade.incNrRececoes(idUtilizador);
