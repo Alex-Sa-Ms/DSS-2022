@@ -8,7 +8,7 @@ import java.util.TreeSet;
 public class ServicosFacade {
 
 	Map<EstadoServico,Map<String,Servico>> estados;
-	Servico arquivados;
+	List<Servico> arquivados;
 	private Deque<String> filaServicos;
 
 	/**
