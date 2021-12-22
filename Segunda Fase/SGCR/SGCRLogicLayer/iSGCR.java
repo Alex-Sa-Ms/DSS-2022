@@ -71,13 +71,13 @@ public interface iSGCR {
 	 * @param
 	 * @param passos
 	 */
-	boolean criaServicoPadrao(String idCliente, String idEquip, String descricao, List<Passo> passos);
+	boolean criaServicoPadrao(PedidoOrcamento p, List<Passo> passos);
 
 	/**
 	 * 
 	 * @param idCliente
 	 */
-	boolean rejeitaPedidoOrcamento(String idCliente, String idTecnico, String idEquip, String descricao);
+	boolean rejeitaPedidoOrcamento(PedidoOrcamento o);
 
 	Servico comecarServico();
 
@@ -140,7 +140,10 @@ public interface iSGCR {
 
 	Map<String, TreeSet<Servico>> listaIntervencoes();
 
-	List<Servico> listarServicosInterrompidos(String idTecnico);
+	List<Servico> listarServicosInterrompidos();
 
 	boolean existeCliente(String idCliente);
+
+	List<PedidoOrcamento>listarPedidos();
+
 }
