@@ -1,8 +1,11 @@
 package SGCRDataLayer.Servicos;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.Random;
 
-public abstract class Servico implements Comparable{
+public abstract class Servico implements Comparable<Servico>{
 
 	private EstadoServico estado;
 	private String id;
@@ -34,6 +37,7 @@ public abstract class Servico implements Comparable{
 
 	public Boolean getAbandonado() { return abandonado; }
 
+	public abstract float getCusto();
 
 	//Setters
 
@@ -50,4 +54,11 @@ public abstract class Servico implements Comparable{
 	protected void setAbandonado(Boolean abandonado) { this.abandonado = abandonado; }
 
 	public abstract Servico clone();
+
+	// ****** Auxiliares ******
+
+	@Override
+	public int compareTo(Servico s) {
+		return getDataConclusao().compareTo(s.getDataConclusao());
+	}
 }

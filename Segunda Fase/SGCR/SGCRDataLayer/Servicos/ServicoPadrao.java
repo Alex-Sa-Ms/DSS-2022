@@ -3,15 +3,16 @@ package SGCRDataLayer.Servicos;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import SGCRLogicLayer.Horas;
+import SGCRLogicLayer.Tempo;
 
 public class ServicoPadrao extends Servico {
 
 	private List<Passo> passos;
 	private Orcamento orcamento;
 	private float custoAtual;
-	private int passoAtualOrcamento;
-	private long inicioPassoAtual;
+	private int   passoAtual;
+	private int   passoAtualOrcamento;
+	private long  inicioPassoAtual;
 
 	// ****** Construtores ******
 
@@ -22,6 +23,8 @@ public class ServicoPadrao extends Servico {
 		passos 				= new ArrayList<>();
 		orcamento 			= new Orcamento(passosOrcamento, descricaoOrcamento);
 		custoAtual 			= 0;
+		inicioPassoAtual	= 0;
+		passoAtual          = 0;
 		passoAtualOrcamento = -1;
 	}
 
@@ -54,6 +57,8 @@ public class ServicoPadrao extends Servico {
 		this.orcamento           = sp.getOrcamento();
 		this.custoAtual          = sp.getCusto();
 		this.passoAtualOrcamento = sp.getPassoAtualOrcamento();
+		this.inicioPassoAtual    = sp.inicioPassoAtual;
+		this.passoAtual			 = sp.passoAtual;
 	}
 
 	@Override
@@ -73,7 +78,7 @@ public class ServicoPadrao extends Servico {
 	/**
 	 * @return float que indica o custo do serviço até ao momento
 	 */
-	private float getCusto() { return custoAtual; }
+	public float getCusto() { return custoAtual; }
 
 	private int getPassoAtualOrcamento() { return passoAtualOrcamento; }
 
@@ -84,12 +89,12 @@ public class ServicoPadrao extends Servico {
 
 	/**
 	 * 
-	 * @param custo
+	 * @param custoPecas
 	 * @param descricao
 	 * @param tempo
 	 */
-	public void addPasso(int custo, String descricao, int tempo) {
-		passos.add(new Passo(custo, descricao, tempo));
+	public void addPasso(float custoPecas, String descricao, float tempo) {
+		passos.add(new Passo(custoPecas, descricao, tempo));
 	}
 
 	/**
@@ -99,7 +104,7 @@ public class ServicoPadrao extends Servico {
 		//Guarda o tempo utilizado para executar o passo atual, e atualiza a variavel custoAtual, antes de saltar para o próximo passo
 		Passo passo = getUltimoPassoLista();
 		if(passo != null) {
-			passo.addTempo(Horas.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
+			passo.addTempo(Tempo.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
 			custoAtual += passo.getCustoPecas() + passo.getTempo() * orcamento.getPrecoHora();
 		}
 
@@ -165,7 +170,7 @@ public class ServicoPadrao extends Servico {
 
 			//Guarda o tempo utilizado para executar o passo atual
 			if(passos.size() > 0)
-				passos.get(passos.size() - 1).addTempo(Horas.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
+				passos.get(passos.size() - 1).addTempo(Tempo.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
 
 			setEstado(estado);
 			return true;
@@ -201,14 +206,4 @@ public class ServicoPadrao extends Servico {
 		return orcamento.getTempoPrevisto();
 	}
 
-
-	// ****** uxiliares ******
-
-	@Override
-	public int compareTo(Object o) {
-		if(o instanceof Servico){
-			return getDataConclusao().compareTo(((Servico) o).getDataConclusao());
-		}
-		return -1;
-	}
 }

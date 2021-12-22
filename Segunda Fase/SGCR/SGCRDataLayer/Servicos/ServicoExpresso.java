@@ -49,12 +49,4 @@ public class ServicoExpresso extends Servico {
 		if(getEstado() == EstadoServico.EsperandoReparacao && estado == EstadoServico.EmExecucao) return true;
 		else return getEstado() == EstadoServico.EmExecucao && estado == EstadoServico.Concluido;
 	}
-
-	@Override
-	public int compareTo(Object o) {
-		if(o instanceof Servico){
-			return getDataConclusao().compareTo(((Servico) o).getDataConclusao());
-		}
-		return -1;
-	}
 }

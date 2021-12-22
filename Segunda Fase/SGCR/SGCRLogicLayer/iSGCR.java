@@ -43,10 +43,11 @@ public interface iSGCR {
 	boolean pagamentoServico(java.lang.String idServico);
 
 	/**
-	 * 
-	 * @param idServico
-	 */
-	boolean entregarEquipamento(java.lang.String idServico);
+	 *
+     * @param idServico
+     * @return
+     */
+	float entregarEquipamento(String idServico);
 
 	/**
 	 * 
@@ -67,16 +68,16 @@ public interface iSGCR {
 
 	/**
 	 * 
-	 * @param pedido
+	 * @param
 	 * @param passos
 	 */
-	boolean criaServicoPadrao(PedidoOrcamento pedido, List<Passo> passos);
+	boolean criaServicoPadrao(String idCliente, String idEquip, String descricao, List<Passo> passos);
 
 	/**
 	 * 
-	 * @param pedido
+	 * @param idCliente
 	 */
-	boolean rejeitaPedidoOrcamento(PedidoOrcamento pedido);
+	boolean rejeitaPedidoOrcamento(String idCliente, String idTecnico, String idEquip, String descricao);
 
 	Servico comecarServico();
 
@@ -98,7 +99,7 @@ public interface iSGCR {
 	 * @param passo
 	 * @param index
 	 */
-	boolean addPassoServico(String ID, Passo passo, int index);
+	boolean addPassoServico(String ID, Passo passo);
 
 	/**
 	 * 

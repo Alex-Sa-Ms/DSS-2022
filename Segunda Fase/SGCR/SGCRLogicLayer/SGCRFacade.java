@@ -6,7 +6,6 @@ import SGCRDataLayer.PedidosDeOrcamento.*;
 import SGCRDataLayer.Servicos.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SGCRFacade implements iSGCR {
 	private ClientesFacade clientesFacade;
@@ -90,12 +89,13 @@ public class SGCRFacade implements iSGCR {
 	}
 
 	@Override
-	public boolean entregarEquipamento(String idServico) {
-		if(permissao==0){
-			funcionarioFacade.incNrEntregas(idUtilizador);
-			return servicosFacade.entregaEquipamento(idServico);
+	public float entregarEquipamento(String idServico) {
+		if(permissao == 0){
+			float ret = servicosFacade.entregaEquipamento(idServico);
+			if(ret != -1) funcionarioFacade.incNrEntregas(idUtilizador);
+			return Math.max(0,ret);
 		}
-		return false;
+		return 0;
 	}
 
 	@Override
@@ -114,16 +114,16 @@ public class SGCRFacade implements iSGCR {
 	}
 
 	@Override
-	public boolean criaServicoPadrao(PedidoOrcamento pedido, List<Passo> passos) {
+	public boolean criaServicoPadrao(String idCliente, String idEquip, String descricao, List<Passo> passos) {
 		if(permissao==1){
-			return servicosFacade.addServicoPadrao(pedido.getIdEquipamento(),pedido.getDescricao(),passos); //todo addServicoPadrao vai precisar de mais argumentos
+			return servicosFacade.addServicoPadrao(idCliente, idEquip, descricao, passos);
 		} return false;
 	}
 
 	@Override
-	public boolean rejeitaPedidoOrcamento(PedidoOrcamento pedido) {
+	public boolean rejeitaPedidoOrcamento(String idCliente, String idTecnico, String idEquip, String descricao) {
 		if(permissao==1){
-			if(servicosFacade.addServicoPadraoIrreparavel(pedido.getIdEquipamento(),pedido.getDescricao())){
+			if(servicosFacade.addServicoPadraoIrreparavel(idCliente, idTecnico, idEquip, descricao)){
 				EmailHandler.emailIrreparavel();
 				return true;
 			}
@@ -160,9 +160,9 @@ public class SGCRFacade implements iSGCR {
 	}
 
 	@Override
-	public boolean addPassoServico(String ID, Passo passo, int index) {
+	public boolean addPassoServico(String ID, Passo passo) {
 		if (permissao==1){
-			return servicosFacade.addPasso(ID,passo,index);
+			return servicosFacade.addPasso(ID, passo);
 		}
 		return false;
 	}
@@ -247,8 +247,8 @@ public class SGCRFacade implements iSGCR {
 	@Override
 	public Map<String, TreeSet<Servico>> listaIntervencoes() {
 		if(permissao==2) {
-			return servicosFacade.getServicos().stream().collect(Collectors.
-					groupingBy(Servico::getIdTecnico, Collectors.toCollection(TreeSet::new))); //Ordem natural imposta pelo comparable do servico
+			//return servicosFacade.getServicos().stream().collect(Collectors.groupingBy(Servico::getIdTecnico, Collectors.toCollection(TreeSet::new))); //Ordem natural imposta pelo comparable do servico
+			return servicosFacade.listaIntervencoes();
 		}
 		return null;
 	}
@@ -257,7 +257,7 @@ public class SGCRFacade implements iSGCR {
 	public boolean criarServicoExpresso(Float custo, String NIF) {
 		if(permissao==0) {
 			funcionarioFacade.incNrRececoes(idUtilizador);
-			return servicosFacade.addServicoExpresso(clientesFacade.getIdProxEquip(),custo); //todo addServicoExpresso vai precisar de mais argumentos
+			return servicosFacade.addServicoExpresso(NIF, clientesFacade.getIdProxEquip(), custo);
 		}
 		return false;
 	}
