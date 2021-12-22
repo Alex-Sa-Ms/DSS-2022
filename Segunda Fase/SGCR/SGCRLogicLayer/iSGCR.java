@@ -97,7 +97,6 @@ public interface iSGCR {
 	 * 
 	 * @param ID
 	 * @param passo
-	 * @param index
 	 */
 	boolean addPassoServico(String ID, Passo passo);
 
@@ -123,12 +122,6 @@ public interface iSGCR {
 
 	/**
 	 * 
-	 * @param idEquip
-	 */
-	boolean entregaEquipamento(String idEquip);
-
-	/**
-	 * 
 	 * @param id
 	 * @param password
 	 */
@@ -146,5 +139,7 @@ public interface iSGCR {
 	List<Tecnico> listarTecnicos();
 
 	Map<String, TreeSet<Servico>> listaIntervencoes();
+
+	List<Servico> listarServicosInterrompidos(String idTecnico);
 
 }

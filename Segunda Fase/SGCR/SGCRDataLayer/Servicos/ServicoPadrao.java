@@ -24,7 +24,7 @@ public class ServicoPadrao extends Servico {
 		orcamento 			= new Orcamento(passosOrcamento, descricaoOrcamento);
 		custoAtual 			= 0;
 		inicioPassoAtual	= 0;
-		passoAtual          = 0;
+		passoAtual          = -1;
 		passoAtualOrcamento = -1;
 	}
 
@@ -69,9 +69,9 @@ public class ServicoPadrao extends Servico {
 
 	// ****** getters e setters ******
 
-	//TODO: Luis acho q n é esta Lista de passos q tu queres!! Mas sim a do orçamento
-	//return orcamento.listarPassosOrcamento();
 	public List<Passo> getPassos() { return passos.stream().map(Passo::clone).collect(Collectors.toList()); }
+
+	public List<Passo> getPassosOrcamento() { return orcamento.listarPassosOrcamento(); }
 
 	public Orcamento getOrcamento() { return orcamento.clone(); }
 
@@ -81,11 +81,6 @@ public class ServicoPadrao extends Servico {
 	public float getCusto() { return custoAtual; }
 
 	private int getPassoAtualOrcamento() { return passoAtualOrcamento; }
-
-	private Passo getUltimoPassoLista(){
-		if(passos.size() > 0) return passos.get(passos.size() - 1);
-		return null;
-	}
 
 	/**
 	 * 
@@ -102,32 +97,26 @@ public class ServicoPadrao extends Servico {
 	 */
 	public Passo proxPasso() {
 		//Guarda o tempo utilizado para executar o passo atual, e atualiza a variavel custoAtual, antes de saltar para o próximo passo
-
 		Passo passo = getPassoAtual();
-
 		if(passo != null) {
 			passo.addTempo(Tempo.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
 			custoAtual += passo.getCustoPecas() + passo.getTempo() * orcamento.getPrecoHora();
 		}
 
 		passoAtual++;
+		Passo novoPasso;
 
-		passoAtualOrcamento++;
+		if(passoAtual < passos.size())
+			novoPasso = passos.get(passoAtual);
+		else {
+			passoAtualOrcamento++;
+			novoPasso = orcamento.getPasso(passoAtualOrcamento);
+		}
 
+		//Marca a data em que o passo foi começado
 		inicioPassoAtual = System.currentTimeMillis();
 
-		Passo novoPasso  = orcamento.getPasso(passoAtualOrcamento);
-
-		if(novoPasso != null && (passos.size()==0 || passoAtual == (passos.size()-1))){
-			passos.add(novoPasso);
-			return passos.get(passoAtual).clone();
-		}
-		else if(passos.get(passoAtual) != null){
-			 passoAtualOrcamento --;
-			 return passos.get(passoAtual).clone();
-		}
-		
-		return null;
+		return novoPasso;
 	}
 
 	/**

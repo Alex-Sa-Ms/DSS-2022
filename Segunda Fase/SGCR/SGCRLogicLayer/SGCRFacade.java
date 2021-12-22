@@ -92,10 +92,12 @@ public class SGCRFacade implements iSGCR {
 	public float entregarEquipamento(String idServico) {
 		if(permissao == 0){
 			float ret = servicosFacade.entregaEquipamento(idServico);
-			if(ret != -1) funcionarioFacade.incNrEntregas(idUtilizador);
-			return Math.max(0,ret);
+			if(ret != -1) {
+				funcionarioFacade.incNrEntregas(idUtilizador);
+				return ret;
+			}
 		}
-		return 0;
+		return -1;
 	}
 
 	@Override
@@ -208,11 +210,6 @@ public class SGCRFacade implements iSGCR {
 	}
 
 	@Override
-	public boolean entregaEquipamento(String idEquip) { //todo Alex, temos um entregarEquipamento sendo que este metodo é repetido
-		return false;
-	}
-
-	@Override
 	public boolean adicionaTecnico(String id, String password) {
 		if(permissao==2){
 			return funcionarioFacade.addTecnico(id,password);
@@ -250,6 +247,12 @@ public class SGCRFacade implements iSGCR {
 			//return servicosFacade.getServicos().stream().collect(Collectors.groupingBy(Servico::getIdTecnico, Collectors.toCollection(TreeSet::new))); //Ordem natural imposta pelo comparable do servico
 			return servicosFacade.listaIntervencoes();
 		}
+		return null;
+	}
+
+	@Override
+	//TODO
+	public List<Servico> listarServicosInterrompidos(String idTecnico) {
 		return null;
 	}
 
