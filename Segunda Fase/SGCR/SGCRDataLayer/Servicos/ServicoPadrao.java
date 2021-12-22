@@ -2,6 +2,7 @@ package SGCRDataLayer.Servicos;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ServicoPadrao extends Servico {
 
@@ -9,74 +10,95 @@ public class ServicoPadrao extends Servico {
 	private Orcamento orcamento;
 	private float custoAtual;
 	private int passoAtualOrcamento;
+	//TODO - adicionar tempoPassoAtual aqui e no diagrama de classes, e alterar todos os metodos necessarios (neste momento nao estao a contabilizar os preços por tempo)
+	//TODO - passo tem de ter custoPecas isolado
 
-	public ServicoPadrao(String id, String idTecnico, String idCliente, List<Passo> passosOrcamento, String descricaoOrcamento) {
+	//Construtores
+
+	private void AuxiliarConstrutor(String id, String idCliente, List<Passo> passosOrcamento, String descricaoOrcamento){
 		setId(id);
 		setIdCliente(idCliente);
-		setIdTecnico(idTecnico);
-		setEstado(EstadoServico.AguardarConfirmacao);
 		setAbandonado(false);
-		setDataConclusao(null);
-		passos    			= new ArrayList<>();
-		orcamento 			= new Orcamento(passos, descricaoOrcamento);
+		passos 				= new ArrayList<>();
+		orcamento 			= new Orcamento(passosOrcamento, descricaoOrcamento);
 		custoAtual 			= 0;
-		passoAtualOrcamento = 0; //TODO - Ver se é neste valor q deve começar
+		passoAtualOrcamento = -1;
+	}
+
+	/** Construtor ServicoPadrao para situação normal, i.e., orcamento feito, vai esperar pela resposta do cliente **/
+	public ServicoPadrao(String id, String idCliente, List<Passo> passosOrcamento, String descricaoOrcamento) {
+		AuxiliarConstrutor(id, idCliente, passosOrcamento, descricaoOrcamento);
+		setIdTecnico(null); //É alterado depois de ser atribuido a um técnico
+		setEstado(EstadoServico.AguardarConfirmacao);
+		setDataConclusao(null);
 	}
 
 	/** ServicoPadrao iniciado com o Técnico a null. Apenas lhe é atribuido o técnico posteriormente por meio de um setter **/
-	public ServicoPadrao(String id, String idCliente, List<Passo> passosOrcamento, String descricaoOrcamento) {
-		setId(id);
-		setIdCliente(idCliente);
-		setIdTecnico(null);
-		setEstado(EstadoServico.AguardarConfirmacao);
-		setAbandonado(false);
-		setDataConclusao(null);
-		passos    			= new ArrayList<>();
-		orcamento 			= new Orcamento(passos, descricaoOrcamento);
-		custoAtual 			= 0;
-		passoAtualOrcamento = 0; //TODO - Ver se é neste valor q deve começar
-	}
-
-	/** Construtor ServicoPadrao para um servico Irreparavel **/
-	public ServicoPadrao(String id, String idTecnico, String idCliente, String descricao) {
-		setId(id);
-		setIdCliente(idCliente);
+	public ServicoPadrao(String id, String idTecnico, String idCliente, String descricaoOrcamento) {
+		AuxiliarConstrutor(id, idCliente, null, descricaoOrcamento);
 		setIdTecnico(idTecnico);
 		setEstado(EstadoServico.Irreparavel);
-		setAbandonado(false);
 		setDataConclusao(LocalDateTime.now());
-		passos    			= new ArrayList<>();
-		orcamento 			= new Orcamento(passos, descricao);
-		custoAtual 			= 0;
-		passoAtualOrcamento = 0; //TODO - Ver se é neste valor q deve começar
 	}
 
-	public List<Passo> getPassos() {
-		List<Passo> novaLista = new ArrayList<>();
-		for (Passo p: this.passos){
-			novaLista.add(p.clone());
-		}
-		return passos;
+
+	//Clone
+
+	private ServicoPadrao(ServicoPadrao sp) {
+		setEstado(sp.getEstado());
+		setId(sp.getId());
+		setIdTecnico(sp.getIdTecnico());
+		setIdCliente(sp.getIdCliente());
+		setAbandonado(sp.getAbandonado());
+		setDataConclusao(sp.getDataConclusao());
+		this.passos              = sp.getPassos();
+		this.orcamento           = sp.getOrcamento();
+		this.custoAtual          = sp.getCustoAtual();
+		this.passoAtualOrcamento = sp.getPassoAtualOrcamento();
 	}
+
+	@Override
+	public Servico clone() {
+		return new ServicoPadrao(this);
+	}
+
+
+	//getters e setters
+
+	//TODO: Luis acho q n é esta Lista de passos q tu queres!! Mas sim a do orçamento
+	//return orcamento.listarPassosOrcamento();
+	public List<Passo> getPassos() { return passos.stream().map(Passo::clone).collect(Collectors.toList()); }
+
+	public Orcamento getOrcamento() { return orcamento.clone(); }
+
+	private float getCustoAtual() { return custoAtual; }
+
+	private int getPassoAtualOrcamento() { return passoAtualOrcamento; }
+
 	/**
 	 * 
 	 * @param custo
 	 * @param descricao
 	 * @param tempo
 	 */
-	public void addPasso(int custo, java.lang.String descricao, int tempo) {
-		// TODO - implement ServicoPadrao.addPasso
-		throw new UnsupportedOperationException();
+	public void addPasso(int custo, String descricao, int tempo) {
+		passos.add(new Passo(custo, descricao, tempo));
 	}
 
 	public Passo proxPasso() {
-		// TODO - implement ServicoPadrao.proxPasso
-		throw new UnsupportedOperationException();
+		passoAtualOrcamento++;
+		Passo novoPasso = orcamento.getPasso(passoAtualOrcamento);
+		if(novoPasso != null) {
+			passos.add(novoPasso);
+			return passos.get(passos.size() - 1).clone();
+		}
+		return null;
 	}
 
 	public Passo getPassoAtual() {
-		// TODO - implement ServicoPadrao.getPassoAtual
-		throw new UnsupportedOperationException();
+		if(passos.size() > 0)
+			return passos.get(passos.size() - 1).clone();
+		return null;
 	}
 
 	public boolean verificaCusto() {
@@ -90,15 +112,16 @@ public class ServicoPadrao extends Servico {
 	}
 
 
+
 	// Mudar Estado
 
 	@Override
 	public boolean mudaEstado(EstadoServico estado) {
 		EstadoServico estadoAtual = getEstado();
-		if(estadoAtual == EstadoServico.AguardarConfirmacao) return aceitarOuRejeitarOrcamento(estado);
+		if(estadoAtual == EstadoServico.AguardarConfirmacao) 	 return aceitarOuRejeitarOrcamento(estado);
 		else if(estadoAtual == EstadoServico.EsperandoReparacao) return executarServico(estado);
-		else if(estadoAtual == EstadoServico.EmExecucao) return interromperOuConcluirOuIrreparavel(estado);
-		else if(estadoAtual == EstadoServico.Interrompido) return retomarServico(estado);
+		else if(estadoAtual == EstadoServico.EmExecucao) 		 return interromperOuConcluirOuIrreparavel(estado);
+		else if(estadoAtual == EstadoServico.Interrompido) 		 return retomarServico(estado);
 		else return false;
 	}
 
@@ -133,17 +156,22 @@ public class ServicoPadrao extends Servico {
 		}
 		return false;
 	}
+
 	public float duracaoPassos(){ //todo adicionar ao diagrama de classes
 		return 0;  //todo
 	}
+
 	public float duracaoPassosPrevistos(){//todo adicionar ao diagrama de classes
 		return 0; //todo
 	}
 
+
+	// Auxiliares
+
 	@Override
 	public int compareTo(Object o) {
 		if(o instanceof Servico){
-			return super.getDataConclusao().compareTo(((Servico) o).getDataConclusao());
+			return getDataConclusao().compareTo(((Servico) o).getDataConclusao());
 		}
 		return -1;
 	}

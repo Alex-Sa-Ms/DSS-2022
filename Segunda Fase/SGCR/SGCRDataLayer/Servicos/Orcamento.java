@@ -35,5 +35,11 @@ public class Orcamento {
 
 	public String getDescricao() { return descricao; }
 
+	public Passo getPasso(int indice){
+		if(indice < passos.size())
+			return passos.get(indice).clone();
+		else return null;
+	}
+
 	public Orcamento clone(){ return new Orcamento(this.passos, this.descricao); }
 }

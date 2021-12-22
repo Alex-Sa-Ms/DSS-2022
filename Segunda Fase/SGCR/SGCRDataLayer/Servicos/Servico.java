@@ -37,19 +37,17 @@ public abstract class Servico implements Comparable{
 
 	//Setters
 
-	public void setId(String id) { this.id = id; }
+	protected void setId(String id) { this.id = id; }
 
-	public void setIdTecnico(String idTecnico) { this.idTecnico = idTecnico; }
+	protected void setIdTecnico(String idTecnico) { this.idTecnico = idTecnico; }
 
-	public void setIdCliente(String idCliente) { this.idCliente = idCliente; }
+	protected void setIdCliente(String idCliente) { this.idCliente = idCliente; }
 
-	public void setEstado(EstadoServico estado) { this.estado = estado; }
+	protected void setEstado(EstadoServico estado) { this.estado = estado; }
 
-	public void setDataConclusao(LocalDateTime dataConclusao) { this.dataConclusao = dataConclusao; }
+	protected void setDataConclusao(LocalDateTime dataConclusao) { this.dataConclusao = dataConclusao; }
 
-	public void setAbandonado(Boolean abandonado) { this.abandonado = abandonado; }
+	protected void setAbandonado(Boolean abandonado) { this.abandonado = abandonado; }
 
-	public Servico clone(){ //todo dar overwritte nas subclasses
-		return this; //todo Acabar isto
-	}
+	public abstract Servico clone();
 }

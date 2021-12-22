@@ -14,7 +14,7 @@ public class ServicosFacade {
 	 * @param idEquip
 	 * @param custo
 	 */
-	public boolean addServicoExpresso(String idEquip, float custo) {
+	public boolean addServicoExpresso(String idCliente, String idEquip, float custo) {
 		// TODO - implement ServicosFacade.addServicoExpresso
 		throw new UnsupportedOperationException();
 	}
@@ -34,7 +34,7 @@ public class ServicosFacade {
 	 * @param descricao
 	 * @param passos
 	 */
-	public boolean addServicoPadrao(String idEquip, String descricao, List<Passo> passos) {
+	public boolean addServicoPadrao(String idCliente, String idEquip, String descricao, List<Passo> passos) {
 		// TODO - implement ServicosFacade.addServicoPadrao
 		throw new UnsupportedOperationException();
 	}
