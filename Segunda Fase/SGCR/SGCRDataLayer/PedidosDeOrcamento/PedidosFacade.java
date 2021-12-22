@@ -21,13 +21,11 @@ public class PedidosFacade {
 	 * @param NIF
 	 */
 	public void addPedido(String descricao, String idEquip, String NIF) {
-		// TODO - implement PedidosFacade.addPedido
-		throw new UnsupportedOperationException();
+		filaPedidos.addLast(new PedidoOrcamento(descricao,idEquip,NIF));
 	}
 
 	public PedidoOrcamento getProxPedido() {
-		// TODO - implement PedidosFacade.getProxPedido
-		throw new UnsupportedOperationException();
+		return filaPedidos.poll();
 	}
 
 }
