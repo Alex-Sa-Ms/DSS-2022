@@ -37,12 +37,6 @@ public interface iSGCR {
 	List<Servico> listarServicosProntosLevantamento(java.lang.String NIF);
 
 	/**
-	 * 
-	 * @param idServico
-	 */
-	boolean pagamentoServico(java.lang.String idServico);
-
-	/**
 	 *
      * @param idServico
      * @return
@@ -75,7 +69,7 @@ public interface iSGCR {
 
 	/**
 	 * 
-	 * @param idCliente
+	 * @param o
 	 */
 	boolean rejeitaPedidoOrcamento(PedidoOrcamento o);
 

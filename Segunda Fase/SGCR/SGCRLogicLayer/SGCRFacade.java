@@ -6,6 +6,7 @@ import SGCRDataLayer.PedidosDeOrcamento.*;
 import SGCRDataLayer.Servicos.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SGCRFacade implements iSGCR {
 	private ClientesFacade clientesFacade;
@@ -84,11 +85,6 @@ public class SGCRFacade implements iSGCR {
 	}
 
 	@Override
-	public boolean pagamentoServico(String idServico) { //Todo
-		return false;
-	}
-
-	@Override
 	public float entregarEquipamento(String idServico) {
 		if(permissao == 0){
 			float ret = servicosFacade.entregaEquipamento(idServico);
@@ -116,16 +112,16 @@ public class SGCRFacade implements iSGCR {
 	}
 
 	@Override
-	public boolean criaServicoPadrao(String idCliente, String idEquip, String descricao, List<Passo> passos) {
+	public boolean criaServicoPadrao(PedidoOrcamento o, List<Passo> passos) {
 		if(permissao==1){
-			return servicosFacade.addServicoPadrao(idCliente, idEquip, descricao, passos);
+			return servicosFacade.addServicoPadrao(o.getNIFCliente(), o.getIdEquipamento(), o.getDescricao(), passos);
 		} return false;
 	}
 
 	@Override
-	public boolean rejeitaPedidoOrcamento(String idCliente, String idTecnico, String idEquip, String descricao) {
+	public boolean rejeitaPedidoOrcamento(PedidoOrcamento o) {
 		if(permissao==1){
-			if(servicosFacade.addServicoPadraoIrreparavel(idCliente, idTecnico, idEquip, descricao)){
+			if(servicosFacade.addServicoPadraoIrreparavel(o.getNIFCliente(), idUtilizador, o.getIdEquipamento(), o.getDescricao())){
 				EmailHandler.emailIrreparavel();
 				return true;
 			}
@@ -204,7 +200,7 @@ public class SGCRFacade implements iSGCR {
 		}
 		return null;
 	}
-
+	//list
 	@Override
 	public void estatisticas() { //todo não sei o que faz (retorna void?)
 	}
@@ -251,15 +247,31 @@ public class SGCRFacade implements iSGCR {
 	}
 
 	@Override
-	//TODO
-	public List<Servico> listarServicosInterrompidos(String idTecnico) {
+	public List<Servico> listarServicosInterrompidos() {
+		if(permissao==1) {
+			return funcionarioFacade.listarServicosTecnico(idUtilizador)
+					.stream()
+					.map(e -> servicosFacade.getServico(e))
+					.filter(e -> e.getEstado() == EstadoServico.Interrompido)
+					.collect(Collectors.toList());
+		}
 		return null;
 	}
 
 	@Override
-	//TODO
 	public boolean existeCliente(String idCliente) {
+		if(permissao==0){
+			return (clientesFacade.getFichaCliente(idCliente)!=null);
+		}
 		return false;
+	}
+
+	@Override
+	public List<PedidoOrcamento> listarPedidos() {
+		if(permissao==0){
+			return new ArrayList<>(pedidosFacade.getFilaPedidos());
+		}
+		return null;
 	}
 
 	@Override
