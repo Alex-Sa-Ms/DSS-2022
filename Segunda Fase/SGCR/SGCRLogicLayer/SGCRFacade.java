@@ -239,7 +239,10 @@ public class SGCRFacade implements iSGCR, Serializable {
 	//list
 	@Override
 	public Statistics estatisticas() { //todo mudar o return value no diagrama
-		return new Statistics(servicosFacade,funcionarioFacade);
+		if (permissao==2) {
+			return new Statistics(servicosFacade, funcionarioFacade);
+		}
+		return null;
 	}
 
 	@Override
@@ -275,7 +278,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	}
 
 	@Override
-	public Map<String, TreeSet<Servico>> listaIntervencoes() {
+	public Map<String, TreeSet<Servico>> listaIntervencoes() { //todo ja fazemos isto na estatisticas (remover do diagrama)
 		if(permissao==2) {
 			//return servicosFacade.getServicos().stream().collect(Collectors.groupingBy(Servico::getIdTecnico, Collectors.toCollection(TreeSet::new))); //Ordem natural imposta pelo comparable do servico
 			return servicosFacade.listaIntervencoes();
