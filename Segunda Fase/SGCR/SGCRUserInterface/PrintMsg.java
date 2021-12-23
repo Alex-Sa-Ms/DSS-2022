@@ -1,5 +1,8 @@
 package SGCRUserInterface;
 
+import SGCRDataLayer.Funcionarios.Funcionario;
+import SGCRDataLayer.Funcionarios.FuncionarioBalcao;
+import SGCRDataLayer.Funcionarios.Tecnico;
 import SGCRDataLayer.PedidosDeOrcamento.PedidoOrcamento;
 import SGCRDataLayer.Servicos.Passo;
 import SGCRDataLayer.Servicos.Servico;
@@ -58,6 +61,16 @@ public class PrintMsg {
         String s = "Passo :::: Custo : "+ p.getCusto()+ " | Tempo: "+p.getTempo()+ " | Descrição: "+ p.getDescricao();
         return s;
     }
+
+    public void printFuncionario(Funcionario f){
+        if (f instanceof FuncionarioBalcao){
+            System.out.println("Funcionario Balcao: " + f.getId());
+        }
+        else if  (f instanceof Tecnico){
+            System.out.println("Tecnico: " + f.getId());
+        }
+    }
+
 
     /*
     public static void clrscr(){

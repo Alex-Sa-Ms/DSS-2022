@@ -1,4 +1,6 @@
 package SGCRUserInterface;
+import SGCRDataLayer.Funcionarios.FuncionarioBalcao;
+import SGCRDataLayer.Funcionarios.Tecnico;
 import SGCRDataLayer.PedidosDeOrcamento.PedidoOrcamento;
 import SGCRDataLayer.Servicos.Passo;
 import SGCRDataLayer.Servicos.Servico;
@@ -83,7 +85,12 @@ public class UIFacade {
 
 
     private void controladorGestor() {
-        MenuSelect gestor = new MenuSelect("",new String[]{"Criar conta para Funcionário","Estatisticas1","Estatisticas2","Estatisticas3"});
+        MenuSelect gestor = new MenuSelect("",new String[]{
+                                                    "Criar conta para Funcionário",
+                                                    "Estatisticas1",
+                                                    "Estatisticas2",
+                                                    "Estatisticas3",
+                                                    "Listar Funcionarios"});
         gestor.executa();
         boolean flag=true;
         while (flag){
@@ -102,6 +109,18 @@ public class UIFacade {
               case 4:
                 System.out.println("ola3");
                 break;
+              case 5:
+                MenuSelect func = new MenuSelect("Escolha o tipo de funcionário", new String[]{"Funcionarios de balcao","Tecnicos"});
+                func.executa();
+                if(func.getOpcao() == 1){
+                  List<FuncionarioBalcao> l = logic.listarFuncionariosBalcao();
+                  l.forEach(x->printer.printFuncionario(x));
+              }
+                if(func.getOpcao() == 2){
+                  List<Tecnico> l = logic.listarTecnicos();
+                  l.forEach(x->printer.printFuncionario(x));
+              }
+
               case 0:
                 flag=false;
             }
@@ -209,10 +228,14 @@ public class UIFacade {
             equip.executa();
             if (equip.getOpcao()==0) flag=false;
             else {
-                float preco = logic.entregarEquipamento(l.get(equip.getOpcao()).getId());
+                String idServ = l.get(equip.getOpcao()).getId();
+                float preco = logic.entregarEquipamento(idServ);
                 if (preco == 0) printer.printMsg("Não há custo! Entrega Concluida");
                 else if (preco == -1) printer.printMsg("Erro na entrega!");
-                else printer.printMsg("Custo a cobrar ao cliente: "+ preco +". Entrega Concluida");
+                else {
+                    printer.printMsg("Custo a cobrar ao cliente: "+ preco +". Entrega Concluida");
+                    logic.pagamentoServico(idServ);
+                }
                 l = logic.listarServicosProntosLevantamento(nif.getOpcao());
             }
 
@@ -297,16 +320,16 @@ public class UIFacade {
             List<Passo> l = logic.listarPassosServico(id);
             printer.printLPasso(l);
             reparacao.executa();
-            //printer.printMsg("::::Passo Atual::::");
-            //printer.printMsg(printer.passoToString(logic.proxPasso(id)));
+            printer.printMsg("::::Passo Atual::::");
+            printer.printMsg(printer.passoToString(logic.proxPasso(id)));
             switch (reparacao.getOpcao()){
                 case 1:
                     Passo p = createPasso();
                     logic.addPassoServico(id,p);
                     break;
                 case 2:
-                    //TODO
-                    System.out.println("Under Construction");
+                    printer.printMsg("::::Passo Atual::::");
+                    printer.printMsg(printer.passoToString(logic.proxPasso(id)));
                     break;
                 case 3:
                     if (logic.interromperServico(id)) {
