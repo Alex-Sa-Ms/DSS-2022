@@ -19,7 +19,7 @@ public interface iSGCR {
 
 	boolean logOut();
 
-	void encerraAplicacao();
+	int encerraAplicacao(); //todo adicionar retornar int no diagrama
 
 	List<Servico> listarServicosPendentes();
 
@@ -112,7 +112,7 @@ public interface iSGCR {
 	 */
 	Passo retomarServico(String IDServico);
 
-	void estatisticas();
+	Statistics estatisticas();
 
 	/**
 	 * 

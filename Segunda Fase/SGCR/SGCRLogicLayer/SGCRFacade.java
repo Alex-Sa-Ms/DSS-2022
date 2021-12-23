@@ -5,10 +5,12 @@ import SGCRDataLayer.Funcionarios.*;
 import SGCRDataLayer.PedidosDeOrcamento.*;
 import SGCRDataLayer.Servicos.*;
 
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class SGCRFacade implements iSGCR {
+public class SGCRFacade implements iSGCR, Serializable {
+	private String caminho = "save";
 	private ClientesFacade clientesFacade;
 	private FuncionarioFacade funcionarioFacade;
 	private PedidosFacade pedidosFacade;
@@ -20,6 +22,22 @@ public class SGCRFacade implements iSGCR {
 	// 0 funcionario balcao
 	// 1 tecnico
 	// 2 gestor
+
+
+
+	public static SGCRFacade loadSGCRFacade(){ //Dessirialize
+		try {
+			SGCRFacade novo;
+			FileInputStream fileIn = new FileInputStream("save");
+			ObjectInputStream in = new ObjectInputStream(fileIn);
+			novo = (SGCRFacade) in.readObject();
+			in.close();
+			fileIn.close();
+			return novo;
+		} catch (IOException | ClassNotFoundException fnfe){
+			return null;
+		}
+	}
 
 	@Override
 	public int login(String ID, String Password) {
@@ -38,9 +56,27 @@ public class SGCRFacade implements iSGCR {
 		}else return false;
 	}
 
+	//0 não há problemas
+	//1 fileNotFound
+	//2 erro ao escrever ficheiro
 	@Override
-	public void encerraAplicacao() { //Serialize
-		logOut();
+	public int encerraAplicacao() { //Serialize
+		if(logOut()){
+			try {
+				FileOutputStream fileOut;
+				fileOut = new FileOutputStream(caminho);
+				ObjectOutputStream out;
+				out = new ObjectOutputStream(fileOut);
+				out.writeObject(this);
+				out.close();
+				fileOut.close();
+			} catch (FileNotFoundException fnfe){
+				return 1;
+			} catch (IOException e){
+				return 2;
+			}
+		}
+		return 0;
 	}
 
 	@Override
@@ -202,7 +238,8 @@ public class SGCRFacade implements iSGCR {
 	}
 	//list
 	@Override
-	public void estatisticas() { //todo não sei o que faz (retorna void?)
+	public Statistics estatisticas() { //todo mudar o return value no diagrama
+		return new Statistics(servicosFacade,funcionarioFacade);
 	}
 
 	@Override

@@ -1,8 +1,9 @@
 package SGCRDataLayer.Clientes;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class ClientesFacade {
+public class ClientesFacade implements Serializable {
 
 	Map<String,FichaCliente> clientes;
 	private int idProxEquipamento;

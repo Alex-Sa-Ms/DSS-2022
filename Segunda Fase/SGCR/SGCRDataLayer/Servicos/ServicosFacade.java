@@ -1,11 +1,12 @@
 package SGCRDataLayer.Servicos;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ServicosFacade {
+public class ServicosFacade implements Serializable {
 
 	private final Map<EstadoServico,Map<String,Servico>> estados;
 	private final Map<String,Servico> arquivados;
