@@ -1,9 +1,6 @@
 package SGCRDataLayer.Servicos;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.Random;
 
 public abstract class Servico implements Comparable<Servico>{
 
@@ -70,6 +67,7 @@ public abstract class Servico implements Comparable<Servico>{
 				", dataConclusao=" + dataConclusao +
 				", idTecnico='" + idTecnico + '\'' +
 				", idCliente='" + idCliente + '\'' +
-				", abandonado=" + abandonado;
+				", abandonado=" + abandonado +
+				"";
 	}
 }

@@ -157,7 +157,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	@Override
 	public boolean criaServicoPadrao(PedidoOrcamento o, List<Passo> passos) {
 		if(permissao==1){
-			return servicosFacade.addServicoPadrao(o.getNIFCliente(), o.getIdEquipamento(), o.getDescricao(), passos);
+			return servicosFacade.addServicoPadrao(o.getIdEquipamento(), o.getNIFCliente(), passos, o.getDescricao());
 		} return false;
 	}
 
@@ -325,7 +325,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	public boolean criarServicoExpresso(Float custo, String NIF) {
 		if(permissao==0) {
 			funcionarioFacade.incNrRececoes(idUtilizador);
-			return servicosFacade.addServicoExpresso(NIF, clientesFacade.getIdProxEquip(), custo);
+			return servicosFacade.addServicoExpresso(clientesFacade.getIdProxEquip(), NIF, custo);
 		}
 		return false;
 	}

@@ -29,11 +29,11 @@ public class ServicosFacade implements Serializable {
 	 * Cria um servico expresso, e coloca-o no inicio da fila de servicos em espera de reparacao.
 	 * Dado que é suposto existir disponibilidade para executar o servico naquele momento, nao se tem em consideracao outros servicos expressos
 	 * que tenham sido aceites "ao mesmo tempo".
-	 * @param idCliente Identificador do cliente
 	 * @param idEquip Identificador do equipamento, que vai servir de identificador do servico
+	 * @param idCliente Identificador do cliente
 	 * @param custo Custo fixo do servico
 	 */
-	public boolean addServicoExpresso(String idCliente, String idEquip, float custo) {
+	public boolean addServicoExpresso(String idEquip, String idCliente, float custo) {
 		filaServicos.addFirst(idEquip);
 		estados.get(EstadoServico.EsperandoReparacao).put(idEquip, new ServicoExpresso(idEquip, idCliente, custo));
 		return true;
@@ -41,13 +41,25 @@ public class ServicosFacade implements Serializable {
 
 	/**
 	 * Cria um servico padrao, num estado em que aguarda pela confirmação do orçamento, por parte do cliente.
-	 * @param idCliente Identificador do cliente
 	 * @param idEquip Identificador do equipamento, que vai servir de identificador do servico
-	 * @param descricao Descricao que deve estar presente no orcamento
+	 * @param idCliente Identificador do cliente
 	 * @param passos Lista de passos que se prevê que constituam o servico
+	 * @param descricao Descricao que deve estar presente no orcamento
 	 */
-	public boolean addServicoPadrao(String idCliente, String idEquip, String descricao, List<Passo> passos) {
+	public boolean addServicoPadrao(String idEquip, String idCliente, List<Passo> passos, String descricao) {
 		estados.get(EstadoServico.AguardarConfirmacao).put(idEquip, new ServicoPadrao(idEquip, idCliente, passos, descricao));
+		return true;
+	}
+
+	/**
+	 * Regista servico cujo equipamento foi declarado irreparavel pelo tecnico.
+ 	 * @param idEquip Identificador do equipamento, que vai servir de identificador do servico
+	 * @param idCliente Identificador do cliente
+	 * @param idTecnico Identificador do técnico que indicou que o equipamento é irreparavel
+	 * @param descricao Descricao do problema do equipamento
+	 */
+	public boolean addServicoPadraoIrreparavel(String idEquip, String idCliente, String idTecnico, String descricao){
+		estados.get(EstadoServico.Irreparavel).put(idEquip, new ServicoPadrao(idEquip, idCliente, idTecnico, descricao));
 		return true;
 	}
 
@@ -65,47 +77,13 @@ public class ServicosFacade implements Serializable {
 	}
 
 	/**
-	 * Procura o servico com o identificador fornecido, tanto nos servicos arquivados, como nao arquivados
-	 * @param id Identificador do serviço que coincide com o id do equipamento
-	 * @return Apontador para o servico que possui o identificador fornecido
-	 */
-	private Servico getApontadorServico(String id){
-		Servico servico = null;
-
-		//Procura nos servicos não arquivados
-		for(Map<String,Servico> e : estados.values())
-			if ((servico = e.get(id)) != null) return servico.clone();
-
-		//Procura nos servicos arquivados
-		if ((servico = arquivados.get(id)) != null) return servico.clone();
-
-		//Não encontrou o servico
-		return null;
-	}
-
-	//TODO - Que tipo de servicos devo fornecer neste metodos? Arquivados e nao arquivados em estado "Concluido"? Se é para fazer fornecam me a lista dos ids de servicos q tem no funcionariosFacade
-	/**
-	 * 
-	 * @param idTecnico
-	 */
-	public List<Servico> listarServicosConcluidos(String idTecnico) {
-		// TODO - implement ServicosFacade.listarServicosConcluidos
-		throw new UnsupportedOperationException();
-	}
-
-	/**
 	 * Caso o servico estiver no estado em que aguarda confirmacao do orcamento, altera o seu estado para "Esperando Reparacao",
 	 * e adiciona-o no fim da lista de servicos à espera de reparacao.
 	 * @param idEquip Identificador do equipamento
 	 */
 	public boolean orcamentoAceite(String idEquip) {
-		Servico servico = estados.get(EstadoServico.AguardarConfirmacao).remove(idEquip);
-
-		if(servico == null) return false;
-
-		servico.mudaEstado(EstadoServico.EsperandoReparacao);
-		filaServicos.addLast(servico.getId());
-		estados.get(EstadoServico.EsperandoReparacao).put(servico.getId(), servico);
+		if(mudaEstado(EstadoServico.AguardarConfirmacao, EstadoServico.EsperandoReparacao, idEquip) == null) return false;
+		filaServicos.addLast(idEquip);
 		return true;
 	}
 
@@ -114,12 +92,52 @@ public class ServicosFacade implements Serializable {
 	 * @param idEquip Identificador do equipamento
 	 */
 	public boolean orcamentoRejeitado(String idEquip) {
-		Servico servico = estados.get(EstadoServico.AguardarConfirmacao).remove(idEquip);
+		if(mudaEstado(EstadoServico.AguardarConfirmacao, EstadoServico.OrcamentoRecusado, idEquip) == null) return false;
+		return true;
+	}
+
+	/**
+	 * Interrompe servico que possui o identificador fornecido.
+	 * @param idServico Identificador do servico
+	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser interrompido. 'true' caso contrário
+	 */
+	public boolean interrompeServico(String idServico){
+		Servico servico = estados.get(EstadoServico.EmExecucao).remove(idServico);
 
 		if(servico == null) return false;
 
-		servico.mudaEstado(EstadoServico.OrcamentoRecusado);
-		estados.get(EstadoServico.OrcamentoRecusado).put(servico.getId(), servico);
+		servico.mudaEstado(EstadoServico.Interrompido);
+		estados.get(EstadoServico.Interrompido).put(idServico, servico);
+		return true;
+	}
+
+	/**
+	 * Marca o servico que possui o identificador fornecido como concluido.
+	 * @param idServico Identificador do servico
+	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser marcado como concluido. 'true' caso contrário
+	 */
+	public boolean concluiServico(String idServico){
+		Servico servico = estados.get(EstadoServico.EmExecucao).remove(idServico);
+
+		if(servico == null) return false;
+
+		servico.mudaEstado(EstadoServico.Concluido);
+		estados.get(EstadoServico.Concluido).put(idServico, servico);
+		return true;
+	}
+
+	/**
+	 * Retoma o servico que possui o identificador fornecido, i.e., volta a marcá-lo como "Em execucao".
+	 * @param idServico Identificador do servico
+	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser retomado. 'true' caso contrário
+	 */
+	public boolean retomaServico(String idServico){
+		Servico servico = estados.get(EstadoServico.Interrompido).remove(idServico);
+
+		if(servico == null) return false;
+
+		servico.mudaEstado(EstadoServico.EmExecucao);
+		estados.get(EstadoServico.EmExecucao).put(idServico, servico);
 		return true;
 	}
 
@@ -200,21 +218,6 @@ public class ServicosFacade implements Serializable {
 	}
 
 	/**
-	 * Arquiva o servico que esteja no estado de servico fornecido.
-	 * Nao marca o equipamento como abandonado.
-	 * @param es Estado do Servico
-	 * @param idEquip Identificador do equipamento (coincide com o de servico)
-	 */
-	private Servico arquivaServico(EstadoServico es, String idEquip){
-		Servico servico = estados.get(es).remove(idEquip);
-		if(servico != null){
-			arquivados.put(servico.getId(), servico);
-			return servico;
-		}
-		return null;
-	}
-
-	/**
 	 * Lista todos os tecnicos. Cada tecnico é acompanhado de um TreeSet com todos os servicos efetuados (EstadoServico igual a 'Concluido') por ele,
 	 * ordenados por pelo mais recente ate o mais antigo.
 	 * @return map com todos os tecnicos e os servicos associados a eles em TreeSets
@@ -252,6 +255,16 @@ public class ServicosFacade implements Serializable {
 		return map;
 	}
 
+	//TODO - Que tipo de servicos devo fornecer neste metodos? Arquivados e nao arquivados em estado "Concluido"? Se é para fazer fornecam me a lista dos ids de servicos q tem no funcionariosFacade
+	/**
+	 *
+	 * @param idTecnico
+	 */
+	public List<Servico> listarServicosConcluidos(String idTecnico) {
+		// TODO - implement ServicosFacade.listarServicosConcluidos
+		throw new UnsupportedOperationException();
+	}
+
 	/**
 	 * @return lista de pedidos pendentes, ou seja, em espera de reparacao.
 	 */
@@ -263,26 +276,16 @@ public class ServicosFacade implements Serializable {
 	}
 
 	/**
-	 * Regista servico cujo equipamento foi declarado irreparavel pelo tecnico.
-	 */
-	public boolean addServicoPadraoIrreparavel(String idEquip, String idCliente, String idTecnico, String descricao){
-		estados.get(EstadoServico.Irreparavel).put(idEquip, new ServicoPadrao(idEquip, idCliente, idTecnico, descricao));
-		return true;
-	}
-
-	/**
 	 * Atualiza estado do proximo servico a ser executado para "Em execucao",
 	 * e adiciona-lhe a informacao do tecnico que o vai executar.
 	 * @param idTecnico Identificador do Técnico
 	 * @return proximo servico a ser executado
 	 */
 	public Servico getProxServico(String idTecnico){
+		Servico servico;
 		String idServico = filaServicos.poll();
 
-		if(idServico != null) {
-			Servico servico = estados.get(EstadoServico.EsperandoReparacao).remove(idServico);
-			estados.get(EstadoServico.EmExecucao).put(idServico, servico);
-			servico.mudaEstado(EstadoServico.EmExecucao);
+		if(idServico != null && (servico = mudaEstado(EstadoServico.EsperandoReparacao, EstadoServico.EmExecucao, idServico)) != null) {
 			servico.setIdTecnico(idTecnico);
 			return servico.clone();
 		}
@@ -307,49 +310,69 @@ public class ServicosFacade implements Serializable {
 		return true;
 	}
 
+
+	// ****** Auxiliares ******
+
 	/**
-	 * Interrompe servico que possui o identificador fornecido.
-	 * @param idServico Identificador do servico
-	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser interrompido. 'true' caso contrário
+	 * Procura o servico com o identificador fornecido, tanto nos servicos arquivados, como nao arquivados
+	 * @param id Identificador do serviço que coincide com o id do equipamento
+	 * @return Apontador para o servico que possui o identificador fornecido
 	 */
-	public boolean interrompeServico(String idServico){
-		Servico servico = estados.get(EstadoServico.EmExecucao).remove(idServico);
+	private Servico getApontadorServico(String id){
+		Servico servico = null;
 
-		if(servico == null) return false;
+		//Procura nos servicos não arquivados
+		for(Map<String,Servico> e : estados.values())
+			if ((servico = e.get(id)) != null) return servico.clone();
 
-		servico.mudaEstado(EstadoServico.Interrompido);
-		estados.get(EstadoServico.Interrompido).put(idServico, servico);
-		return true;
+		//Procura nos servicos arquivados
+		if ((servico = arquivados.get(id)) != null) return servico.clone();
+
+		//Não encontrou o servico
+		return null;
 	}
 
 	/**
-	 * Marca o servico que possui o identificador fornecido como concluido.
-	 * @param idServico Identificador do servico
-	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser marcado como concluido. 'true' caso contrário
+	 * Arquiva o servico que esteja no estado de servico fornecido.
+	 * Nao marca o equipamento como abandonado.
+	 * @param es Estado do Servico
+	 * @param idEquip Identificador do equipamento (coincide com o de servico)
 	 */
-	public boolean concluiServico(String idServico){
-		Servico servico = estados.get(EstadoServico.EmExecucao).remove(idServico);
-
-		if(servico == null) return false;
-
-		servico.mudaEstado(EstadoServico.Concluido);
-		estados.get(EstadoServico.Concluido).put(idServico, servico);
-		return true;
+	private Servico arquivaServico(EstadoServico es, String idEquip){
+		Servico servico = estados.get(es).remove(idEquip);
+		if(servico != null){
+			arquivados.put(servico.getId(), servico);
+			return servico;
+		}
+		return null;
 	}
 
 	/**
-	 * Retoma o servico que possui o identificador fornecido, i.e., volta a marcá-lo como "Em execucao".
+	 * Muda um servico de estado.
+	 * @param estadoAtual Estado atual do servico
+	 * @param estadoPretendido Estado para o qual se pretende mudar o servico
 	 * @param idServico Identificador do servico
-	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser retomado. 'true' caso contrário
+	 * @return o Servico com o identificador fornecido caso a mudanca de estado tenha sido efetuada, ou 'null' caso contrario
 	 */
-	public boolean retomaServico(String idServico){
-		Servico servico = estados.get(EstadoServico.Interrompido).remove(idServico);
+	private Servico mudaEstado(EstadoServico estadoAtual, EstadoServico estadoPretendido, String idServico){
+		Servico servico = estados.get(estadoAtual).remove(idServico);
 
-		if(servico == null) return false;
+		if(servico == null || !servico.mudaEstado(estadoPretendido)) return null;
 
-		servico.mudaEstado(EstadoServico.EmExecucao);
-		estados.get(EstadoServico.EmExecucao).put(idServico, servico);
-		return true;
+		estados.get(estadoPretendido).put(servico.getId(), servico);
+		return servico;
 	}
 
+
+
+	//TODO - remover no fim de tudo estar pronto
+
+	@Override
+	public String toString() {
+		return "ServicosFacade{" +
+				"estados=" + estados +
+				", arquivados=" + arquivados +
+				", filaServicos=" + filaServicos +
+				'}';
+	}
 }
