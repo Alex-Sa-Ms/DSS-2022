@@ -61,4 +61,15 @@ public abstract class Servico implements Comparable<Servico>{
 	public int compareTo(Servico s) {
 		return getDataConclusao().compareTo(s.getDataConclusao());
 	}
+
+	//TODO: Remover depois da app estar feita
+	@Override
+	public String toString() {
+		return  "estado=" + estado +
+				", id='" + id + '\'' +
+				", dataConclusao=" + dataConclusao +
+				", idTecnico='" + idTecnico + '\'' +
+				", idCliente='" + idCliente + '\'' +
+				", abandonado=" + abandonado;
+	}
 }

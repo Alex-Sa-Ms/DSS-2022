@@ -1,5 +1,6 @@
 package SGCRDataLayer.Servicos;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +47,24 @@ public class ServicoExpresso extends Servico {
 
 	@Override
 	public boolean mudaEstado(EstadoServico estado) {
-		if(getEstado() == EstadoServico.EsperandoReparacao && estado == EstadoServico.EmExecucao) return true;
-		else return getEstado() == EstadoServico.EmExecucao && estado == EstadoServico.Concluido;
+		if(getEstado() == EstadoServico.EsperandoReparacao && estado == EstadoServico.EmExecucao) {
+			setEstado(EstadoServico.EmExecucao);
+			return true;
+		}
+		else if(getEstado() == EstadoServico.EmExecucao && estado == EstadoServico.Concluido){
+			setEstado(EstadoServico.Concluido);
+			setDataConclusao(LocalDateTime.now());
+			return true;
+		}
+		return false;
+	}
+
+
+	//TODO: Remover depois da app estar feita
+	@Override
+	public String toString() {
+		return "ServicoExpresso{" + super.toString() +
+				", custo=" + custo +
+				'}';
 	}
 }

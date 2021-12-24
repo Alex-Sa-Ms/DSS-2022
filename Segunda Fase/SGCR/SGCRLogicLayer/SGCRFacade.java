@@ -157,7 +157,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	@Override
 	public boolean rejeitaPedidoOrcamento(PedidoOrcamento o) {
 		if(permissao==1){
-			if(servicosFacade.addServicoPadraoIrreparavel(o.getNIFCliente(), idUtilizador, o.getIdEquipamento(), o.getDescricao())){
+			if(servicosFacade.addServicoPadraoIrreparavel(o.getIdEquipamento(), o.getNIFCliente(), idUtilizador, o.getDescricao())){
 				EmailHandler.emailIrreparavel();
 				return true;
 			}

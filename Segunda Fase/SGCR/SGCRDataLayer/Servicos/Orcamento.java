@@ -10,7 +10,7 @@ public class Orcamento {
 	private float precoPrevisto = 0;
 	private float tempoPrevisto = 0;
 	private final String descricao;
-	private final float precoHora = (float) 4.5; //TODO - O resto do programa deve ter em conta este valor, talvez defini-lo uma vez no servicosFacade
+	//private final float precoHora = (float) 4.5; //TODO - O resto do programa deve ter em conta este valor, talvez defini-lo uma vez no servicosFacade
 
 	public Orcamento(List<Passo> passos, String descricao) {
 		if(descricao == null) throw new IllegalArgumentException();
@@ -29,10 +29,9 @@ public class Orcamento {
 
 	private void calculaValoresPrevisto(){
 		for(Passo p : passos){
-			precoPrevisto += p.getCustoPecas();
+			precoPrevisto += p.getCusto();
 			tempoPrevisto += p.getTempo();
 		}
-		precoPrevisto += tempoPrevisto * precoHora;
 	}
 
 	public List<Passo> listarPassosOrcamento() {
@@ -51,7 +50,19 @@ public class Orcamento {
 		else return null;
 	}
 
-	public float getPrecoHora() { return precoHora; }
+	//public float getPrecoHora() { return precoHora; }
 
 	public Orcamento clone(){ return new Orcamento(this.passos, this.descricao); }
+
+	//TODO: Remover depois da app estar feita
+
+	@Override
+	public String toString() {
+		return "Orcamento{" +
+				"passos=" + passos +
+				", precoPrevisto=" + precoPrevisto +
+				", tempoPrevisto=" + tempoPrevisto +
+				", descricao='" + descricao + '\'' +
+				'}';
+	}
 }

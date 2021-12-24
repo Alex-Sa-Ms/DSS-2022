@@ -28,7 +28,13 @@ public class ServicoPadrao extends Servico {
 		passoAtualOrcamento = -1;
 	}
 
-	/** Construtor ServicoPadrao para situação normal, i.e., orcamento feito, vai esperar pela resposta do cliente **/
+	/**
+	 * Construtor ServicoPadrao para situação normal, i.e., orcamento feito, vai esperar pela resposta do cliente
+	 * @param id Identificador pretendido para o serviço
+	 * @param idCliente Identificador do cliente que requisitou o pedido
+	 * @param passosOrcamento Lista com os passos que constituem o orçamento
+	 * @param descricaoOrcamento Descricao do problema, pelo qual é necessário a execução do servico de reparacao
+	 */
 	public ServicoPadrao(String id, String idCliente, List<Passo> passosOrcamento, String descricaoOrcamento) {
 		AuxiliarConstrutor(id, idCliente, passosOrcamento, descricaoOrcamento);
 		setIdTecnico(null); //É alterado depois de ser atribuido a um técnico
@@ -36,8 +42,14 @@ public class ServicoPadrao extends Servico {
 		setDataConclusao(null);
 	}
 
-	/** ServicoPadrao iniciado com o Técnico a null. Apenas lhe é atribuido o técnico posteriormente por meio de um setter **/
-	public ServicoPadrao(String id, String idTecnico, String idCliente, String descricaoOrcamento) {
+	/**
+	 * ServicoPadrao iniciado com o Técnico a null. Apenas lhe é atribuido o técnico posteriormente por meio de um setter
+	 * @param id Identificador pretendido para o serviço
+	 * @param idTecnico
+	 * @param idCliente Identificador do cliente que requisitou o pedido
+	 * @param descricaoOrcamento
+	 */
+	public ServicoPadrao(String id, String idCliente, String idTecnico, String descricaoOrcamento) {
 		AuxiliarConstrutor(id, idCliente, null, descricaoOrcamento);
 		setIdTecnico(idTecnico);
 		setEstado(EstadoServico.Irreparavel);
@@ -86,10 +98,9 @@ public class ServicoPadrao extends Servico {
 	 * 
 	 * @param custoPecas
 	 * @param descricao
-	 * @param tempo
 	 */
-	public void addPasso(float custoPecas, String descricao, float tempo) {
-		passos.add(new Passo(custoPecas, descricao, tempo));
+	public void addPasso(float custoPecas, String descricao) {
+		passos.add(new Passo(custoPecas, descricao));
 	}
 
 	/**
@@ -97,20 +108,26 @@ public class ServicoPadrao extends Servico {
 	 */
 	public Passo proxPasso() {
 		//Guarda o tempo utilizado para executar o passo atual, e atualiza a variavel custoAtual, antes de saltar para o próximo passo
-		Passo passo = getPassoAtual();
+		Passo passo = getPassoAtualPrivate();
 		if(passo != null) {
 			passo.addTempo(Tempo.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
-			custoAtual += passo.getCustoPecas() + passo.getTempo() * orcamento.getPrecoHora();
+			custoAtual += passo.getCustoPecas() + passo.getTempo() * passo.getPrecoHora();
 		}
 
 		passoAtual++;
 		Passo novoPasso;
 
+		//Verifica que se foi adicionado algum passo, durante a reparacao, pelo técnico
 		if(passoAtual < passos.size())
 			novoPasso = passos.get(passoAtual);
+		//Se nao foi, tenta ir buscar o proximo passo ao orcamento
 		else {
 			passoAtualOrcamento++;
 			novoPasso = orcamento.getPasso(passoAtualOrcamento);
+			if(novoPasso != null) {
+				novoPasso.setTempo(0); //Elimina o tempo que vem no passo do orçamento
+				passos.add(novoPasso);
+			}
 		}
 
 		//Marca a data em que o passo foi começado
@@ -120,12 +137,22 @@ public class ServicoPadrao extends Servico {
 	}
 
 	/**
-	 * Usado para retomar um servico
-	 * @return
+	 * Indica o passo atual em que o servico se encontra
+	 * @return Passo atual clonado
 	 */
 	public Passo getPassoAtual() {
-		if(passos.size() > 0)
-			return passos.get(passoAtual).clone();
+		Passo passo = getPassoAtualPrivate();
+		if(passo != null) return passo.clone();
+		return null;
+	}
+
+	/**
+	 * Indica o passo atual em que o servico se encontra
+	 * @return Passo atual não clonado
+	 */
+	public Passo getPassoAtualPrivate() {
+		if(passoAtual >= 0 && passoAtual < passos.size())
+			return passos.get(passoAtual);
 		return null;
 	}
 
@@ -169,9 +196,10 @@ public class ServicoPadrao extends Servico {
 		if(estado == EstadoServico.Irreparavel || estado == EstadoServico.Concluido || estado == EstadoServico.Interrompido){
 
 			//Guarda o tempo utilizado para executar o passo atual
-			if(passos.size() > 0)
-				passos.get(passos.size() - 1).addTempo(Tempo.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
+			Passo passo = getPassoAtualPrivate();
+			if(passo != null) passo.addTempo(Tempo.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
 
+			setDataConclusao(LocalDateTime.now());
 			setEstado(estado);
 			return true;
 		}
@@ -206,4 +234,18 @@ public class ServicoPadrao extends Servico {
 		return orcamento.getTempoPrevisto();
 	}
 
+
+	//TODO: Remover depois da app estar feita
+	@Override
+	public String toString() {
+		return "ServicoPadrao{" +
+				super.toString() +
+				", passos=" + passos +
+				", orcamento=" + orcamento +
+				", custoAtual=" + custoAtual +
+				", passoAtual=" + passoAtual +
+				", passoAtualOrcamento=" + passoAtualOrcamento +
+				", inicioPassoAtual=" + inicioPassoAtual +
+				'}';
+	}
 }

@@ -23,6 +23,7 @@ public class ServicosFacade implements Serializable {
 
 	//TODO - calcular prazo maximo
 	//TODO - necessario lock(s) para as estruturas de dados, devido ao uso do Timer
+	//TODO: Maybe fazer um getPreco e só dps confirmar a arquivacao do servico com o entregarEquipamento
 
 	/**
 	 * Cria um servico expresso, e coloca-o no inicio da fila de servicos em espera de reparacao.
@@ -264,8 +265,8 @@ public class ServicosFacade implements Serializable {
 	/**
 	 * Regista servico cujo equipamento foi declarado irreparavel pelo tecnico.
 	 */
-	public boolean addServicoPadraoIrreparavel(String idCliente, String idTecnico, String idEquip, String descricao){
-		estados.get(EstadoServico.Irreparavel).put(idEquip, new ServicoPadrao(idCliente, idTecnico, idEquip, descricao));
+	public boolean addServicoPadraoIrreparavel(String idEquip, String idCliente, String idTecnico, String descricao){
+		estados.get(EstadoServico.Irreparavel).put(idEquip, new ServicoPadrao(idEquip, idCliente, idTecnico, descricao));
 		return true;
 	}
 
@@ -289,6 +290,7 @@ public class ServicosFacade implements Serializable {
 		return null;
 	}
 
+	//TODO n é suposto receber tempo
 	/**
 	 * Adiciona um passo a seguir ao passo atual.
 	 * @param idServico Identificador do servico, ao qual se pretende adicionar o passo
@@ -300,7 +302,7 @@ public class ServicosFacade implements Serializable {
 
 		if(!(servico instanceof ServicoPadrao) || servico.getEstado() != EstadoServico.EmExecucao) return false;
 
-		((ServicoPadrao) servico).addPasso(passo.getCustoPecas(), passo.getDescricao(), passo.getTempo());
+		((ServicoPadrao) servico).addPasso(passo.getCustoPecas(), passo.getDescricao());
 
 		return true;
 	}
