@@ -9,6 +9,7 @@ public class FuncionarioFacade implements Serializable {
 
 	public FuncionarioFacade() {
 		funcionarios = new HashMap<>();
+		funcionarios.put("Alfredo",new Gestor("Alfredo","12345"));
 	}
 
 	public FuncionarioFacade(Map<String, Funcionario> funcionarios) {
