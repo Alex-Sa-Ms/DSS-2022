@@ -177,7 +177,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 		if (permissao==1){
 			Servico servico = servicosFacade.getProxServico(idUtilizador);
 			if(servico!=null){
-				funcionarioFacade.addServicoTecnico(idUtilizador,servico.getId()); // cagamos no caso de se isto retornar falso?
+				funcionarioFacade.addServicoTecnico(idUtilizador,servico.getId()); //TODO - cagamos no caso de se isto retornar falso?
 				return servico;
 			}
 		}
@@ -187,7 +187,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	@Override
 	public Passo proxPasso(String IDServico) {
 		if (permissao==1){
-			return ((ServicoPadrao)servicosFacade.getServico(IDServico)).proxPasso(); //Se isto crashar, culpo a interface
+			return servicosFacade.proxPasso(IDServico); //TODO - Se isto crashar, culpo a interface
 		}
 		return null;
 	}

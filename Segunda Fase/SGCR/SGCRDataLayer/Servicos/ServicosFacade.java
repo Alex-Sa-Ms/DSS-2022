@@ -102,12 +102,7 @@ public class ServicosFacade implements Serializable {
 	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser interrompido. 'true' caso contrário
 	 */
 	public boolean interrompeServico(String idServico){
-		Servico servico = estados.get(EstadoServico.EmExecucao).remove(idServico);
-
-		if(servico == null) return false;
-
-		servico.mudaEstado(EstadoServico.Interrompido);
-		estados.get(EstadoServico.Interrompido).put(idServico, servico);
+		if(mudaEstado(EstadoServico.EmExecucao, EstadoServico.Interrompido, idServico) == null) return false;
 		return true;
 	}
 
@@ -117,12 +112,7 @@ public class ServicosFacade implements Serializable {
 	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser marcado como concluido. 'true' caso contrário
 	 */
 	public boolean concluiServico(String idServico){
-		Servico servico = estados.get(EstadoServico.EmExecucao).remove(idServico);
-
-		if(servico == null) return false;
-
-		servico.mudaEstado(EstadoServico.Concluido);
-		estados.get(EstadoServico.Concluido).put(idServico, servico);
+		if(mudaEstado(EstadoServico.EmExecucao, EstadoServico.Concluido, idServico) == null) return false;
 		return true;
 	}
 
@@ -132,12 +122,7 @@ public class ServicosFacade implements Serializable {
 	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser retomado. 'true' caso contrário
 	 */
 	public boolean retomaServico(String idServico){
-		Servico servico = estados.get(EstadoServico.Interrompido).remove(idServico);
-
-		if(servico == null) return false;
-
-		servico.mudaEstado(EstadoServico.EmExecucao);
-		estados.get(EstadoServico.EmExecucao).put(idServico, servico);
+		if(mudaEstado(EstadoServico.Interrompido, EstadoServico.EmExecucao, idServico) == null) return false;
 		return true;
 	}
 
@@ -310,6 +295,20 @@ public class ServicosFacade implements Serializable {
 		return true;
 	}
 
+	//TODO - adicionar ao diagrama
+	/**
+	 * @param idServico Identificador do servico do qual se pretende o proximmo passo
+	 * @return proximo passo a ser executado no servico
+	 */
+	public Passo proxPasso(String idServico){
+		Servico servico = getApontadorServico(idServico);
+
+		if(servico instanceof ServicoPadrao)
+			return ((ServicoPadrao) servico).proxPasso();
+
+		return null;
+	}
+
 
 	// ****** Auxiliares ******
 
@@ -323,10 +322,10 @@ public class ServicosFacade implements Serializable {
 
 		//Procura nos servicos não arquivados
 		for(Map<String,Servico> e : estados.values())
-			if ((servico = e.get(id)) != null) return servico.clone();
+			if ((servico = e.get(id)) != null) return servico;
 
 		//Procura nos servicos arquivados
-		if ((servico = arquivados.get(id)) != null) return servico.clone();
+		if ((servico = arquivados.get(id)) != null) return servico;
 
 		//Não encontrou o servico
 		return null;

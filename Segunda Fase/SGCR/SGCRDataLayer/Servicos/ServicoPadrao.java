@@ -14,6 +14,8 @@ public class ServicoPadrao extends Servico {
 	private int   passoAtualOrcamento;
 	private long  inicioPassoAtual;
 
+	//TODO - mudar Tempo.converteTimeMillisParaSegundos -> Tempo.converteTimeMillisParaHoras
+
 	// ****** Construtores ******
 
 	/**
@@ -117,12 +119,13 @@ public class ServicoPadrao extends Servico {
 		passos.add(new Passo(custoPecas, descricao));
 	}
 
-	/** @return Próximo 'Passo' a ser executado, ou 'null' caso não exista. */
+	/** @return Clone do próximo 'Passo' a ser executado, ou 'null' caso não exista. */
 	public Passo proxPasso() {
 		//Guarda o tempo utilizado para executar o passo atual, e atualiza a variavel custoAtual, antes de saltar para o próximo passo
 		Passo passo = getPassoAtualPrivate();
 		if(passo != null) {
-			passo.addTempo(Tempo.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
+			// TODO - mudar Tempo.converteTimeMillisParaSegundos -> Tempo.converteTimeMillisParaHoras
+			passo.addTempo(Tempo.converteTimeMillisParaSegundos(System.currentTimeMillis() - inicioPassoAtual));
 			custoAtual += passo.getCustoPecas() + passo.getTempo() * passo.getPrecoHora();
 		}
 
@@ -131,7 +134,7 @@ public class ServicoPadrao extends Servico {
 
 		//Verifica que se foi adicionado algum passo, durante a reparacao, pelo técnico
 		if(passoAtual < passos.size())
-			novoPasso = passos.get(passoAtual);
+			novoPasso = passos.get(passoAtual).clone();
 		//Se nao foi, tenta ir buscar o proximo passo ao orcamento
 		else {
 			passoAtualOrcamento++;
@@ -139,6 +142,7 @@ public class ServicoPadrao extends Servico {
 			if(novoPasso != null) {
 				novoPasso.setTempo(0); //Elimina o tempo que vem no passo (clonado) do orçamento
 				passos.add(novoPasso);
+				novoPasso = novoPasso.clone();
 			}
 		}
 
@@ -209,7 +213,8 @@ public class ServicoPadrao extends Servico {
 
 			//Guarda o tempo utilizado para executar o passo atual
 			Passo passo = getPassoAtualPrivate();
-			if(passo != null) passo.addTempo(Tempo.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
+			//TODO - mudar Tempo.converteTimeMillisParaSegundos -> Tempo.converteTimeMillisParaHoras
+			if(passo != null) passo.addTempo(Tempo.converteTimeMillisParaSegundos(System.currentTimeMillis() - inicioPassoAtual));
 
 			setDataConclusao(LocalDateTime.now());
 			setEstado(estado);
@@ -249,7 +254,7 @@ public class ServicoPadrao extends Servico {
 	public String toString() {
 		return "ServicoPadrao{" +
 				super.toString() +
-				//", passos=" + passos +
+				", passos=" + passos +
 				//", orcamento=" + orcamento +
 				//", custoAtual=" + custoAtual +
 				//", passoAtual=" + passoAtual +
