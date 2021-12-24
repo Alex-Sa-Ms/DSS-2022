@@ -51,14 +51,14 @@ public class PrintMsg {
     public void printLPasso (List<Passo> l){
         int counter=1;
         for(Passo p : l){
-            System.out.println("Passo #"+counter+ ":::: Custo : "+ p.getCusto()+ " | Tempo: "+p.getTempo()+ " | Descrição: "+ p.getDescricao() );
+            System.out.println("Passo #"+counter+ ":::: Custo : "+  "smth "+ " | Tempo: "+p.getTempo()+ " | Descrição: "+ p.getDescricao() );
             System.out.flush();
             counter++;
         }
     }
 
     public String passoToString(Passo p){
-        String s = "Passo :::: Custo : "+ p.getCusto()+ " | Tempo: "+p.getTempo()+ " | Descrição: "+ p.getDescricao();
+        String s = "Passo :::: Custo : "+ "smth " + " | Tempo: "+p.getTempo()+ " | Descrição: "+ p.getDescricao();
         return s;
     }
 

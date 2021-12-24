@@ -18,11 +18,18 @@ public class SGCRFacade implements iSGCR, Serializable {
 	private int permissao;
 	private String idUtilizador;
 
+
 	//-1 login incorreto
 	// 0 funcionario balcao
 	// 1 tecnico
 	// 2 gestor
+	public SGCRFacade(){
+		this.clientesFacade = new ClientesFacade();
+		this.pedidosFacade = new PedidosFacade();
+		this.funcionarioFacade = new FuncionarioFacade();
+		this.servicosFacade = new ServicosFacade();
 
+	}
 
 
 	public static SGCRFacade loadSGCRFacade(){ //Dessirialize

@@ -91,7 +91,6 @@ public class UIFacade {
                                                     "Estatisticas2",
                                                     "Estatisticas3",
                                                     "Listar Funcionarios"});
-        gestor.executa();
         boolean flag=true;
         while (flag){
             gestor.executa();
@@ -120,6 +119,7 @@ public class UIFacade {
                   List<Tecnico> l = logic.listarTecnicos();
                   l.forEach(x->printer.printFuncionario(x));
               }
+                break;
 
               case 0:
                 flag=false;
@@ -234,7 +234,6 @@ public class UIFacade {
                 else if (preco == -1) printer.printMsg("Erro na entrega!");
                 else {
                     printer.printMsg("Custo a cobrar ao cliente: "+ preco +". Entrega Concluida");
-                    logic.pagamentoServico(idServ);
                 }
                 l = logic.listarServicosProntosLevantamento(nif.getOpcao());
             }
@@ -255,6 +254,7 @@ public class UIFacade {
         MenuSelect temp = new MenuSelect("", new String[]{"Sair"});
         boolean flag=true;
         while (flag) {
+            tecnico.executa();
             switch (tecnico.getOpcao()) {
                 case 1:
                     controladorPedidos();
