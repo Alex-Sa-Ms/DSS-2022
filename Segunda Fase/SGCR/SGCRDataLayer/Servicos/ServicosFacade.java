@@ -21,10 +21,8 @@ public class ServicosFacade implements Serializable {
 			estados.put(e, new HashMap<>());
 	}
 
-	//TODO - calcular prazo maximo
 	//TODO - necessario lock(s) para as estruturas de dados, devido ao uso do Timer
-	//TODO: Maybe fazer um getPreco e só dps confirmar a arquivacao do servico com o entregarEquipamento
-	//TODO - onde esta a parte dos 30 dias dps do orcamento, adicionar no metodo 'arquivaServicos'
+	//TODO - Maybe usar o getPrecoServico e só dps confirmar a arquivacao do servico com o entregarEquipamento
 
 	/**
 	 * Cria um servico expresso, e coloca-o no inicio da fila de servicos em espera de reparacao.
@@ -78,6 +76,24 @@ public class ServicosFacade implements Serializable {
 	}
 
 	/**
+	 * Atualiza estado do proximo servico a ser executado para "Em execucao",
+	 * e adiciona-lhe a informacao do tecnico que o vai executar.
+	 * @param idTecnico Identificador do Técnico
+	 * @return proximo servico a ser executado
+	 */
+	public Servico getProxServico(String idTecnico){
+		Servico servico;
+		String idServico = filaServicos.poll();
+
+		if(idServico != null && (servico = mudaEstado(EstadoServico.EsperandoReparacao, EstadoServico.EmExecucao, idServico)) != null) {
+			servico.setIdTecnico(idTecnico);
+			return servico.clone();
+		}
+
+		return null;
+	}
+
+	/**
 	 * Caso o servico estiver no estado em que aguarda confirmacao do orcamento, altera o seu estado para "Esperando Reparacao",
 	 * e adiciona-o no fim da lista de servicos à espera de reparacao.
 	 * @param idEquip Identificador do equipamento
@@ -97,6 +113,17 @@ public class ServicosFacade implements Serializable {
 		return true;
 	}
 
+	//TODO - Falta adicionar isto na interface e no SGCR
+	/**
+	 * Muda o estado de um servico, com o identificador fornecido, que esta a ser executado para irreparavel.
+	 * @param idServico Identificador do servico
+	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser marcado como irreparavel. 'true' caso contrário
+	 */
+	public boolean orcamentoExpirado(String idServico){
+		if(mudaEstado(EstadoServico.AguardarConfirmacao, EstadoServico.Expirado, idServico) == null) return false;
+		return true;
+	}
+
 	/**
 	 * Interrompe servico que possui o identificador fornecido.
 	 * @param idServico Identificador do servico
@@ -104,16 +131,6 @@ public class ServicosFacade implements Serializable {
 	 */
 	public boolean interrompeServico(String idServico){
 		if(mudaEstado(EstadoServico.EmExecucao, EstadoServico.Interrompido, idServico) == null) return false;
-		return true;
-	}
-
-	/**
-	 * Marca o servico que possui o identificador fornecido como concluido.
-	 * @param idServico Identificador do servico
-	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser marcado como concluido. 'true' caso contrário
-	 */
-	public boolean concluiServico(String idServico){
-		if(mudaEstado(EstadoServico.EmExecucao, EstadoServico.Concluido, idServico) == null) return false;
 		return true;
 	}
 
@@ -127,7 +144,17 @@ public class ServicosFacade implements Serializable {
 		return true;
 	}
 
-	//TODO - add no diagrama
+	/**
+	 * Marca o servico que possui o identificador fornecido como concluido.
+	 * @param idServico Identificador do servico
+	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser marcado como concluido. 'true' caso contrário
+	 */
+	public boolean concluiServico(String idServico){
+		if(mudaEstado(EstadoServico.EmExecucao, EstadoServico.Concluido, idServico) == null) return false;
+		return true;
+	}
+
+	//TODO - Falta adicionar isto na interface e no SGCR
 	/**
 	 * Muda o estado de um servico, com o identificador fornecido, que esta a ser executado para irreparavel.
 	 * @param idServico Identificador do servico
@@ -138,71 +165,33 @@ public class ServicosFacade implements Serializable {
 		return true;
 	}
 
-	//TODO - add no diagrama
 	/**
-	 * Muda o estado de um servico, com o identificador fornecido, que esta a ser executado para irreparavel.
-	 * @param idServico Identificador do servico
-	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser marcado como irreparavel. 'true' caso contrário
+	 * Adiciona um passo a seguir ao passo atual.
+	 * @param idServico Identificador do servico, ao qual se pretende adicionar o passo
+	 * @param passo Passo que se pretende adicionar
+	 * @return 'false' se o servico nao existir, ou se nao estiver a ser executado. 'true' caso contrário.
 	 */
-	private boolean orcamentoExpirado(String idServico){
-		if(mudaEstado(EstadoServico.AguardarConfirmacao, EstadoServico.Expirado, idServico) == null) return false;
+	public boolean addPasso(String idServico, Passo passo){
+		Servico servico = getApontadorServico(idServico);
+
+		if(!(servico instanceof ServicoPadrao) || servico.getEstado() != EstadoServico.EmExecucao) return false;
+
+		((ServicoPadrao) servico).addPasso(passo.getCustoPecas(), passo.getDescricao());
+
 		return true;
 	}
 
-	//TODO - atualizar diagrama (o nome ja nao é arquivaServicos)
 	/**
-	 * Procura nos servicos não arquivados, aqueles cuja Data de Conclusao do servico remarque a pelo menos 90 dias atras,
-	 * sinalizando os equipamentos como abandonados, e posteriormente arquiva os respetivos servicos.
-	 * Procura tambem por aqueles cuja data do orcamento, remarque a pelo menos 30 dias atras, marcando este servico como expirado.
+	 * @param idServico Identificador do servico do qual se pretende o proximmo passo
+	 * @return proximo passo a ser executado no servico
 	 */
-	public void arquiva_e_sinalizaExpirados() {
-		Iterator<Map.Entry<String,Servico>> it;
+	public Passo proxPasso(String idServico){
+		Servico servico = getApontadorServico(idServico);
 
-		//Procura nos servicos concluidos
-		it = estados.get(EstadoServico.Concluido).entrySet().iterator();
-		auxiliarArquivaServicos(it);
+		if(servico instanceof ServicoPadrao)
+			return ((ServicoPadrao) servico).proxPasso();
 
-		//Procura nos servicos cujo orcamento foi recusado
-		it = estados.get(EstadoServico.OrcamentoRecusado).entrySet().iterator();
-		auxiliarArquivaServicos(it);
-
-		//Procura nos servicos cujo equipamento foi considerado irreparavel
-		it = estados.get(EstadoServico.Irreparavel).entrySet().iterator();
-		auxiliarArquivaServicos(it);
-
-		//Procura nos servicos cujo orcamento expirou
-		it = estados.get(EstadoServico.Expirado).entrySet().iterator();
-		auxiliarArquivaServicos(it);
-
-		//Procura nos servicos que se encontram no estado "A aguardar confirmacao",
-		//e marca como expirados aqueles cuja data presente no orcamento seja de há pelo menos 30 dias
-		LocalDateTime now = LocalDateTime.now();
-		for(Map.Entry<String,Servico> entry : estados.get(EstadoServico.AguardarConfirmacao).entrySet()){
-			if(ChronoUnit.DAYS.between(((ServicoPadrao) entry.getValue()).getDataOrcamento(), now) >= 30)
-				orcamentoExpirado(entry.getKey());
-		}
-	}
-
-	/**
-	 * Auxiliar do método 'arquiva_e_sinalizaExpirados'. Percorre um map com entradas de servicos, removendo
-	 * e arquivando aqueles cuja data de conclusao se distancia em 90 dias da data atual
-	 * @param it Iterador necessário para percorrer o map
-	 */
-	private void auxiliarArquivaServicos(Iterator<Map.Entry<String,Servico>> it){
-		Map.Entry<String,Servico> entry;
-		Servico servico;
-		LocalDateTime now = LocalDateTime.now();
-
-		while (it.hasNext()) {
-			entry = it.next();
-			servico = entry.getValue();
-
-			if(ChronoUnit.DAYS.between(servico.getDataConclusao(), now) >= 90){
-				servico.setAbandonado(true);
-				arquivados.put(entry.getKey(), servico);
-				it.remove();
-			}
-		}
+		return null;
 	}
 
 	/**
@@ -233,7 +222,7 @@ public class ServicosFacade implements Serializable {
 
 		//Procura nos servicos concluidos e nos servicos cujo orcamento foi recusado
 		if((servico = arquivaServico(EstadoServico.Concluido, idEquip)) != null ||
-		   (servico = arquivaServico(EstadoServico.OrcamentoRecusado, idEquip)) != null)
+				(servico = arquivaServico(EstadoServico.OrcamentoRecusado, idEquip)) != null)
 			return servico.getCusto();
 
 		return -1;
@@ -277,17 +266,6 @@ public class ServicosFacade implements Serializable {
 		return map;
 	}
 
-	//TODO - Que tipo de servicos devo fornecer neste metodos? Arquivados e nao arquivados em estado "Concluido"? Se é para fazer fornecam me a lista dos ids de servicos q tem no funcionariosFacade
-	//TODO - ver para que é q o luis quer isto
-	/**
-	 *
-	 * @param idTecnico
-	 */
-	public List<Servico> listarServicosConcluidos(String idTecnico) {
-		// TODO - implement ServicosFacade.listarServicosConcluidos
-		throw new UnsupportedOperationException();
-	}
-
 	/**
 	 * @return lista de pedidos pendentes, ou seja, em espera de reparacao.
 	 */
@@ -299,53 +277,53 @@ public class ServicosFacade implements Serializable {
 	}
 
 	/**
-	 * Atualiza estado do proximo servico a ser executado para "Em execucao",
-	 * e adiciona-lhe a informacao do tecnico que o vai executar.
-	 * @param idTecnico Identificador do Técnico
-	 * @return proximo servico a ser executado
+	 *
+	 * @param idTecnico
 	 */
-	public Servico getProxServico(String idTecnico){
-		Servico servico;
-		String idServico = filaServicos.poll();
+	public List<Servico> listarServicosConcluidos(String idTecnico) {
+		// TODO - implement ServicosFacade.listarServicosConcluidos
+		//Que tipo de servicos devo fornecer neste metodos? Arquivados e nao arquivados em estado "Concluido"? Se é para fazer fornecam me a lista dos ids de servicos q tem no funcionariosFacade
+		//ver para que é q o luis quer isto
+		throw new UnsupportedOperationException();
+	}
 
-		if(idServico != null && (servico = mudaEstado(EstadoServico.EsperandoReparacao, EstadoServico.EmExecucao, idServico)) != null) {
-			servico.setIdTecnico(idTecnico);
-			return servico.clone();
+	/**
+	 * Procura nos servicos não arquivados, aqueles cuja Data de Conclusao do servico remarque a pelo menos 90 dias atras,
+	 * sinalizando os equipamentos como abandonados, e posteriormente arquiva os respetivos servicos.
+	 * Procura tambem por aqueles cuja data do orcamento, remarque a pelo menos 30 dias atras, marcando este servico como expirado.
+	 */
+	public void arquiva_e_sinalizaExpirados() {
+		Iterator<Map.Entry<String,Servico>> it;
+
+		//Procura nos servicos concluidos
+		it = estados.get(EstadoServico.Concluido).entrySet().iterator();
+		auxiliarArquivaServicos(it);
+
+		//Procura nos servicos cujo orcamento foi recusado
+		it = estados.get(EstadoServico.OrcamentoRecusado).entrySet().iterator();
+		auxiliarArquivaServicos(it);
+
+		//Procura nos servicos cujo equipamento foi considerado irreparavel
+		it = estados.get(EstadoServico.Irreparavel).entrySet().iterator();
+		auxiliarArquivaServicos(it);
+
+		//Procura nos servicos cujo orcamento expirou
+		it = estados.get(EstadoServico.Expirado).entrySet().iterator();
+		auxiliarArquivaServicos(it);
+
+		//Procura nos servicos que se encontram no estado "A aguardar confirmacao",
+		//e marca como expirados aqueles cuja data presente no orcamento seja de há pelo menos 30 dias
+		LocalDateTime now = LocalDateTime.now();
+		for(Map.Entry<String,Servico> entry : estados.get(EstadoServico.AguardarConfirmacao).entrySet()){
+			if(ChronoUnit.DAYS.between(((ServicoPadrao) entry.getValue()).getDataOrcamento(), now) >= 30)
+				orcamentoExpirado(entry.getKey());
 		}
-
-		return null;
 	}
 
-	/**
-	 * Adiciona um passo a seguir ao passo atual.
-	 * @param idServico Identificador do servico, ao qual se pretende adicionar o passo
-	 * @param passo Passo que se pretende adicionar
-	 * @return 'false' se o servico nao existir, ou se nao estiver a ser executado. 'true' caso contrário.
-	 */
-	public boolean addPasso(String idServico, Passo passo){
-		Servico servico = getApontadorServico(idServico);
-
-		if(!(servico instanceof ServicoPadrao) || servico.getEstado() != EstadoServico.EmExecucao) return false;
-
-		((ServicoPadrao) servico).addPasso(passo.getCustoPecas(), passo.getDescricao());
-
-		return true;
+	public LocalDateTime calculaPrazoMaximo(){
+		//TODO - calcular prazo maximo
+		throw new UnsupportedOperationException();
 	}
-
-	//TODO - adicionar ao diagrama
-	/**
-	 * @param idServico Identificador do servico do qual se pretende o proximmo passo
-	 * @return proximo passo a ser executado no servico
-	 */
-	public Passo proxPasso(String idServico){
-		Servico servico = getApontadorServico(idServico);
-
-		if(servico instanceof ServicoPadrao)
-			return ((ServicoPadrao) servico).proxPasso();
-
-		return null;
-	}
-
 
 	// ****** Auxiliares ******
 
@@ -399,7 +377,27 @@ public class ServicosFacade implements Serializable {
 		return servico;
 	}
 
+	/**
+	 * Auxiliar do método 'arquiva_e_sinalizaExpirados'. Percorre um map com entradas de servicos, removendo
+	 * e arquivando aqueles cuja data de conclusao se distancia em 90 dias da data atual
+	 * @param it Iterador necessário para percorrer o map
+	 */
+	private void auxiliarArquivaServicos(Iterator<Map.Entry<String,Servico>> it){
+		Map.Entry<String,Servico> entry;
+		Servico servico;
+		LocalDateTime now = LocalDateTime.now();
 
+		while (it.hasNext()) {
+			entry = it.next();
+			servico = entry.getValue();
+
+			if(ChronoUnit.DAYS.between(servico.getDataConclusao(), now) >= 90){
+				servico.setAbandonado(true);
+				arquivados.put(entry.getKey(), servico);
+				it.remove();
+			}
+		}
+	}
 
 	//TODO - remover no fim de tudo estar pronto
 

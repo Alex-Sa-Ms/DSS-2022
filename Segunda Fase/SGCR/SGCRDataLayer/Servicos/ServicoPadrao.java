@@ -14,8 +14,6 @@ public class ServicoPadrao extends Servico {
 	private int   passoAtualOrcamento;
 	private long  inicioPassoAtual;
 
-	//TODO - mudar Tempo.converteTimeMillisParaSegundos -> Tempo.converteTimeMillisParaHoras
-
 	// ****** Construtores ******
 
 	/**
@@ -107,7 +105,6 @@ public class ServicoPadrao extends Servico {
 	/** @return float que indica o custo do serviço até ao momento */
 	public float getCusto() { return custoAtual; }
 
-	//TODO - add diagrama
 	/** @return data de criacao do orcamento **/
 	public LocalDateTime getDataOrcamento() { return orcamento.getData(); }
 
@@ -128,8 +125,7 @@ public class ServicoPadrao extends Servico {
 		//Guarda o tempo utilizado para executar o passo atual, e atualiza a variavel custoAtual, antes de saltar para o próximo passo
 		Passo passo = getPassoAtualPrivate();
 		if(passo != null) {
-			// TODO - mudar Tempo.converteTimeMillisParaSegundos -> Tempo.converteTimeMillisParaHoras
-			passo.addTempo(Tempo.converteTimeMillisParaSegundos(System.currentTimeMillis() - inicioPassoAtual));
+			passo.addTempo(Tempo.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
 			custoAtual += passo.getCustoPecas() + passo.getTempo() * passo.getPrecoHora();
 		}
 
@@ -217,8 +213,7 @@ public class ServicoPadrao extends Servico {
 
 			//Guarda o tempo utilizado para executar o passo atual
 			Passo passo = getPassoAtualPrivate();
-			//TODO - mudar Tempo.converteTimeMillisParaSegundos -> Tempo.converteTimeMillisParaHoras
-			if(passo != null) passo.addTempo(Tempo.converteTimeMillisParaSegundos(System.currentTimeMillis() - inicioPassoAtual));
+			if(passo != null) passo.addTempo(Tempo.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
 
 			setDataConclusao(LocalDateTime.now());
 			setEstado(estado);

@@ -5,7 +5,7 @@ public class Passo {
 	private float custoPecas;
 	private String descricao;
 	private float tempo;
-	private float precoHora = (float) 4.5;
+	private static float precoHora = (float) 4.5;
 
 	/** Construtor para os passos de orçamento.
 	 * @param custoPecas
@@ -50,6 +50,7 @@ public class Passo {
 
 	public float getPrecoHora() { return precoHora; }
 
+	static void setPrecoHora(float precoHora) { Passo.precoHora = precoHora; }
 
 	//TODO: Remover depois da app estar feita
 
