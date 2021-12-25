@@ -24,107 +24,189 @@ public class SGCRFacade implements iSGCR, Serializable {
 	// 1 tecnico
 	// 2 gestor
 	public SGCRFacade(){
-		this.clientesFacade = new ClientesFacade();
-		this.pedidosFacade = new PedidosFacade();
+		this.clientesFacade    = new ClientesFacade();
+		this.pedidosFacade     = new PedidosFacade();
 		this.funcionarioFacade = new FuncionarioFacade();
-		this.servicosFacade = new ServicosFacade();
+		this.servicosFacade    = new ServicosFacade();
 
 	}
 
-
-	public static SGCRFacade loadSGCRFacade(){ //Dessirialize
-		try {
-			SGCRFacade novo;
-			FileInputStream fileIn = new FileInputStream("save");
-			ObjectInputStream in = new ObjectInputStream(fileIn);
-			novo = (SGCRFacade) in.readObject();
-			in.close();
-			fileIn.close();
-			return novo;
-		} catch (IOException | ClassNotFoundException fnfe){
-			return null;
-		}
-	}
+	// ****** Iniciar/Terminar Sessao ******
 
 	@Override
-	public int login(String ID, String Password) {
-		if((permissao=funcionarioFacade.verificaCredenciais(ID,Password))!=-1){
-			idUtilizador=ID;
+	public int logIn(String ID, String Password) {
+		if((permissao = funcionarioFacade.verificaCredenciais(ID,Password)) != -1){
+			idUtilizador = ID;
 		}
 		return permissao;
 	}
 
 	@Override
 	public boolean logOut() {
-		if (permissao!=-1 && idUtilizador!=null){
-			permissao=-1;
-			idUtilizador=null;
+		if (permissao != -1 && idUtilizador != null){
+			permissao =- 1;
+			idUtilizador = null;
 			return true;
 		}else return false;
 	}
 
-	//0 não há problemas
-	//1 fileNotFound
-	//2 erro ao escrever ficheiro
+
+	// ****** Metodos relativos a Clientes ******
+
 	@Override
-	public int encerraAplicacao() { //Serialize
-		if(logOut()){
-			try {
-				FileOutputStream fileOut;
-				fileOut = new FileOutputStream(caminho);
-				ObjectOutputStream out;
-				out = new ObjectOutputStream(fileOut);
-				out.writeObject(this);
-				out.close();
-				fileOut.close();
-			} catch (FileNotFoundException fnfe){
-				return 1;
-			} catch (IOException e){
-				return 2;
-			}
+	public boolean criaFichaCliente(String nome, String nif, String email) {
+		if(permissao == 0)
+			return clientesFacade.criaFichaCliente(nome, nif, email);
+		return false;
+	}
+
+	@Override
+	public boolean existeCliente(String idCliente) {
+		if(permissao == 0){
+			return (clientesFacade.getFichaCliente(idCliente) != null);
 		}
-		return 0;
+		return false;
 	}
 
-	@Override
-	public List<Servico> listarServicosPendentes() {
-		if(permissao==1){
-			return servicosFacade.listaPedidosPendentes();
-		} else return null;
-	}
 
+	// ****** Metodos relativos a Pedidos de Orcamento ******
 
 	@Override
 	public boolean criarNovoPedido(String descricao, String nifCliente) {
-		if(permissao==0){
-			if(clientesFacade.getFichaCliente(nifCliente)!=null){
+		if(permissao == 0){
+			if(clientesFacade.getFichaCliente(nifCliente) != null){
 				funcionarioFacade.incNrRececoes(idUtilizador);
-				pedidosFacade.addPedido(descricao, clientesFacade.getIdProxEquip() ,nifCliente);
+				pedidosFacade.addPedido(descricao, clientesFacade.getIdProxEquip(), nifCliente);
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private boolean prontoParaLevantar(Servico s){
-		return (s.getEstado() == EstadoServico.OrcamentoRecusado ||
-				s.getEstado() ==	EstadoServico.Irreparavel ||
-				s.getEstado() ==	EstadoServico.Concluido ||
-				s.getEstado() ==	EstadoServico.Expirado);
+	@Override
+	public PedidoOrcamento resolverPedido() {
+		if(permissao == 1)
+			return pedidosFacade.getProxPedido();
+		return null;
+	}
+
+
+	// ****** Metodos relativos a Funcionarios ******
+
+	@Override
+	public boolean adicionaFuncBalcao(String id, String password) {
+		if(permissao == 2)
+			return funcionarioFacade.addFuncBalcao(id, password);
+		return false;
 	}
 
 	@Override
-	public List<Servico> listarServicosProntosLevantamento(String NIF) {
-		if(permissao==0){
-			Set<String> idsEquips = clientesFacade.getFichaCliente(NIF).getEquipamentos();
-			List<Servico> servicos = new ArrayList<>();
-			for (String id: idsEquips){
-				Servico newServico = servicosFacade.getServico(id);
-				if(prontoParaLevantar(newServico))
-					servicos.add(newServico);
+	public boolean adicionaTecnico(String id, String password) {
+		if(permissao == 2)
+			return funcionarioFacade.addTecnico(id, password);
+		return false;
+	}
+
+	@Override
+	public List<FuncionarioBalcao> listarFuncionariosBalcao() {
+		if(permissao == 2)
+			return funcionarioFacade.listarFuncionariosBalcao();
+		return null;
+	}
+
+	@Override
+	public List<Tecnico> listarTecnicos() {
+		if(permissao == 2)
+			return funcionarioFacade.listarTecnicos();
+		return null;
+	}
+
+
+	// ****** Metodos relativos a Servicos ******
+
+	@Override
+	public boolean criaServicoPadrao(PedidoOrcamento o, List<Passo> passos) {
+		if(permissao == 1){
+			return servicosFacade.addServicoPadrao(o.getIdEquipamento(), o.getNIFCliente(), passos, o.getDescricao());
+		} return false;
+	}
+
+	@Override
+	public boolean criarServicoExpresso(Float custo, String NIF) {
+		if(permissao == 0) {
+			funcionarioFacade.incNrRececoes(idUtilizador);
+			return servicosFacade.addServicoExpresso(clientesFacade.getIdProxEquip(), NIF, custo);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean rejeitaPedidoOrcamento(PedidoOrcamento o) {
+		if(permissao == 1){
+			if(servicosFacade.addServicoPadraoIrreparavel(o.getIdEquipamento(), o.getNIFCliente(), idUtilizador, o.getDescricao())){
+				EmailHandler.emailIrreparavel(); //TODO isto tem de receber argumentos
+				return true;
 			}
-			return servicos;
-		} else return null;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean aceitarOrcamento(String idServico) {
+		if(permissao >= 0) //TODO - vejam q permissao querem aqui
+			return servicosFacade.orcamentoAceite(idServico);
+		return false;
+	}
+
+	@Override
+	public boolean rejeitarOrcamento(String idServico) {
+		if(permissao >= 0) //TODO - vejam q permissao querem aqui
+			return servicosFacade.orcamentoRejeitado(idServico);
+		return false;
+	}
+
+	@Override
+	public Servico comecarServico() {
+		if (permissao == 1){
+			Servico servico = servicosFacade.getProxServico(idUtilizador);
+			if(servico != null){
+				funcionarioFacade.addServicoTecnico(idUtilizador, servico.getId()); //TODO - cagamos no caso de se isto retornar falso?
+				return servico;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public boolean interromperServico(String IDServico) {
+		if (permissao == 1 && funcionarioFacade.possuiServico(idUtilizador, IDServico))
+			return servicosFacade.interrompeServico(IDServico);
+		return false;
+	}
+
+	@Override
+	public Passo retomarServico(String IDServico) {
+		if (permissao == 1 && funcionarioFacade.possuiServico(idUtilizador, IDServico))
+			return servicosFacade.retomaServico(IDServico) ? servicosFacade.getPassoAtual(IDServico) : null;
+		return null;
+	}
+
+	@Override
+	public boolean concluiServico(String IDServico) {
+		if (permissao == 1 && funcionarioFacade.possuiServico(idUtilizador, IDServico)){
+
+			if(servicosFacade.concluiServico(IDServico)){
+				Servico s = servicosFacade.getServico(IDServico);
+				if(s instanceof ServicoPadrao) {
+					ServicoPadrao sp = (ServicoPadrao) s;
+					funcionarioFacade.incNrRepProgConcluidas(idUtilizador, sp.duracaoPassos(), sp.duracaoPassosPrevistos());
+				}
+				else funcionarioFacade.incNrRepExpConcluidas(idUtilizador);  //assumindo que não criamos novos servicos //TODO - luis wdym?
+				return true;
+			}
+
+		}
+		return false;
 	}
 
 	@Override
@@ -140,48 +222,11 @@ public class SGCRFacade implements iSGCR, Serializable {
 	}
 
 	@Override
-	public boolean criaFichaCliente(String nome, String nif, String email) {
-		if(permissao==0){
-			return clientesFacade.criaFichaCliente(nome,nif,email);
-		}
-		return false;
-	}
-
-	@Override
-	public PedidoOrcamento resolverPedido() {
-		if(permissao==1){
-			return pedidosFacade.getProxPedido();
-		} else return null;
-	}
-
-	@Override
-	public boolean criaServicoPadrao(PedidoOrcamento o, List<Passo> passos) {
-		if(permissao==1){
-			return servicosFacade.addServicoPadrao(o.getIdEquipamento(), o.getNIFCliente(), passos, o.getDescricao());
-		} return false;
-	}
-
-	@Override
-	public boolean rejeitaPedidoOrcamento(PedidoOrcamento o) {
-		if(permissao==1){
-			if(servicosFacade.addServicoPadraoIrreparavel(o.getIdEquipamento(), o.getNIFCliente(), idUtilizador, o.getDescricao())){
-				EmailHandler.emailIrreparavel();
-				return true;
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public Servico comecarServico() {
+	public boolean addPassoServico(String ID, Passo passo) {
 		if (permissao==1){
-			Servico servico = servicosFacade.getProxServico(idUtilizador);
-			if(servico!=null){
-				funcionarioFacade.addServicoTecnico(idUtilizador,servico.getId()); //TODO - cagamos no caso de se isto retornar falso?
-				return servico;
-			}
+			return servicosFacade.addPasso(ID, passo);
 		}
-		return null;
+		return false;
 	}
 
 	@Override
@@ -201,85 +246,42 @@ public class SGCRFacade implements iSGCR, Serializable {
 	}
 
 	@Override
-	public boolean addPassoServico(String ID, Passo passo) {
-		if (permissao==1){
-			return servicosFacade.addPasso(ID, passo);
-		}
-		return false;
-	}
-
-	@Override
-	public boolean interromperServico(String IDServico) {
-		if (permissao==1){
-			return servicosFacade.interrompeServico(IDServico);
-		}
-		return false;
-	}
-
-	@Override
-	public boolean concluiServico(String IDServico) {
-		if (permissao==1){
-			Servico s;
-			if((s= servicosFacade.getServico(IDServico))!=null){
-				servicosFacade.concluiServico(IDServico);            //nao lidamos com o falso aqui
-				if(s instanceof ServicoPadrao)
-					funcionarioFacade.incNrRepProgConcluidas(idUtilizador
-							,((ServicoPadrao) s).duracaoPassos(),((ServicoPadrao) s).duracaoPassosPrevistos());
-				else funcionarioFacade.incNrRepExpConcluidas(idUtilizador);  //assumindo que não criamos novos servicos
-				return true;
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public Passo retomarServico(String IDServico) {
-		if (permissao==1){
-			Servico s = servicosFacade.getServico(IDServico);
-			if(s instanceof ServicoPadrao && funcionarioFacade.listarServicosTecnico(idUtilizador).contains(IDServico)){
-				servicosFacade.retomaServico(IDServico);          //nao fazemos verificacao caso de falso
-				return ((ServicoPadrao) s).getPassoAtual();
-			}
-		}
+	public List<Servico> listarServicosPendentes() {
+		if(permissao == 1)
+			return servicosFacade.listaServicosPendentes();
 		return null;
 	}
+
+	@Override
+	public List<Servico> listarServicosProntosLevantamento(String NIF) {
+		if(permissao == 0){
+			Set<String> idsEquips = clientesFacade.getFichaCliente(NIF).getEquipamentos();
+			List<Servico> servicos = new ArrayList<>();
+			for (String id: idsEquips){
+				Servico newServico = servicosFacade.getServico(id);
+				if(prontoParaLevantar(newServico))
+					servicos.add(newServico);
+			}
+			return servicos;
+		} else return null;
+	}
+
+	/**
+	 * @param s Servico, do qual se pretende verificar que se encontra num estado em que o equipamento pode ser levantado.
+	 * @return 'true' se o equipamento pode ser levantado, 'false' caso contrario
+	 */
+	private boolean prontoParaLevantar(Servico s){
+		return (s.getEstado() == EstadoServico.OrcamentoRecusado ||
+				s.getEstado() == EstadoServico.Irreparavel ||
+				s.getEstado() == EstadoServico.Concluido ||
+				s.getEstado() == EstadoServico.Expirado);
+	}
+
 	//list
 	@Override
 	public Statistics estatisticas() { //todo mudar o return value no diagrama
 		if (permissao==2) {
 			return new Statistics(servicosFacade, funcionarioFacade);
-		}
-		return null;
-	}
-
-	@Override
-	public boolean adicionaTecnico(String id, String password) {
-		if(permissao==2){
-			return funcionarioFacade.addTecnico(id,password);
-		}
-		return false;
-	}
-
-	@Override
-	public boolean adicionaFuncBalcao(String id, String password) {
-		if(permissao==2){
-			return funcionarioFacade.addFuncBalcao(id,password);
-		}
-		return false;
-	}
-
-	@Override
-	public List<FuncionarioBalcao> listarFuncionariosBalcao() {
-		if(permissao==2){
-			return funcionarioFacade.listarFuncionariosBalcao();
-		}
-		return null;
-	}
-
-	@Override
-	public List<Tecnico> listarTecnicos() {
-		if(permissao==2){
-			return funcionarioFacade.listarTecnicos();
 		}
 		return null;
 	}
@@ -306,14 +308,6 @@ public class SGCRFacade implements iSGCR, Serializable {
 	}
 
 	@Override
-	public boolean existeCliente(String idCliente) {
-		if(permissao==0){
-			return (clientesFacade.getFichaCliente(idCliente)!=null);
-		}
-		return false;
-	}
-
-	@Override
 	public List<PedidoOrcamento> listarPedidos() {
 		if(permissao==0){
 			return new ArrayList<>(pedidosFacade.getFilaPedidos());
@@ -321,12 +315,41 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return null;
 	}
 
-	@Override
-	public boolean criarServicoExpresso(Float custo, String NIF) {
-		if(permissao==0) {
-			funcionarioFacade.incNrRececoes(idUtilizador);
-			return servicosFacade.addServicoExpresso(clientesFacade.getIdProxEquip(), NIF, custo);
+	// ****** Iniciar/Encerrar Aplicacao ******
+
+	public static iSGCR loadSGCRFacade(){ //Deserialize
+		try {
+			SGCRFacade novo;
+			FileInputStream fileIn = new FileInputStream("save");
+			ObjectInputStream in = new ObjectInputStream(fileIn);
+			novo = (SGCRFacade) in.readObject();
+			in.close();
+			fileIn.close();
+			return novo;
+		} catch (IOException | ClassNotFoundException fnfe){
+			return null;
 		}
-		return false;
+	}
+
+	//TODO - Deve ter em atencao o estado em que o Timer se encontra. Deve matar a thread e ao iniciar o programa voltar a inicia-la. Nao deveria terminar a sessao?
+	@Override
+	public int encerraAplicacao() { //Serialize
+		if(logOut()){
+			try {
+				FileOutputStream fileOut;
+				fileOut = new FileOutputStream(caminho);
+				ObjectOutputStream out;
+				out = new ObjectOutputStream(fileOut);
+				out.writeObject(this);
+				out.flush();
+				out.close();
+				fileOut.close();
+			} catch (FileNotFoundException fnfe){
+				return 1;
+			} catch (IOException e){
+				return 2;
+			}
+		}
+		return 0;
 	}
 }

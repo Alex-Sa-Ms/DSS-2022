@@ -102,6 +102,10 @@ public class Tecnico extends Funcionario {
 		nRepExpressoConcluidas++;
 	}
 
+	public boolean possuiServico(String idServico){
+		return servicos.contains(idServico);
+	}
+
 	public Tecnico clone(){
 		return new Tecnico(
 				this.getId(),

@@ -24,7 +24,7 @@ public class UIFacade {
         MenuInput password = new MenuInput("Por favor insira a sua palavra passe", "Password:");
         username.executa();
         password.executa();
-        return logic.login(username.getOpcao(), password.getOpcao());
+        return logic.logIn(username.getOpcao(), password.getOpcao());
     }
 
     public void controlador(){

@@ -22,6 +22,7 @@ public class FuncionarioFacade implements Serializable {
 	 * @param password
 	 */
 	public boolean addTecnico(String id, String password) {
+		if(funcionarios.containsKey(id)) return false;
 		funcionarios.put(id, new Tecnico(id,password));
 		return funcionarios.containsKey(id);
 	}
@@ -32,7 +33,8 @@ public class FuncionarioFacade implements Serializable {
 	 * @param password
 	 */
 	public boolean addFuncBalcao(String id, String password) {
-		funcionarios.put(id, new FuncionarioBalcao(id,password));
+		if(funcionarios.containsKey(id)) return false;
+		funcionarios.put(id, new FuncionarioBalcao(id, password));
 		return funcionarios.containsKey(id);
 	}
 
@@ -121,8 +123,8 @@ public class FuncionarioFacade implements Serializable {
 	public List<Tecnico> listarTecnicos() {
 		List<Tecnico> tecs = new ArrayList<>();
 
-		for(Map.Entry<String, Funcionario> entry: funcionarios.entrySet()){
-			if(entry.getValue() instanceof Tecnico) tecs.add(((Tecnico) entry.getValue()).clone());
+		for(Funcionario func: funcionarios.values()){
+			if(func instanceof Tecnico) tecs.add(((Tecnico) func).clone());
 		}
 		return tecs;
 	}
@@ -130,9 +132,10 @@ public class FuncionarioFacade implements Serializable {
 	public List<FuncionarioBalcao> listarFuncionariosBalcao() {
 		List<FuncionarioBalcao> fb = new ArrayList<>();
 
-		for(Map.Entry<String, Funcionario> entry: funcionarios.entrySet()){
-			if(entry.getValue() instanceof FuncionarioBalcao) fb.add(((FuncionarioBalcao) entry.getValue()).clone());
-		}
+		for(Funcionario func: funcionarios.values())
+			if(func instanceof FuncionarioBalcao)
+				fb.add(((FuncionarioBalcao) func).clone());
+
 		return fb;
 	}
 
@@ -144,5 +147,11 @@ public class FuncionarioFacade implements Serializable {
 		List<String> serv = new ArrayList<>();
 		((Tecnico) funcionarios.get(idTecnico)).getServicos().addAll(serv);
 		return serv;
+	}
+
+	public boolean possuiServico(String idTecnico, String idServico){
+		Funcionario funcionario = funcionarios.get(idTecnico);
+		if(funcionario instanceof Tecnico) return ((Tecnico) funcionario).possuiServico(idServico);
+		return false;
 	}
 }

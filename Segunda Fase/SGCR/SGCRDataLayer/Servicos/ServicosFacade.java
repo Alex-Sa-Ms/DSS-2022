@@ -119,7 +119,7 @@ public class ServicosFacade implements Serializable {
 	 * @param idServico Identificador do servico
 	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser marcado como irreparavel. 'true' caso contrário
 	 */
-	public boolean orcamentoExpirado(String idServico){
+	private boolean orcamentoExpirado(String idServico){
 		if(mudaEstado(EstadoServico.AguardarConfirmacao, EstadoServico.Expirado, idServico) == null) return false;
 		return true;
 	}
@@ -179,6 +179,11 @@ public class ServicosFacade implements Serializable {
 		((ServicoPadrao) servico).addPasso(passo.getCustoPecas(), passo.getDescricao());
 
 		return true;
+	}
+
+	public Passo getPassoAtual(String idServico){
+		Servico servico = getApontadorServico(idServico);
+		return (servico instanceof ServicoPadrao) ? ((ServicoPadrao) servico).getPassoAtual() : null;
 	}
 
 	/**
@@ -269,7 +274,7 @@ public class ServicosFacade implements Serializable {
 	/**
 	 * @return lista de pedidos pendentes, ou seja, em espera de reparacao.
 	 */
-	public List<Servico> listaPedidosPendentes(){
+	public List<Servico> listaServicosPendentes(){
 		return estados.get(EstadoServico.EsperandoReparacao).values()
 															.stream()
 														    .map(Servico::clone)
