@@ -1,6 +1,8 @@
 package SGCRDataLayer.Funcionarios;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class Tecnico extends Funcionario {
 	private HashSet<String> servicos;
@@ -30,7 +32,7 @@ public class Tecnico extends Funcionario {
 			float duracaoMediaPrevistaRepProg) {
 		setId(id);
 		setPassword(password);
-		this.servicos = servicos;
+		this.servicos = servicos != null ? new HashSet<>(servicos) : new HashSet<>();
 		this.nRepProgramadasConcluidas = nRepProgramadasConcluidas;
 		this.nRepExpressoConcluidas = nRepExpressoConcluidas;
 		this.duracaoMediaRepProg = duracaoMediaRepProg;
@@ -47,12 +49,12 @@ public class Tecnico extends Funcionario {
 	}
 
 
-	public HashSet<String> getServicos() {
-		return servicos;
+	public List<String> getServicos() {
+		return new ArrayList<>(servicos);
 	}
 
 	protected void setServicos(HashSet<String> servicos) {
-		this.servicos = servicos;
+		if(servicos != null) this.servicos = new HashSet<>(servicos);
 	}
 
 	public int getnRepProgramadasConcluidas() {
@@ -110,7 +112,7 @@ public class Tecnico extends Funcionario {
 		return new Tecnico(
 				this.getId(),
 				this.getPassword(),
-				this.getServicos(),
+				this.servicos,
 				this.getnRepProgramadasConcluidas(),
 				this.getnRepExpressoConcluidas(),
 				this.getDuracaoMediaRepProg(),

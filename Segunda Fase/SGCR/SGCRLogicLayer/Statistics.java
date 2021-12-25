@@ -19,7 +19,7 @@ public class Statistics {
     Map<String, BalcaoStats> balcoes;
 
 
-    private Map<String, TecnicoStats> geraTecnicos(List<Tecnico> funcionarios,ServicosFacade servicosFacade){
+    private Map<String, TecnicoStats> geraTecnicos(List<Tecnico> funcionarios, ServicosFacade servicosFacade){
         Map<String, TecnicoStats> tecnicos = new HashMap<>();
         return tecnicos;
     }

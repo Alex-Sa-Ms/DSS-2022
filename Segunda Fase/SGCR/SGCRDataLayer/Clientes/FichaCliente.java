@@ -10,24 +10,24 @@ public class FichaCliente {
 	private Set<String> equipamentos;
 
 	public FichaCliente(String nome,String nif, String email){
-		this.Nome = nome;
-		this.NIF = nif;
+		this.Nome  = nome;
+		this.NIF   = nif;
 		this.Email = email;
-		this.equipamentos = new HashSet<String>();
+		this.equipamentos = new HashSet<>();
 	}
 
 	public FichaCliente(String nome,String nif, String email, Set<String> equipamentos){
-		this.Nome = nome;
-		this.NIF = nif;
+		this.Nome  = nome;
+		this.NIF   = nif;
 		this.Email = email;
-		this.equipamentos = new HashSet<String>(equipamentos);
+		this.equipamentos = equipamentos != null ? new HashSet<>(equipamentos) : new HashSet<>();
 	}
 
 	public FichaCliente(FichaCliente fc){
-		this.Nome = fc.getNome();
-		this.NIF = fc.getNIF();
+		this.Nome  = fc.getNome();
+		this.NIF   = fc.getNIF();
 		this.Email = fc.Email;
-		this.equipamentos = new HashSet<String>(fc.getEquipamentos());
+		this.equipamentos = new HashSet<>(fc.getEquipamentos());
 	}
 
 	public String getNome() {
@@ -55,11 +55,11 @@ public class FichaCliente {
 	}
 
 	public Set<String> getEquipamentos() {
-		return equipamentos;
+		return new HashSet<>(equipamentos);
 	}
 
 	public void setEquipamentos(Set<String> equipamentos) {
-		this.equipamentos = equipamentos;
+		if(equipamentos != null) this.equipamentos = new HashSet<>(equipamentos);
 	}
 
 	/**
@@ -67,14 +67,11 @@ public class FichaCliente {
 	 * @param idEquip
 	 */
 	public void addEquip(String idEquip) {
-
 		equipamentos.add(idEquip);
 	}
 
 	public FichaCliente clone(){
-
-			return new FichaCliente(this.getNome(),this.getNIF(),this.getEmail(),this.getEquipamentos());
-
+			return new FichaCliente(Nome,NIF,Email,equipamentos);
 	}
 
 

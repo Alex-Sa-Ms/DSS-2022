@@ -5,15 +5,9 @@ import java.util.*;
 
 public class PedidosFacade implements Serializable {
 
-	Deque<PedidoOrcamento> filaPedidos;
+	Deque<PedidoOrcamento> filaPedidos = new ArrayDeque<>();
 
-	public Deque<PedidoOrcamento> getFilaPedidos() {
-		return filaPedidos;
-	}
-
-	public void setFilaPedidos(Deque<PedidoOrcamento> filaPedidos) {
-		this.filaPedidos = filaPedidos;
-	}
+	public List<PedidoOrcamento> getFilaPedidos() { return new ArrayList<>(filaPedidos); }
 
 	/**
 	 * 
@@ -22,7 +16,7 @@ public class PedidosFacade implements Serializable {
 	 * @param NIF
 	 */
 	public void addPedido(String descricao, String idEquip, String NIF) {
-		filaPedidos.addLast(new PedidoOrcamento(descricao,idEquip,NIF));
+		filaPedidos.addLast(new PedidoOrcamento(descricao, idEquip, NIF));
 	}
 
 	public PedidoOrcamento getProxPedido() {

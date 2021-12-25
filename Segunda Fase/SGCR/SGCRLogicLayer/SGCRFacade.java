@@ -90,6 +90,12 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return null;
 	}
 
+	@Override
+	public List<PedidoOrcamento> listarPedidos() {
+		if(permissao == 0)
+			return pedidosFacade.getFilaPedidos();
+		return null;
+	}
 
 	// ****** Metodos relativos a Funcionarios ******
 
@@ -222,25 +228,26 @@ public class SGCRFacade implements iSGCR, Serializable {
 	}
 
 	@Override
-	public boolean addPassoServico(String ID, Passo passo) {
-		if (permissao==1){
-			return servicosFacade.addPasso(ID, passo);
+	public boolean addPassoServico(String IDServico, Passo passo) {
+		if (permissao == 1 && funcionarioFacade.possuiServico(idUtilizador, IDServico)){
+			return servicosFacade.addPasso(IDServico, passo);
 		}
 		return false;
 	}
 
 	@Override
 	public Passo proxPasso(String IDServico) {
-		if (permissao==1){
-			return servicosFacade.proxPasso(IDServico); //TODO - Se isto crashar, culpo a interface
-		}
+		if (permissao == 1 && funcionarioFacade.possuiServico(idUtilizador, IDServico))
+			return servicosFacade.proxPasso(IDServico);
 		return null;
 	}
 
 	@Override
 	public List<Passo> listarPassosServico(String IDServico) {
-		if(permissao==1){
-			return ((ServicoPadrao)servicosFacade.getServico(IDServico)).getPassos();
+		if(permissao == 1) {
+			Servico servico = servicosFacade.getServico(IDServico);
+			if(servico instanceof ServicoPadrao)
+				return ((ServicoPadrao) servico).getPassos();
 		}
 		return null;
 	}
@@ -253,16 +260,26 @@ public class SGCRFacade implements iSGCR, Serializable {
 	}
 
 	@Override
+	public List<Servico> listarServicosInterrompidos() {
+		if(permissao == 1)
+			return funcionarioFacade.listarServicosTecnico(idUtilizador)
+									.stream()
+									.map(e -> servicosFacade.getServico(e))
+									.filter(e -> e.getEstado() == EstadoServico.Interrompido)
+									.collect(Collectors.toList());
+		return null;
+	}
+
+	@Override
 	public List<Servico> listarServicosProntosLevantamento(String NIF) {
 		if(permissao == 0){
-			Set<String> idsEquips = clientesFacade.getFichaCliente(NIF).getEquipamentos();
-			List<Servico> servicos = new ArrayList<>();
-			for (String id: idsEquips){
-				Servico newServico = servicosFacade.getServico(id);
-				if(prontoParaLevantar(newServico))
-					servicos.add(newServico);
-			}
-			return servicos;
+			FichaCliente fichaCliente = clientesFacade.getFichaCliente(NIF);
+			if(fichaCliente == null) return null;
+			return fichaCliente.getEquipamentos()
+							   .stream()
+							   .map(id -> servicosFacade.getServico(id))
+							   .filter(servico -> servico != null && prontoParaLevantar(servico))
+							   .collect(Collectors.toList());
 		} else return null;
 	}
 
@@ -277,40 +294,20 @@ public class SGCRFacade implements iSGCR, Serializable {
 				s.getEstado() == EstadoServico.Expirado);
 	}
 
-	//list
-	@Override
-	public Statistics estatisticas() { //todo mudar o return value no diagrama
-		if (permissao==2) {
-			return new Statistics(servicosFacade, funcionarioFacade);
-		}
-		return null;
-	}
-
 	@Override
 	public Map<String, TreeSet<Servico>> listaIntervencoes() { //todo ja fazemos isto na estatisticas (remover do diagrama)
-		if(permissao==2) {
+		if(permissao == 2) {
 			//return servicosFacade.getServicos().stream().collect(Collectors.groupingBy(Servico::getIdTecnico, Collectors.toCollection(TreeSet::new))); //Ordem natural imposta pelo comparable do servico
 			return servicosFacade.listaIntervencoes();
 		}
 		return null;
 	}
 
+	//list
 	@Override
-	public List<Servico> listarServicosInterrompidos() {
-		if(permissao==1) {
-			return funcionarioFacade.listarServicosTecnico(idUtilizador)
-					.stream()
-					.map(e -> servicosFacade.getServico(e))
-					.filter(e -> e.getEstado() == EstadoServico.Interrompido)
-					.collect(Collectors.toList());
-		}
-		return null;
-	}
-
-	@Override
-	public List<PedidoOrcamento> listarPedidos() {
-		if(permissao==0){
-			return new ArrayList<>(pedidosFacade.getFilaPedidos());
+	public Statistics estatisticas() { //todo mudar o return value no diagrama
+		if (permissao == 2) {
+			return new Statistics(servicosFacade, funcionarioFacade);
 		}
 		return null;
 	}

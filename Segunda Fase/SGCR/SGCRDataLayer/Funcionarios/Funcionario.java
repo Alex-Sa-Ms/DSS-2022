@@ -1,7 +1,5 @@
 package SGCRDataLayer.Funcionarios;
 
-import java.util.HashSet;
-
 public abstract class Funcionario {
 
 	private String id;
@@ -23,5 +21,5 @@ public abstract class Funcionario {
 		this.password = password;
 	}
 
-
+	public abstract Funcionario clone();
 }

@@ -271,9 +271,7 @@ public class ServicosFacade implements Serializable {
 		return map;
 	}
 
-	/**
-	 * @return lista de pedidos pendentes, ou seja, em espera de reparacao.
-	 */
+	/** @return lista de pedidos pendentes(em espera de reparacao). */
 	public List<Servico> listaServicosPendentes(){
 		return estados.get(EstadoServico.EsperandoReparacao).values()
 															.stream()

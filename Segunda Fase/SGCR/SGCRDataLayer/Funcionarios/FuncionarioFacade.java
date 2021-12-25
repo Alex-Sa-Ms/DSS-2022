@@ -13,7 +13,7 @@ public class FuncionarioFacade implements Serializable {
 	}
 
 	public FuncionarioFacade(Map<String, Funcionario> funcionarios) {
-		this.funcionarios = funcionarios;
+		this.funcionarios = funcionarios != null ? new HashMap<>(funcionarios) : new HashMap<>();
 	}
 
 	/**
@@ -43,11 +43,9 @@ public class FuncionarioFacade implements Serializable {
 	 * @param id
 	 */
 	public Funcionario getFuncionario(String id) {
-
-		if(funcionarios.get(id) instanceof Tecnico) return ((Tecnico) funcionarios.get(id)).clone();
-		if(funcionarios.get(id) instanceof FuncionarioBalcao) return ((FuncionarioBalcao) funcionarios.get(id)).clone();
-
-		return ((Gestor) funcionarios.get(id)).clone();
+		Funcionario funcionario = funcionarios.get(id);
+		if(funcionario != null) return funcionario.clone();
+		return null;
 	}
 
 	/**
@@ -60,12 +58,12 @@ public class FuncionarioFacade implements Serializable {
 	// 1 tecnico
 	// 2 gestor
 	public int verificaCredenciais(String id, String password) {
-		if(funcionarios.containsKey(id)) {
-
-			if(funcionarios.get(id).getPassword().equals(password)) {
-				if (funcionarios.get(id) instanceof FuncionarioBalcao) return 0;
-				if (funcionarios.get(id) instanceof Tecnico) return 1;
-				if (funcionarios.get(id) instanceof Gestor) return 2;
+		Funcionario funcionario = funcionarios.get(id);
+		if(funcionario != null) {
+			if(funcionario.getPassword().equals(password)) {
+				if (funcionario instanceof FuncionarioBalcao) return 0;
+				else if (funcionario instanceof Tecnico) return 1;
+				else if (funcionario instanceof Gestor) return 2;
 			}
 		}
 		return (-1);
@@ -76,9 +74,10 @@ public class FuncionarioFacade implements Serializable {
 	 * @param idFuncBalcao
 	 */
 	public boolean incNrRececoes(String idFuncBalcao) {
-		if(!funcionarios.containsKey(idFuncBalcao)) return false;
-		((FuncionarioBalcao) funcionarios.get(idFuncBalcao)).incNrRececoes();
-		return true;
+		Funcionario funcionario = funcionarios.get(idFuncBalcao);
+		if(funcionario instanceof FuncionarioBalcao)
+			((FuncionarioBalcao) funcionario).incNrRececoes();
+		return false;
 	}
 
 	/**
@@ -86,9 +85,10 @@ public class FuncionarioFacade implements Serializable {
 	 * @param idFuncBalcao
 	 */
 	public boolean incNrEntregas(String idFuncBalcao) {
-		if(!funcionarios.containsKey(idFuncBalcao)) return false;
-		((FuncionarioBalcao) funcionarios.get(idFuncBalcao)).incNrEntregas();
-		return true;
+		Funcionario funcionario = funcionarios.get(idFuncBalcao);
+		if(funcionario instanceof FuncionarioBalcao)
+			((FuncionarioBalcao) funcionario).incNrEntregas();
+		return false;
 	}
 
 	/**
@@ -109,7 +109,9 @@ public class FuncionarioFacade implements Serializable {
 	 * @param duracaoPrevista
 	 */
 	public void incNrRepProgConcluidas(String idTecnico, float duracao, float duracaoPrevista) {
-		((Tecnico) funcionarios.get(idTecnico)).incNrRepProgConcluidas(duracao,duracaoPrevista);
+		Funcionario funcionario = funcionarios.get(idTecnico);
+		if(funcionario instanceof Tecnico)
+			((Tecnico) funcionario).incNrRepProgConcluidas(duracao,duracaoPrevista);
 	}
 
 	/**
@@ -117,15 +119,18 @@ public class FuncionarioFacade implements Serializable {
 	 * @param idTecnico
 	 */
 	public void incNrRepExpConcluidas(String idTecnico) {
-		((Tecnico) funcionarios.get(idTecnico)).incNrRepExpConcluidas();
+		Funcionario funcionario = funcionarios.get(idTecnico);
+		if(funcionario instanceof Tecnico)
+			((Tecnico) funcionario).incNrRepExpConcluidas();
 	}
 
 	public List<Tecnico> listarTecnicos() {
 		List<Tecnico> tecs = new ArrayList<>();
 
-		for(Funcionario func: funcionarios.values()){
-			if(func instanceof Tecnico) tecs.add(((Tecnico) func).clone());
-		}
+		for(Funcionario func: funcionarios.values())
+			if(func instanceof Tecnico)
+				tecs.add(((Tecnico) func).clone());
+
 		return tecs;
 	}
 
@@ -144,9 +149,10 @@ public class FuncionarioFacade implements Serializable {
 	 * @param idTecnico
 	 */
 	public List<String> listarServicosTecnico(String idTecnico) {
-		List<String> serv = new ArrayList<>();
-		((Tecnico) funcionarios.get(idTecnico)).getServicos().addAll(serv);
-		return serv;
+		Funcionario funcionario = funcionarios.get(idTecnico);
+		if(funcionario instanceof Tecnico)
+			return ((Tecnico) funcionario).getServicos();
+		return null;
 	}
 
 	public boolean possuiServico(String idTecnico, String idServico){

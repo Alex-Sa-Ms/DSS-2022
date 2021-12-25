@@ -51,6 +51,7 @@ public interface iSGCR {
 
 	PedidoOrcamento resolverPedido();
 
+	List<PedidoOrcamento> listarPedidos();
 
 	// ****** Metodos relativos a Funcionarios ******
 
@@ -147,21 +148,17 @@ public interface iSGCR {
 
 	List<Servico> listarServicosPendentes();
 
+	List<Servico> listarServicosInterrompidos();
+
 	/**
 	 * 
 	 * @param NIF
 	 */
 	List<Servico> listarServicosProntosLevantamento(String NIF);
 
-
-	Statistics estatisticas();
-
 	Map<String, TreeSet<Servico>> listaIntervencoes();
 
-	List<Servico> listarServicosInterrompidos();
-
-	List<PedidoOrcamento>listarPedidos();
-
+	Statistics estatisticas();
 
 	// ****** Iniciar/Encerrar Aplicacao ******
 
