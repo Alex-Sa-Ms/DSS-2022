@@ -107,6 +107,10 @@ public class ServicoPadrao extends Servico {
 	/** @return float que indica o custo do serviço até ao momento */
 	public float getCusto() { return custoAtual; }
 
+	//TODO - add diagrama
+	/** @return data de criacao do orcamento **/
+	public LocalDateTime getDataOrcamento() { return orcamento.getData(); }
+
 	/**
 	 * Adiciona um passo a seguir ao passo atual.
 	 * Caso já tenha(m) sido adicionado(s) outro(s) passo(s),
@@ -182,7 +186,7 @@ public class ServicoPadrao extends Servico {
 	@Override
 	public boolean mudaEstado(EstadoServico estado) {
 		EstadoServico estadoAtual = getEstado();
-		if(estadoAtual == EstadoServico.AguardarConfirmacao) 	 return aceitarOuRejeitarOrcamento(estado);
+		if(estadoAtual == EstadoServico.AguardarConfirmacao) 	 return aceitarOuRejeitarOuExpiradoOrcamento(estado);
 		else if(estadoAtual == EstadoServico.EsperandoReparacao) return executarServico(estado);
 		else if(estadoAtual == EstadoServico.EmExecucao) 		 return interromperOuConcluirOuIrreparavel(estado);
 		else if(estadoAtual == EstadoServico.Interrompido) 		 return retomarServico(estado);
@@ -190,8 +194,8 @@ public class ServicoPadrao extends Servico {
 	}
 
 	//Método auxiliar do método 'mudaEstado'
-	private boolean aceitarOuRejeitarOrcamento(EstadoServico estado){
-		if(estado == EstadoServico.OrcamentoRecusado || estado == EstadoServico.EsperandoReparacao){
+	private boolean aceitarOuRejeitarOuExpiradoOrcamento(EstadoServico estado){
+		if(estado == EstadoServico.OrcamentoRecusado || estado == EstadoServico.EsperandoReparacao || estado == EstadoServico.Expirado){
 			setEstado(estado);
 			return true;
 		}

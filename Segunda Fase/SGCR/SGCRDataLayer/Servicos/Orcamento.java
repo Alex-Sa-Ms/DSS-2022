@@ -1,5 +1,6 @@
 package SGCRDataLayer.Servicos;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,11 +11,13 @@ public class Orcamento {
 	private float precoPrevisto = 0;
 	private float tempoPrevisto = 0;
 	private final String descricao;
+	private final LocalDateTime data; //TODO - Atualizar diagrama
 
 	public Orcamento(List<Passo> passos, String descricao) {
 		if(descricao == null) throw new IllegalArgumentException();
 		this.passos    = passos == null ? new ArrayList<>() : passos.stream().map(Passo::clone).collect(Collectors.toList());
 		this.descricao = descricao;
+		data  		   = LocalDateTime.now();
 		calculaValoresPrevisto();
 	}
 
@@ -42,6 +45,8 @@ public class Orcamento {
 	public float getTempoPrevisto() { return tempoPrevisto; }
 
 	public String getDescricao() { return descricao; }
+
+	public LocalDateTime getData() { return data; }
 
 	public Passo getPasso(int indice){
 		if(indice < passos.size())

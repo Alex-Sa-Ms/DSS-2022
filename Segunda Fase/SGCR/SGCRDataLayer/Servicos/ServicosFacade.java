@@ -24,6 +24,7 @@ public class ServicosFacade implements Serializable {
 	//TODO - calcular prazo maximo
 	//TODO - necessario lock(s) para as estruturas de dados, devido ao uso do Timer
 	//TODO: Maybe fazer um getPreco e só dps confirmar a arquivacao do servico com o entregarEquipamento
+	//TODO - onde esta a parte dos 30 dias dps do orcamento, adicionar no metodo 'arquivaServicos'
 
 	/**
 	 * Cria um servico expresso, e coloca-o no inicio da fila de servicos em espera de reparacao.
@@ -126,11 +127,35 @@ public class ServicosFacade implements Serializable {
 		return true;
 	}
 
+	//TODO - add no diagrama
 	/**
-	 * Procura nos servicos não arquivados, aqueles cuja Data de Conclusao do servico supere os 90 dias,
-	 * sinalizando os equipamentos como abandonados, e posteriormente arquiva os respetivos servicos.
+	 * Muda o estado de um servico, com o identificador fornecido, que esta a ser executado para irreparavel.
+	 * @param idServico Identificador do servico
+	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser marcado como irreparavel. 'true' caso contrário
 	 */
-	public void arquivaServicos() {
+	public boolean servicoIrreparavel(String idServico){
+		if(mudaEstado(EstadoServico.EmExecucao, EstadoServico.Irreparavel, idServico) == null) return false;
+		return true;
+	}
+
+	//TODO - add no diagrama
+	/**
+	 * Muda o estado de um servico, com o identificador fornecido, que esta a ser executado para irreparavel.
+	 * @param idServico Identificador do servico
+	 * @return 'false' se nao existe um servico, com o identificador fornecido, que possa ser marcado como irreparavel. 'true' caso contrário
+	 */
+	private boolean orcamentoExpirado(String idServico){
+		if(mudaEstado(EstadoServico.AguardarConfirmacao, EstadoServico.Expirado, idServico) == null) return false;
+		return true;
+	}
+
+	//TODO - atualizar diagrama (o nome ja nao é arquivaServicos)
+	/**
+	 * Procura nos servicos não arquivados, aqueles cuja Data de Conclusao do servico remarque a pelo menos 90 dias atras,
+	 * sinalizando os equipamentos como abandonados, e posteriormente arquiva os respetivos servicos.
+	 * Procura tambem por aqueles cuja data do orcamento, remarque a pelo menos 30 dias atras, marcando este servico como expirado.
+	 */
+	public void arquiva_e_sinalizaExpirados() {
 		Iterator<Map.Entry<String,Servico>> it;
 
 		//Procura nos servicos concluidos
@@ -144,10 +169,22 @@ public class ServicosFacade implements Serializable {
 		//Procura nos servicos cujo equipamento foi considerado irreparavel
 		it = estados.get(EstadoServico.Irreparavel).entrySet().iterator();
 		auxiliarArquivaServicos(it);
+
+		//Procura nos servicos cujo orcamento expirou
+		it = estados.get(EstadoServico.Expirado).entrySet().iterator();
+		auxiliarArquivaServicos(it);
+
+		//Procura nos servicos que se encontram no estado "A aguardar confirmacao",
+		//e marca como expirados aqueles cuja data presente no orcamento seja de há pelo menos 30 dias
+		LocalDateTime now = LocalDateTime.now();
+		for(Map.Entry<String,Servico> entry : estados.get(EstadoServico.AguardarConfirmacao).entrySet()){
+			if(ChronoUnit.DAYS.between(((ServicoPadrao) entry.getValue()).getDataOrcamento(), now) >= 30)
+				orcamentoExpirado(entry.getKey());
+		}
 	}
 
 	/**
-	 * Auxiliar do método 'arquivaServicos'. Percorre um map com entradas de servicos, removendo
+	 * Auxiliar do método 'arquiva_e_sinalizaExpirados'. Percorre um map com entradas de servicos, removendo
 	 * e arquivando aqueles cuja data de conclusao se distancia em 90 dias da data atual
 	 * @param it Iterador necessário para percorrer o map
 	 */
@@ -241,6 +278,7 @@ public class ServicosFacade implements Serializable {
 	}
 
 	//TODO - Que tipo de servicos devo fornecer neste metodos? Arquivados e nao arquivados em estado "Concluido"? Se é para fazer fornecam me a lista dos ids de servicos q tem no funcionariosFacade
+	//TODO - ver para que é q o luis quer isto
 	/**
 	 *
 	 * @param idTecnico
@@ -278,7 +316,6 @@ public class ServicosFacade implements Serializable {
 		return null;
 	}
 
-	//TODO n é suposto receber tempo
 	/**
 	 * Adiciona um passo a seguir ao passo atual.
 	 * @param idServico Identificador do servico, ao qual se pretende adicionar o passo
