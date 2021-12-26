@@ -97,7 +97,7 @@ public interface iSGCR {
 
 	public boolean definirPrecoHoraServicos(float precoHora);
 
-	public LocalDateTime calcularPrazoMaximo();
+	public LocalDateTime calcularPrazoMaximo(List<Passo> passos);
 
 	/**
 	 *
