@@ -1,5 +1,6 @@
 package SGCRLogicLayer;
 
+import SGCRDataLayer.Clientes.FichaCliente;
 import SGCRDataLayer.PedidosDeOrcamento.*;
 import SGCRDataLayer.Servicos.*;
 import SGCRDataLayer.Funcionarios.*;
@@ -164,6 +165,9 @@ public interface iSGCR {
 	 * @param NIF
 	 */
 	List<Servico> listarServicosProntosLevantamento(String NIF);
+
+
+	List<FichaCliente> listarFichasCLiente();
 
 	Map<String, TreeSet<Servico>> listaIntervencoes();
 

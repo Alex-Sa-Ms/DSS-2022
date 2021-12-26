@@ -68,6 +68,14 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return false;
 	}
 
+	@Override
+	public List<FichaCliente> listarFichasCLiente(){
+		if(permissao == 0){
+			return (clientesFacade.getFichasCLiente());
+		}
+		return null;
+	}
+
 
 	// ****** Metodos relativos a Pedidos de Orcamento ******
 

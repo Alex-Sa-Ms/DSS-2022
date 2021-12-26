@@ -2,6 +2,7 @@ package SGCRDataLayer.Clientes;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ClientesFacade implements Serializable {
 
@@ -40,6 +41,10 @@ public class ClientesFacade implements Serializable {
 		FichaCliente c =  clientes.get(NIF);
 		if (c != null) return c.clone();
 		else return null;
+	}
+
+	public List<FichaCliente> getFichasCLiente(){
+		return clientes.values().stream().map(FichaCliente::clone).collect(Collectors.toList());
 	}
 
 	/**

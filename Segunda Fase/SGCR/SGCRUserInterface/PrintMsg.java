@@ -1,5 +1,6 @@
 package SGCRUserInterface;
 
+import SGCRDataLayer.Clientes.FichaCliente;
 import SGCRDataLayer.Funcionarios.Funcionario;
 import SGCRDataLayer.Funcionarios.FuncionarioBalcao;
 import SGCRDataLayer.Funcionarios.Tecnico;
@@ -12,6 +13,7 @@ import SGCRDataLayer.Servicos.ServicoPadrao;
 import javax.annotation.processing.SupportedSourceVersion;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 public class PrintMsg {
 
@@ -71,7 +73,17 @@ public class PrintMsg {
         }
     }
 
+    public void printLFichaCliente(List<FichaCliente> c){
+        for (FichaCliente x: c){
+            System.out.println("Cliente ::: NIF: "+ x.getNIF()+ " | Nome: "+ x.getNome() + " | Email: " + x.getEmail());
+            System.out.flush();
+        }
+    }
 
+    private String Nome;
+    private String NIF;
+    private String Email;
+    private Set<String> equipamentos;
     /*
     public static void clrscr(){
 
