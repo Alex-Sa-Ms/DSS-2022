@@ -358,7 +358,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 
 	//TODO - Deve ter em atencao o estado em que o Timer se encontra. Deve matar a thread e ao iniciar o programa voltar a inicia-la. Nao deveria terminar a sessao?
 	@Override
-	public int encerraAplicacao() { //Serialize
+	public int encerraAplicacao(String filepath) { //Serialize
 		if(logout()){
 			try {
 				FileOutputStream fileOut;
