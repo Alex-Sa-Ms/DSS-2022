@@ -22,8 +22,9 @@ public class UIFacade {
     public int login(){
         printer.printMsg("Bem vindo a Sistema de Gestao do Centro de Reparacoes!");
         MenuSelect first = new MenuSelect("",new String[]{"Login", "Carregar dados de ficheiro predefinido", "Carregar dados de ficheiro personalizado","Sair e guardar em ficheiro personalizado"});
-        first.executa();
+
         while(true){
+            first.executa();
             switch (first.getOpcao()){
                 case 1:
                     MenuInput username = new MenuInput("Por favor insira o seu Username","Username:");
