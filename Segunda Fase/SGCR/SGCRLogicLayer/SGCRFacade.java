@@ -6,6 +6,7 @@ import SGCRDataLayer.PedidosDeOrcamento.*;
 import SGCRDataLayer.Servicos.*;
 
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -160,6 +161,13 @@ public class SGCRFacade implements iSGCR, Serializable {
 		if(permissao == 2)
 			return servicosFacade.setPrecoHora(precoHora);
 		return false;
+	}
+
+	@Override
+	//TODO - decidam o que é q deve receber. Receber a lista de passos ou o id? Depois adicionar no diagrama de classes
+	public LocalDateTime calcularPrazoMaximo() {
+		float tempoServicoPretendido = 0; //TODO - calcular este valor depois de decidirem
+		return servicosFacade.calculaPrazoMaximo(funcionarioFacade.getNrTecnicos(), tempoServicoPretendido);
 	}
 
 	@Override

@@ -16,6 +16,13 @@ public class FuncionarioFacade implements Serializable {
 		this.funcionarios = funcionarios != null ? new HashMap<>(funcionarios) : new HashMap<>();
 	}
 
+	public int getNrTecnicos(){
+		int nr = 0;
+		for(Funcionario f : funcionarios.values())
+			if(f instanceof Tecnico) nr++;
+		return nr;
+	}
+
 	/**
 	 * 
 	 * @param id

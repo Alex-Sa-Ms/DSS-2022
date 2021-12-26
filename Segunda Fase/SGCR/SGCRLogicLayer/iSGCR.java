@@ -8,6 +8,7 @@ import SGCRDataLayer.Funcionarios.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -96,6 +97,8 @@ public interface iSGCR {
 
 	public boolean definirPrecoHoraServicos(float precoHora);
 
+	public LocalDateTime calcularPrazoMaximo();
+
 	/**
 	 *
 	 * @param o
@@ -165,7 +168,6 @@ public interface iSGCR {
 	 * @param NIF
 	 */
 	List<Servico> listarServicosProntosLevantamento(String NIF);
-
 
 	List<FichaCliente> listarFichasCLiente();
 
