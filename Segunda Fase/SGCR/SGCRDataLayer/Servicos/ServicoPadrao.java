@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import SGCRLogicLayer.Tempo;
 
 public class ServicoPadrao extends Servico implements Serializable {
 
@@ -126,7 +125,7 @@ public class ServicoPadrao extends Servico implements Serializable {
 		//Guarda o tempo utilizado para executar o passo atual, e atualiza a variavel custoAtual, antes de saltar para o próximo passo
 		Passo passo = getPassoAtualPrivate();
 		if(passo != null) {
-			passo.addTempo(Tempo.converteTimeMillisParaMinutos(System.currentTimeMillis() - inicioPassoAtual));
+			passo.addTempo(converteTimeMillisParaMinutos(System.currentTimeMillis() - inicioPassoAtual));
 			custoAtual += passo.getCusto();
 		}
 
@@ -214,7 +213,7 @@ public class ServicoPadrao extends Servico implements Serializable {
 
 			//Guarda o tempo utilizado para executar o passo atual
 			Passo passo = getPassoAtualPrivate();
-			if(passo != null) passo.addTempo(Tempo.converteTimeMillisParaMinutos(System.currentTimeMillis() - inicioPassoAtual));
+			if(passo != null) passo.addTempo(converteTimeMillisParaMinutos(System.currentTimeMillis() - inicioPassoAtual));
 
 			setDataConclusao(LocalDateTime.now());
 			setEstado(estado);
@@ -248,6 +247,12 @@ public class ServicoPadrao extends Servico implements Serializable {
 		return orcamento.getTempoPrevisto();
 	}
 
+
+	// ****** Auxiliares ******
+
+	private static final double DIVISOR_PARA_MINUTOS = 1000 * 60; // 1000 milisegundos * 60 segundos
+
+	public static float converteTimeMillisParaMinutos(long tempo){ return (float) ((double) tempo / DIVISOR_PARA_MINUTOS); }
 
 	//TODO: Remover depois da app estar feita
 	@Override
