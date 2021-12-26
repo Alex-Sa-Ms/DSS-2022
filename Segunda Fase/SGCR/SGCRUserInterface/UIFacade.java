@@ -42,12 +42,19 @@ public class UIFacade {
                     else printer.printMsg("Erro no load");
                     break;
                 case 3:
-                    //TODO Carregar ficheiros de dados
+                    MenuInput filepath2 = new MenuInput("Insira o ficheiro de onde pretende carregar os dados","");
+                    filepath2.executa();
+                    iSGCR logic3= iSGCR.loadSGCRFacade(newPath);
+                    if (logic3 != null) {
+                        logic = logic3;
+                        printer.printMsg("Load concluido com sucesso");
+                    }
+                    else printer.printMsg("Erro no load");
                     break;
                 case 0:
                     return 90;
                 case 4:
-                    MenuInput filepath = new MenuInput("Insira o ficheiro onde pertende que sejam guardados os ficheiros","");
+                    MenuInput filepath = new MenuInput("Insira o ficheiro onde pretende que sejam guardados os ficheiros","");
                     filepath.executa();
                     newPath = filepath.getOpcao();
                     return 91;
