@@ -6,10 +6,13 @@ import SGCRDataLayer.Servicos.Passo;
 import SGCRDataLayer.Servicos.Servico;
 import SGCRDataLayer.Servicos.ServicoExpresso;
 import SGCRDataLayer.Servicos.ServicoPadrao;
+import SGCRLogicLayer.BalcaoStats;
 import SGCRLogicLayer.SGCRFacade;
+import SGCRLogicLayer.TecnicoStats;
 import SGCRLogicLayer.iSGCR;
 import java.util.ArrayList;
 import java.util.List;
+
 
 
 public class UIFacade {
@@ -44,6 +47,7 @@ public class UIFacade {
                 case 3:
                     MenuInput filepath2 = new MenuInput("Insira o ficheiro de onde pretende carregar os dados","");
                     filepath2.executa();
+                    newPath = filepath2.getOpcao();
                     iSGCR logic3= iSGCR.loadSGCRFacade(newPath);
                     if (logic3 != null) {
                         logic = logic3;
@@ -119,7 +123,7 @@ public class UIFacade {
             flag = logic.adicionaTecnico(utilizador.getOpcao(),password.getOpcao());
         }
         if (flag) printer.printMsg("Conta Adicionada com Sucesso");
-        else printer.printMsg("Erro na criacao da conta");
+        else printer.printMsg("Erro na criacao da conta (Pode já existir este utilizador) ");
 
     }
 
@@ -130,9 +134,10 @@ public class UIFacade {
         MenuSelect gestor = new MenuSelect("",new String[]{
                 "Criar conta para Funcionario",
                 "Intervencoes Concluidas",
-                "Estatisticas da eficiencia do centro",
+                "Estatisticas dos Tecnicos:",
                 "Rececoes e entregas",
                 "Listar Funcionarios"});
+        MenuSelect temp = new MenuSelect("", new String[]{});
         boolean flag=true;
         while (flag){
             gestor.executa();
@@ -141,25 +146,32 @@ public class UIFacade {
                     criarConta();
                     break;
                 case 2:
-                    //TODO
-                    System.out.println("ola1");
+                    printer.printMsg("Intervencoes por técnico:");
+                    printer.printIntervencoes(logic.listaIntervencoes());
+                    temp.executa();
                     break;
                 case 3:
-                    System.out.println("ola2");
+                    printer.printMsg("Estatisticas dos Tecnicos: ");
+                    List<TecnicoStats> t = logic.estatisticasEficienciaCentro();
+                    t.forEach(printer::printTecnicoStats);
+                    temp.executa();
                     break;
                 case 4:
-                    System.out.println("ola3");
+                    printer.printMsg("Rececoes e entregas dos Funcionarios de Balcao");
+                    List<BalcaoStats> l = logic.rececoes_e_entregas();
+                    l.forEach(printer::printBalcaoStats);
+                    temp.executa();
                     break;
                 case 5:
                     MenuSelect func = new MenuSelect("Escolha o tipo de funcionario", new String[]{"Funcionarios de balcao","Tecnicos"});
                     func.executa();
                     if(func.getOpcao() == 1){
-                        List<FuncionarioBalcao> l = logic.listarFuncionariosBalcao();
-                        l.forEach(x->printer.printFuncionario(x));
+                        List<FuncionarioBalcao> l1 = logic.listarFuncionariosBalcao();
+                        l1.forEach(x->printer.printFuncionario(x));
                     }
                     if(func.getOpcao() == 2){
-                        List<Tecnico> l = logic.listarTecnicos();
-                        l.forEach(x->printer.printFuncionario(x));
+                        List<Tecnico> l2 = logic.listarTecnicos();
+                        l2.forEach(x->printer.printFuncionario(x));
                     }
                     break;
 
@@ -176,7 +188,9 @@ public class UIFacade {
                 "Entregar Equipamento",
                 "Criar Servico Expresso",
                 "Criar Ficha cliente",
-                "Resposta Orçamento do Cliente"});
+                "Resposta Orçamento do Cliente",
+                "Listar Fichas Cliente do Sistema"});
+        MenuSelect temp = new MenuSelect("", new String[]{});
         boolean flag= true;
         while (flag) {
             balcao.executa();
@@ -195,6 +209,10 @@ public class UIFacade {
                     break;
                 case 5:
                     confirmarOrcamento();
+                    break;
+                case 6:
+                    printer.printLFichaCliente(logic.listarFichasCLiente());
+                    temp.executa();
                     break;
                 case 0:
                     flag=false;
@@ -316,7 +334,7 @@ public class UIFacade {
         List<Servico> l = logic.listarServicosProntosLevantamento(nif.getOpcao());
         boolean flag=true;
         while (flag && l.size()>0) {
-            MenuSelect equip = new MenuSelect("Servicos concluidos:", l.stream().map(s -> printer.servicoToString(s)).toArray(String[]::new));
+            MenuSelect equip = new MenuSelect("Servicos concluidos:", l.stream().map(printer::servicoToString).toArray(String[]::new));
             equip.executa();
             if (equip.getOpcao()==0) flag=false;
             else {
@@ -340,8 +358,7 @@ public class UIFacade {
                 "Ver Pedidos de Orcamento",
                 "Ver Servicos",
                 "Comecar Reparacao",
-                "Retomar reparacoes",
-                "Listar Fichas Cliente"});
+                "Retomar reparacoes"});
 
         MenuSelect temp = new MenuSelect("", new String[]{});
         boolean flag=true;
@@ -364,26 +381,23 @@ public class UIFacade {
                 case 4:
                     Servico id = logic.comecarServico();
                     if ( id instanceof ServicoPadrao)
-                        controladorServicoPadrao(id);
+                        controladorServicoPadrao(id,false);
                     else if (id instanceof ServicoExpresso)
                         controladorServicoExpresso(id);
                     break;
                 case 5:
                     List<Servico> lSI = logic.listarServicosInterrompidos();
-                    MenuSelect interrompidos = new MenuSelect("Escolha um servico a retomar", lSI.stream().map(s -> printer.servicoToString(s)).toArray(String[]::new));
+                    MenuSelect interrompidos = new MenuSelect("Escolha um servico a retomar", lSI.stream().map(printer::servicoToString).toArray(String[]::new));
                     interrompidos.executa();
                     if (interrompidos.getOpcao() != 0 ) {
                         Servico s= lSI.get( interrompidos.getOpcao() -1);
                         if (s instanceof ServicoPadrao){
-                            controladorServicoPadrao(s);
+                            logic.retomarServico(s.getId());
+                            controladorServicoPadrao(s,true);
                         }
                         else if (s instanceof ServicoExpresso){
                             controladorServicoExpresso(s);
                         }}
-                    break;
-                case 6:
-                    printer.printLFichaCliente(logic.listarFichasCLiente());
-                    temp.executa();
                     break;
                 case 0:
                     flag=false;
@@ -429,13 +443,13 @@ public class UIFacade {
     }
 
 
-    private void controladorServicoPadrao(Servico idS) {
+    private void controladorServicoPadrao(Servico idS, boolean retomado) {
         MenuSelect reparacao = new MenuSelect("Opcoes:", new String[]{"Adicionar Passo","Concluir Passo","Interromper Servico","Concluir Servico"});
         String id = idS.getId();
         boolean flag=true;
 
         printer.printServico(idS);
-        logic.proxPasso(id);
+        if (!retomado) logic.proxPasso(id);
         while (flag) {
             List<Passo> l = logic.listarPassosServico(id);
             printer.printLPasso(l);
@@ -503,7 +517,7 @@ public class UIFacade {
                             }
                         } while (idiotflag);
                         if (index < lp.size()) {
-                            lp.remove(index);
+                            lp.remove(index-1);
                             printer.printMsg("Removido com sucesso");
                         } else printer.printMsg("Nao foi possivel a remocao");
                         break;
