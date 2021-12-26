@@ -1,8 +1,9 @@
 package SGCRDataLayer.Servicos;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class ServicoExpresso extends Servico {
+public class ServicoExpresso extends Servico implements Serializable {
 
 	private float custo;
 

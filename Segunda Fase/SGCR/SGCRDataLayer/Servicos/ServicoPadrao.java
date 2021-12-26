@@ -1,11 +1,12 @@
 package SGCRDataLayer.Servicos;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import SGCRLogicLayer.Tempo;
 
-public class ServicoPadrao extends Servico {
+public class ServicoPadrao extends Servico implements Serializable {
 
 	private List<Passo> passos;
 	private Orcamento orcamento;

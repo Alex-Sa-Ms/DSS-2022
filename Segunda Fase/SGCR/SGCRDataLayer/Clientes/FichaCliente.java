@@ -1,8 +1,9 @@
 package SGCRDataLayer.Clientes;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class FichaCliente {
+public class FichaCliente implements Serializable {
 
 	private String Nome;
 	private String NIF;

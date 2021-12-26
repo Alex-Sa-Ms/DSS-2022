@@ -1,10 +1,11 @@
 package SGCRDataLayer.Funcionarios;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-public class Tecnico extends Funcionario {
+public class Tecnico extends Funcionario implements Serializable {
 	private HashSet<String> servicos;
 	private int nRepProgramadasConcluidas;
 	private int nRepExpressoConcluidas;

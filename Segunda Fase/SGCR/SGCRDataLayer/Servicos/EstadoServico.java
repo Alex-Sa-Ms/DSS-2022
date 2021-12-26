@@ -1,6 +1,8 @@
 package SGCRDataLayer.Servicos;
 
-public enum EstadoServico {
+import java.io.Serializable;
+
+public enum EstadoServico implements Serializable {
 	Irreparavel,
 	AguardarConfirmacao,
 	OrcamentoRecusado,

@@ -1,6 +1,8 @@
 package SGCRDataLayer.Funcionarios;
 
-public class FuncionarioBalcao extends Funcionario {
+import java.io.Serializable;
+
+public class FuncionarioBalcao extends Funcionario implements Serializable {
 
 	private int nRececoes;
 	private int nEntregas;

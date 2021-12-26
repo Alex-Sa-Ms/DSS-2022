@@ -1,6 +1,8 @@
 package SGCRDataLayer.Funcionarios;
 
-public class Gestor extends Funcionario {
+import java.io.Serializable;
+
+public class Gestor extends Funcionario implements Serializable {
 
     public Gestor(String id, String password) {
         setId(id);

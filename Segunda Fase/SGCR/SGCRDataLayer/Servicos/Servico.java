@@ -1,8 +1,9 @@
 package SGCRDataLayer.Servicos;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public abstract class Servico implements Comparable<Servico>{
+public abstract class Servico implements Comparable<Servico>, Serializable {
 
 	private EstadoServico estado;
 	private String id;

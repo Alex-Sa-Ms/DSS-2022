@@ -1,11 +1,12 @@
 package SGCRDataLayer.Servicos;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Orcamento {
+public class Orcamento implements Serializable {
 
 	private final List<Passo> passos; //lista de passos que constituem o orcamento
 	private float precoPrevisto = 0;  //preco calculado a partir das estimativas inseridas em cada passo

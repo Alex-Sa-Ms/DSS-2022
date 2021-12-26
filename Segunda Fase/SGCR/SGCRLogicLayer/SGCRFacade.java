@@ -92,7 +92,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 
 	@Override
 	public List<PedidoOrcamento> listarPedidos() {
-		if(permissao == 0)
+		if(permissao == 1)
 			return pedidosFacade.getFilaPedidos();
 		return null;
 	}

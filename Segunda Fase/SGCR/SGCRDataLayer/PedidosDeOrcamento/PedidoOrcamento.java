@@ -1,6 +1,8 @@
 package SGCRDataLayer.PedidosDeOrcamento;
 
-public class PedidoOrcamento {
+import java.io.Serializable;
+
+public class PedidoOrcamento implements Serializable {
 
 	private String idEquipamento;
 	private String descricao;
