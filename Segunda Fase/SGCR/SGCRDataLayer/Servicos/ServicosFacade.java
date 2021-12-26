@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 public class ServicosFacade implements Serializable {
@@ -11,6 +12,7 @@ public class ServicosFacade implements Serializable {
 	private final Map<EstadoServico,Map<String,Servico>> estados;
 	private final Map<String,Servico> arquivados;
 	private final Deque<String> filaServicos;
+	private final ReentrantLock servicoslock = new ReentrantLock();
 
 	public ServicosFacade(){
 		estados      = new HashMap<>();
@@ -21,7 +23,6 @@ public class ServicosFacade implements Serializable {
 			estados.put(e, new HashMap<>());
 	}
 
-	//TODO - necessario lock(s) para as estruturas de dados, devido ao uso do Timer
 	//TODO - Maybe usar o getPrecoServico e só dps confirmar a arquivacao do servico com o entregarEquipamento
 
 	public boolean setPrecoHora(float precoHora){
@@ -37,9 +38,15 @@ public class ServicosFacade implements Serializable {
 	 * @param custo Custo fixo do servico
 	 */
 	public boolean addServicoExpresso(String idEquip, String idCliente, float custo) {
-		filaServicos.addFirst(idEquip);
-		estados.get(EstadoServico.EsperandoReparacao).put(idEquip, new ServicoExpresso(idEquip, idCliente, custo));
-		return true;
+		try {
+			servicoslock.lock();
+			filaServicos.addFirst(idEquip);
+			estados.get(EstadoServico.EsperandoReparacao).put(idEquip, new ServicoExpresso(idEquip, idCliente, custo));
+			return true;
+		}
+		finally {
+			servicoslock.unlock();
+		}
 	}
 
 	/**
@@ -50,8 +57,12 @@ public class ServicosFacade implements Serializable {
 	 * @param descricao Descricao que deve estar presente no orcamento
 	 */
 	public boolean addServicoPadrao(String idEquip, String idCliente, List<Passo> passos, String descricao) {
-		estados.get(EstadoServico.AguardarConfirmacao).put(idEquip, new ServicoPadrao(idEquip, idCliente, passos, descricao));
-		return true;
+		try {
+			servicoslock.lock();
+			estados.get(EstadoServico.AguardarConfirmacao).put(idEquip, new ServicoPadrao(idEquip, idCliente, passos, descricao));
+			return true;
+		}
+		finally { servicoslock.unlock(); }
 	}
 
 	/**
@@ -62,8 +73,12 @@ public class ServicosFacade implements Serializable {
 	 * @param descricao Descricao do problema do equipamento
 	 */
 	public boolean addServicoPadraoIrreparavel(String idEquip, String idCliente, String idTecnico, String descricao){
-		estados.get(EstadoServico.Irreparavel).put(idEquip, new ServicoPadrao(idEquip, idCliente, idTecnico, descricao));
-		return true;
+		try {
+			servicoslock.lock();
+			estados.get(EstadoServico.Irreparavel).put(idEquip, new ServicoPadrao(idEquip, idCliente, idTecnico, descricao));
+			return true;
+		}
+		finally { servicoslock.unlock(); }
 	}
 
 	/**
@@ -72,11 +87,18 @@ public class ServicosFacade implements Serializable {
 	 * @return Clone do servico que possui o identificador fornecido
 	 */
 	public Servico getServico(String id) {
-		Servico servico = getApontadorServico(id);
+		try {
+			servicoslock.lock();
 
-		if(servico != null) return servico.clone();
+			Servico servico = getApontadorServico(id);
 
-		return null;
+			if(servico != null) return servico.clone();
+
+			return null;
+		}
+		finally {
+			servicoslock.unlock();
+		}
 	}
 
 	/**
@@ -86,15 +108,20 @@ public class ServicosFacade implements Serializable {
 	 * @return proximo servico a ser executado
 	 */
 	public Servico getProxServico(String idTecnico){
-		Servico servico;
-		String idServico = filaServicos.poll();
+		try {
+			servicoslock.lock();
 
-		if(idServico != null && (servico = mudaEstado(EstadoServico.EsperandoReparacao, EstadoServico.EmExecucao, idServico)) != null) {
-			servico.setIdTecnico(idTecnico);
-			return servico.clone();
+			Servico servico;
+			String idServico = filaServicos.poll();
+
+			if(idServico != null && (servico = mudaEstado(EstadoServico.EsperandoReparacao, EstadoServico.EmExecucao, idServico)) != null) {
+				servico.setIdTecnico(idTecnico);
+				return servico.clone();
+			}
+
+			return null;
 		}
-
-		return null;
+		finally { servicoslock.unlock(); }
 	}
 
 	/**
@@ -103,9 +130,14 @@ public class ServicosFacade implements Serializable {
 	 * @param idEquip Identificador do equipamento
 	 */
 	public boolean orcamentoAceite(String idEquip) {
-		if(mudaEstado(EstadoServico.AguardarConfirmacao, EstadoServico.EsperandoReparacao, idEquip) == null) return false;
-		filaServicos.addLast(idEquip);
-		return true;
+		try {
+			servicoslock.lock();
+
+			if(mudaEstado(EstadoServico.AguardarConfirmacao, EstadoServico.EsperandoReparacao, idEquip) == null) return false;
+			filaServicos.addLast(idEquip);
+			return true;
+		}
+		finally { servicoslock.unlock(); }
 	}
 
 	/**
@@ -117,7 +149,6 @@ public class ServicosFacade implements Serializable {
 		return true;
 	}
 
-	//TODO - Falta adicionar isto na interface e no SGCR
 	/**
 	 * Muda o estado de um servico, com o identificador fornecido, que esta a ser executado para irreparavel.
 	 * @param idServico Identificador do servico
@@ -158,7 +189,6 @@ public class ServicosFacade implements Serializable {
 		return true;
 	}
 
-	//TODO - Falta adicionar isto na interface e no SGCR
 	/**
 	 * Muda o estado de um servico, com o identificador fornecido, que esta a ser executado para irreparavel.
 	 * @param idServico Identificador do servico
@@ -176,18 +206,29 @@ public class ServicosFacade implements Serializable {
 	 * @return 'false' se o servico nao existir, ou se nao estiver a ser executado. 'true' caso contrário.
 	 */
 	public boolean addPasso(String idServico, Passo passo){
-		Servico servico = getApontadorServico(idServico);
+		try {
+			servicoslock.lock();
 
-		if(!(servico instanceof ServicoPadrao) || servico.getEstado() != EstadoServico.EmExecucao) return false;
+			Servico servico = getApontadorServico(idServico);
 
-		((ServicoPadrao) servico).addPasso(passo.getCustoPecas(), passo.getDescricao());
+			if(!(servico instanceof ServicoPadrao) || servico.getEstado() != EstadoServico.EmExecucao) return false;
 
-		return true;
+			((ServicoPadrao) servico).addPasso(passo.getCustoPecas(), passo.getDescricao());
+
+			return true;
+		}
+		finally { servicoslock.unlock(); }
 	}
 
 	public Passo getPassoAtual(String idServico){
-		Servico servico = getApontadorServico(idServico);
-		return (servico instanceof ServicoPadrao) ? ((ServicoPadrao) servico).getPassoAtual() : null;
+		try {
+			servicoslock.lock();
+
+			Servico servico = getApontadorServico(idServico);
+
+			return (servico instanceof ServicoPadrao) ? ((ServicoPadrao) servico).getPassoAtual() : null;
+		}
+		finally { servicoslock.unlock(); }
 	}
 
 	/**
@@ -195,12 +236,17 @@ public class ServicosFacade implements Serializable {
 	 * @return proximo passo a ser executado no servico
 	 */
 	public Passo proxPasso(String idServico){
-		Servico servico = getApontadorServico(idServico);
+		try {
+			servicoslock.lock();
 
-		if(servico instanceof ServicoPadrao)
-			return ((ServicoPadrao) servico).proxPasso();
+			Servico servico = getApontadorServico(idServico);
 
-		return null;
+			if(servico instanceof ServicoPadrao)
+				return ((ServicoPadrao) servico).proxPasso();
+
+			return null;
+		}
+		finally { servicoslock.unlock(); }
 	}
 
 	/**
@@ -210,9 +256,13 @@ public class ServicosFacade implements Serializable {
 	 * @return float que corresponde ao custo do serviço.
 	 */
 	public float getPrecoServico(String idEquip) {
-		Servico servico = getApontadorServico(idEquip);
-		if(servico != null) return servico.getCusto();
-		return 0;
+		try {
+			servicoslock.lock();
+			Servico servico = getApontadorServico(idEquip);
+			if(servico != null) return servico.getCusto();
+			return 0;
+		}
+		finally { servicoslock.unlock(); }
 	}
 
 	/**
@@ -222,19 +272,24 @@ public class ServicosFacade implements Serializable {
 	 * @return -1 se nao existir um equipamento com este id para ser entregue, ou o valor a ser pago no ato de entrega.
 	 */
 	public float entregaEquipamento(String idEquip) {
-		Servico servico;
+		try {
+			servicoslock.lock();
 
-		//Procura nos servicos cujo equipamento foi considerado irreparavel
-		//Neste caso, se for determinado irreparavel o custo deve ser 0
-		if(arquivaServico(EstadoServico.Irreparavel, idEquip) != null)
-			return 0;
+			Servico servico;
 
-		//Procura nos servicos concluidos e nos servicos cujo orcamento foi recusado
-		if((servico = arquivaServico(EstadoServico.Concluido, idEquip)) != null ||
-				(servico = arquivaServico(EstadoServico.OrcamentoRecusado, idEquip)) != null)
-			return servico.getCusto();
+			//Procura nos servicos cujo equipamento foi considerado irreparavel
+			//Neste caso, se for determinado irreparavel o custo deve ser 0
+			if(arquivaServico(EstadoServico.Irreparavel, idEquip) != null)
+				return 0;
 
-		return -1;
+			//Procura nos servicos concluidos e nos servicos cujo orcamento foi recusado
+			if((servico = arquivaServico(EstadoServico.Concluido, idEquip)) != null ||
+					(servico = arquivaServico(EstadoServico.OrcamentoRecusado, idEquip)) != null)
+				return servico.getCusto();
+
+			return -1;
+		}
+		finally { servicoslock.unlock(); }
 	}
 
 	/**
@@ -243,63 +298,64 @@ public class ServicosFacade implements Serializable {
 	 * @return map com todos os tecnicos e os servicos associados a eles em TreeSets
 	 */
 	public Map<String, TreeSet<Servico>> listaIntervencoes() {
-		Map<String, TreeSet<Servico>> map = new HashMap<>();
-		TreeSet<Servico> treeSet;
+		try {
+			servicoslock.lock();
 
-		//Distribui todos os servicos concluidos que ainda nao foram arquivados
-		for(Servico servico : estados.get(EstadoServico.Concluido).values()){
+			Map<String, TreeSet<Servico>> map = new HashMap<>();
+			TreeSet<Servico> treeSet;
 
-			//Cria um TreeSet de servicos para o tecnico, caso ainda nao exista
-			if((treeSet = map.get(servico.getIdTecnico())) == null) {
-				treeSet = new TreeSet<>(Comparator.reverseOrder());
-				map.put(servico.getIdTecnico(), treeSet);
+			//Distribui todos os servicos concluidos que ainda nao foram arquivados
+			for(Servico servico : estados.get(EstadoServico.Concluido).values()){
+
+				//Cria um TreeSet de servicos para o tecnico, caso ainda nao exista
+				if((treeSet = map.get(servico.getIdTecnico())) == null) {
+					treeSet = new TreeSet<>(Comparator.reverseOrder());
+					map.put(servico.getIdTecnico(), treeSet);
+				}
+
+				//Guarda um clone do objeto servico no treeset
+				treeSet.add(servico.clone());
 			}
 
-			//Guarda um clone do objeto servico no treeset
-			treeSet.add(servico.clone());
-		}
+			//Distribui todos os servicos concluidos arquivados
+			for(Servico servico : arquivados.values()){
 
-		//Distribui todos os servicos concluidos arquivados
-		for(Servico servico : arquivados.values()){
+				//Cria um TreeSet de servicos para o tecnico, caso ainda nao exista
+				if((treeSet = map.get(servico.getIdTecnico())) == null) {
+					treeSet = new TreeSet<>(Comparator.reverseOrder());
+					map.put(servico.getIdTecnico(), treeSet);
+				}
 
-			//Cria um TreeSet de servicos para o tecnico, caso ainda nao exista
-			if((treeSet = map.get(servico.getIdTecnico())) == null) {
-				treeSet = new TreeSet<>(Comparator.reverseOrder());
-				map.put(servico.getIdTecnico(), treeSet);
+				//Guarda um clone do objeto servico no treeset
+				treeSet.add(servico.clone());
 			}
 
-			//Guarda um clone do objeto servico no treeset
-			treeSet.add(servico.clone());
+			return map;
 		}
-
-		return map;
+		finally { servicoslock.unlock(); }
 	}
 
-
 	public List<Servico> listaServicosEmEsperaDeConfirmacao(){
-		return estados.get(EstadoServico.AguardarConfirmacao).values()
-															 .stream()
-															 .map(Servico::clone)
-															 .collect(Collectors.toList());
+		try {
+			servicoslock.lock();
+			return estados.get(EstadoServico.AguardarConfirmacao).values()
+						  .stream()
+						  .map(Servico::clone)
+						  .collect(Collectors.toList());
+		}
+		finally { servicoslock.unlock(); }
 	}
 
 	/** @return lista de pedidos pendentes(em espera de reparacao). */
 	public List<Servico> listaServicosPendentes(){
-		return estados.get(EstadoServico.EsperandoReparacao).values()
-															.stream()
-														    .map(Servico::clone)
-															.collect(Collectors.toList());
-	}
-
-	/**
-	 *
-	 * @param idTecnico
-	 */
-	public List<Servico> listarServicosConcluidos(String idTecnico) {
-		// TODO - implement ServicosFacade.listarServicosConcluidos
-		//Que tipo de servicos devo fornecer neste metodos? Arquivados e nao arquivados em estado "Concluido"? Se é para fazer fornecam me a lista dos ids de servicos q tem no funcionariosFacade
-		//ver para que é q o luis quer isto
-		throw new UnsupportedOperationException();
+		try {
+			servicoslock.lock();
+			return estados.get(EstadoServico.EsperandoReparacao).values()
+						  .stream()
+						  .map(Servico::clone)
+						  .collect(Collectors.toList());
+		}
+		finally { servicoslock.unlock(); }
 	}
 
 	/**
@@ -308,36 +364,95 @@ public class ServicosFacade implements Serializable {
 	 * Procura tambem por aqueles cuja data do orcamento, remarque a pelo menos 30 dias atras, marcando este servico como expirado.
 	 */
 	public void arquiva_e_sinalizaExpirados() {
-		Iterator<Map.Entry<String,Servico>> it;
+		try {
+			servicoslock.lock();
+			Iterator<Map.Entry<String,Servico>> it;
 
-		//Procura nos servicos concluidos
-		it = estados.get(EstadoServico.Concluido).entrySet().iterator();
-		auxiliarArquivaServicos(it);
+			//Procura nos servicos concluidos
+			it = estados.get(EstadoServico.Concluido).entrySet().iterator();
+			auxiliarArquivaServicos(it);
 
-		//Procura nos servicos cujo orcamento foi recusado
-		it = estados.get(EstadoServico.OrcamentoRecusado).entrySet().iterator();
-		auxiliarArquivaServicos(it);
+			//Procura nos servicos cujo orcamento foi recusado
+			it = estados.get(EstadoServico.OrcamentoRecusado).entrySet().iterator();
+			auxiliarArquivaServicos(it);
 
-		//Procura nos servicos cujo equipamento foi considerado irreparavel
-		it = estados.get(EstadoServico.Irreparavel).entrySet().iterator();
-		auxiliarArquivaServicos(it);
+			//Procura nos servicos cujo equipamento foi considerado irreparavel
+			it = estados.get(EstadoServico.Irreparavel).entrySet().iterator();
+			auxiliarArquivaServicos(it);
 
-		//Procura nos servicos cujo orcamento expirou
-		it = estados.get(EstadoServico.Expirado).entrySet().iterator();
-		auxiliarArquivaServicos(it);
+			//Procura nos servicos cujo orcamento expirou
+			it = estados.get(EstadoServico.Expirado).entrySet().iterator();
+			auxiliarArquivaServicos(it);
 
-		//Procura nos servicos que se encontram no estado "A aguardar confirmacao",
-		//e marca como expirados aqueles cuja data presente no orcamento seja de há pelo menos 30 dias
-		LocalDateTime now = LocalDateTime.now();
-		for(Map.Entry<String,Servico> entry : estados.get(EstadoServico.AguardarConfirmacao).entrySet()){
-			if(ChronoUnit.DAYS.between(((ServicoPadrao) entry.getValue()).getDataOrcamento(), now) >= 30)
-				orcamentoExpirado(entry.getKey());
+			//Procura nos servicos que se encontram no estado "A aguardar confirmacao",
+			//e marca como expirados aqueles cuja data presente no orcamento seja de há pelo menos 30 dias
+			LocalDateTime now = LocalDateTime.now();
+			for(Map.Entry<String,Servico> entry : estados.get(EstadoServico.AguardarConfirmacao).entrySet()){
+				if(ChronoUnit.DAYS.between(((ServicoPadrao) entry.getValue()).getDataOrcamento(), now) >= 30)
+					orcamentoExpirado(entry.getKey());
+			}
 		}
+		finally { servicoslock.unlock(); }
 	}
 
-	public LocalDateTime calculaPrazoMaximo(){
-		//TODO - calcular prazo maximo
-		throw new UnsupportedOperationException();
+	public LocalDateTime calculaPrazoMaximo(int nrTecnicos, float tempoPrevistoServico){
+		int nrServicos;
+		float tempoMax;
+		float tempoMedioPrevisto;
+
+		try {
+			servicoslock.lock();
+
+			//Calcula o tempo, aproximado, máximo para todos os tecnicos acabarem o servico atual
+			tempoMax = 0;
+			for(Servico s : estados.get(EstadoServico.EmExecucao).values()) {
+
+				if(s instanceof ServicoExpresso && tempoMax < 30)
+					tempoMax = 30;
+				else if(s instanceof ServicoPadrao){
+					float duracaoPrevista = ((ServicoPadrao) s).duracaoPassosPrevistos();
+					if(tempoMax < duracaoPrevista) tempoMax = duracaoPrevista;
+				}
+
+			}
+
+			//Calcula media de tempo prevista para todos os servicos à espera de serem executados
+			tempoMedioPrevisto = 0;
+			Map<String,Servico> mapServicos = estados.get(EstadoServico.EsperandoReparacao);
+			nrServicos = mapServicos.size();
+
+			if(nrServicos != 0) {
+
+				for (Servico s : mapServicos.values()) {
+					if (s instanceof ServicoExpresso)
+						tempoMedioPrevisto += 30;
+					else if (s instanceof ServicoPadrao)
+						tempoMedioPrevisto += ((ServicoPadrao) s).duracaoPassosPrevistos();
+				}
+
+				tempoMedioPrevisto = tempoMedioPrevisto / nrServicos;
+			}
+
+		}
+		finally { servicoslock.unlock(); }
+
+		//"Divide" os servicos pelos tecnicos existentes e calcula o tempo, aproximado, necessário para todos os concluirem
+		float tempoMaxServicosAguardandoReparacao = ((float) nrServicos / nrTecnicos) * tempoMedioPrevisto;
+
+		//Calculo final, aproximado, do número máximo de minutos de trabalho necessários para o servico começar a ser executado por um técnico
+		int tempoMinutos = (int) ((tempoMax + tempoMaxServicosAguardandoReparacao + tempoPrevistoServico)
+								* (float) 1.25); // adicionada uma margem de 25%
+
+		//Calculo das horas
+		int tempoHoras = tempoMinutos / 60;
+		tempoMinutos   = tempoMinutos % 60;
+
+		//Calculo dos dias
+		//Admitido um número maximo de 6 horas de trabalho por dia.
+		int tempoDays = tempoHoras / 6;
+		tempoHoras    = tempoHoras % 6;
+
+		return LocalDateTime.now().plusMinutes((long) tempoMinutos).plusHours((long) tempoHoras).plusDays((long) tempoDays);
 	}
 
 	// ****** Auxiliares ******
@@ -348,17 +463,21 @@ public class ServicosFacade implements Serializable {
 	 * @return Apontador para o servico que possui o identificador fornecido
 	 */
 	private Servico getApontadorServico(String id){
-		Servico servico = null;
+		try {
+			servicoslock.lock();
+			Servico servico = null;
 
-		//Procura nos servicos não arquivados
-		for(Map<String,Servico> e : estados.values())
-			if ((servico = e.get(id)) != null) return servico;
+			//Procura nos servicos não arquivados
+			for(Map<String,Servico> e : estados.values())
+				if ((servico = e.get(id)) != null) return servico;
 
-		//Procura nos servicos arquivados
-		if ((servico = arquivados.get(id)) != null) return servico;
+			//Procura nos servicos arquivados
+			if ((servico = arquivados.get(id)) != null) return servico;
 
-		//Não encontrou o servico
-		return null;
+			//Não encontrou o servico
+			return null;
+		}
+		finally { servicoslock.unlock(); }
 	}
 
 	/**
@@ -368,12 +487,16 @@ public class ServicosFacade implements Serializable {
 	 * @param idEquip Identificador do equipamento (coincide com o de servico)
 	 */
 	private Servico arquivaServico(EstadoServico es, String idEquip){
-		Servico servico = estados.get(es).remove(idEquip);
-		if(servico != null){
-			arquivados.put(servico.getId(), servico);
-			return servico;
+		try {
+			servicoslock.lock();
+			Servico servico = estados.get(es).remove(idEquip);
+			if(servico != null){
+				arquivados.put(servico.getId(), servico);
+				return servico;
+			}
+			return null;
 		}
-		return null;
+		finally { servicoslock.unlock(); }
 	}
 
 	/**
@@ -384,12 +507,17 @@ public class ServicosFacade implements Serializable {
 	 * @return o Servico com o identificador fornecido caso a mudanca de estado tenha sido efetuada, ou 'null' caso contrario
 	 */
 	private Servico mudaEstado(EstadoServico estadoAtual, EstadoServico estadoPretendido, String idServico){
-		Servico servico = estados.get(estadoAtual).remove(idServico);
+		try {
+			servicoslock.lock();
 
-		if(servico == null || !servico.mudaEstado(estadoPretendido)) return null;
+			Servico servico = estados.get(estadoAtual).remove(idServico);
 
-		estados.get(estadoPretendido).put(servico.getId(), servico);
-		return servico;
+			if(servico == null || !servico.mudaEstado(estadoPretendido)) return null;
+
+			estados.get(estadoPretendido).put(servico.getId(), servico);
+			return servico;
+		}
+		finally { servicoslock.unlock(); }
 	}
 
 	/**
@@ -398,20 +526,25 @@ public class ServicosFacade implements Serializable {
 	 * @param it Iterador necessário para percorrer o map
 	 */
 	private void auxiliarArquivaServicos(Iterator<Map.Entry<String,Servico>> it){
-		Map.Entry<String,Servico> entry;
-		Servico servico;
-		LocalDateTime now = LocalDateTime.now();
+		try {
+			servicoslock.lock();
 
-		while (it.hasNext()) {
-			entry = it.next();
-			servico = entry.getValue();
+			Map.Entry<String,Servico> entry;
+			Servico servico;
+			LocalDateTime now = LocalDateTime.now();
 
-			if(ChronoUnit.DAYS.between(servico.getDataConclusao(), now) >= 90){
-				servico.setAbandonado(true);
-				arquivados.put(entry.getKey(), servico);
-				it.remove();
+			while (it.hasNext()) {
+				entry = it.next();
+				servico = entry.getValue();
+
+				if(ChronoUnit.DAYS.between(servico.getDataConclusao(), now) >= 90){
+					servico.setAbandonado(true);
+					arquivados.put(entry.getKey(), servico);
+					it.remove();
+				}
 			}
 		}
+		finally { servicoslock.unlock(); }
 	}
 
 	//TODO - remover no fim de tudo estar pronto
