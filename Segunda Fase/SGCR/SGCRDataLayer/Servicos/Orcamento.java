@@ -52,6 +52,7 @@ public class Orcamento {
 
 	public float getPrecoPrevisto() { return precoPrevisto; }
 
+	/** @return tempo previsto, em minutos, para executar o servico. */
 	public float getTempoPrevisto() { return tempoPrevisto; }
 
 	public String getDescricao() { return descricao; }

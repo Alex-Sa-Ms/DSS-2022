@@ -90,6 +90,8 @@ public interface iSGCR {
 	 */
 	boolean criarServicoExpresso(Float custo, String NIF);
 
+	public boolean definirPrecoHoraServicos(float precoHora);
+
 	/**
 	 *
 	 * @param o
@@ -134,6 +136,8 @@ public interface iSGCR {
 	 */
 	boolean addPassoServico(String ID, Passo passo);
 
+	public Passo getPassoAtual(String idServico);
+
 	/**
 	 *
 	 * @param IDServico
@@ -145,6 +149,8 @@ public interface iSGCR {
 	 * @param IDServico
 	 */
 	List<Passo> listarPassosServico(String IDServico);
+
+	List<Servico> listarServicosEmEsperaDeConfirmacao();
 
 	List<Servico> listarServicosPendentes();
 
@@ -158,7 +164,9 @@ public interface iSGCR {
 
 	Map<String, TreeSet<Servico>> listaIntervencoes();
 
-	Statistics estatisticas();
+	List<TecnicoStats> estatisticasEficienciaCentro();
+
+	List<BalcaoStats> rececoes_e_entregas();
 
 	// ****** Iniciar/Encerrar Aplicacao ******
 

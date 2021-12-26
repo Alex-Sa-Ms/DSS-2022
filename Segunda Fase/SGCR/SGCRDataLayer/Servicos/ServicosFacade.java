@@ -13,8 +13,8 @@ public class ServicosFacade implements Serializable {
 	private final Deque<String> filaServicos;
 
 	public ServicosFacade(){
-		estados = new HashMap<>();
-		arquivados = new HashMap<>();
+		estados      = new HashMap<>();
+		arquivados   = new HashMap<>();
 		filaServicos = new ArrayDeque<>();
 
 		for(EstadoServico e : EstadoServico.values())
@@ -23,6 +23,10 @@ public class ServicosFacade implements Serializable {
 
 	//TODO - necessario lock(s) para as estruturas de dados, devido ao uso do Timer
 	//TODO - Maybe usar o getPrecoServico e só dps confirmar a arquivacao do servico com o entregarEquipamento
+
+	public boolean setPrecoHora(float precoHora){
+		return Passo.setPrecoHora(precoHora);
+	}
 
 	/**
 	 * Cria um servico expresso, e coloca-o no inicio da fila de servicos em espera de reparacao.
@@ -269,6 +273,14 @@ public class ServicosFacade implements Serializable {
 		}
 
 		return map;
+	}
+
+
+	public List<Servico> listaServicosEmEsperaDeConfirmacao(){
+		return estados.get(EstadoServico.AguardarConfirmacao).values()
+															 .stream()
+															 .map(Servico::clone)
+															 .collect(Collectors.toList());
 	}
 
 	/** @return lista de pedidos pendentes(em espera de reparacao). */

@@ -8,9 +8,9 @@ public class Passo {
 	private static float precoHora = (float) 4.5;
 
 	/** Construtor para os passos de orçamento.
-	 * @param custoPecas
-	 * @param descricao
-	 * @param tempo
+	 * @param custoPecas float que indica o custo das pecas necessárias para executar o passo
+	 * @param descricao String que descreve o passo
+	 * @param tempo Tempo, em minutos, necessário para executar o passo
 	 */
 	public Passo(float custoPecas, String descricao, float tempo) {
 		if(custoPecas < 0 || tempo < 0 || descricao == null) throw new IllegalArgumentException();
@@ -20,8 +20,8 @@ public class Passo {
 	}
 
 	/** Construtor para os passos do servico. Variavel tempo inicializada a 0.
-	 * @param custoPecas
-	 * @param descricao
+	 * @param custoPecas float que indica o custo das pecas necessárias para executar o passo
+	 * @param descricao String que descreve o passo
 	 */
 	public Passo(float custoPecas, String descricao) {
 		if(custoPecas < 0 || descricao == null) throw new IllegalArgumentException();
@@ -36,7 +36,7 @@ public class Passo {
 
 	public void setCustoPecas(float custoPecas) { this.custoPecas = custoPecas; }
 
-	public float getCusto() { return custoPecas + tempo * precoHora; }
+	public float getCusto() { return custoPecas + (tempo / 60) * precoHora; }
 
 	public String getDescricao() { return descricao; }
 
@@ -50,7 +50,11 @@ public class Passo {
 
 	public float getPrecoHora() { return precoHora; }
 
-	static void setPrecoHora(float precoHora) { Passo.precoHora = precoHora; }
+	static boolean setPrecoHora(float precoHora) {
+		if(precoHora <= 0) return false;
+		Passo.precoHora = precoHora;
+		return true;
+	}
 
 	//TODO: Remover depois da app estar feita
 

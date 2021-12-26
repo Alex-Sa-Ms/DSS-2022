@@ -125,8 +125,8 @@ public class ServicoPadrao extends Servico {
 		//Guarda o tempo utilizado para executar o passo atual, e atualiza a variavel custoAtual, antes de saltar para o próximo passo
 		Passo passo = getPassoAtualPrivate();
 		if(passo != null) {
-			passo.addTempo(Tempo.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
-			custoAtual += passo.getCustoPecas() + passo.getTempo() * passo.getPrecoHora();
+			passo.addTempo(Tempo.converteTimeMillisParaMinutos(System.currentTimeMillis() - inicioPassoAtual));
+			custoAtual += passo.getCusto();
 		}
 
 		passoAtual++;
@@ -213,7 +213,7 @@ public class ServicoPadrao extends Servico {
 
 			//Guarda o tempo utilizado para executar o passo atual
 			Passo passo = getPassoAtualPrivate();
-			if(passo != null) passo.addTempo(Tempo.converteTimeMillisParaHoras(System.currentTimeMillis() - inicioPassoAtual));
+			if(passo != null) passo.addTempo(Tempo.converteTimeMillisParaMinutos(System.currentTimeMillis() - inicioPassoAtual));
 
 			setDataConclusao(LocalDateTime.now());
 			setEstado(estado);

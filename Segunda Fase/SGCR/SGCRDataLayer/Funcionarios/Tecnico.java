@@ -9,16 +9,16 @@ public class Tecnico extends Funcionario {
 	private int nRepProgramadasConcluidas;
 	private int nRepExpressoConcluidas;
 	private float duracaoMediaRepProg;
-	private float duracaoMediaPrevistaRepProg;
+	private float mediaDesvioRepProg;
 
 
 	public Tecnico(String id, String password) {
 		setId(id);
 		setPassword(password);
 		servicos = new HashSet<>();
-		nRepExpressoConcluidas = 0;
+		nRepExpressoConcluidas    = 0;
 		nRepProgramadasConcluidas = 0;
-		duracaoMediaPrevistaRepProg = 0;
+		mediaDesvioRepProg  = 0;
 		duracaoMediaRepProg = 0;
 	}
 
@@ -29,14 +29,14 @@ public class Tecnico extends Funcionario {
 			int nRepProgramadasConcluidas,
 			int nRepExpressoConcluidas,
 			float duracaoMediaRepProg,
-			float duracaoMediaPrevistaRepProg) {
+			float mediaDesvioRepProg) {
 		setId(id);
 		setPassword(password);
 		this.servicos = servicos != null ? new HashSet<>(servicos) : new HashSet<>();
 		this.nRepProgramadasConcluidas = nRepProgramadasConcluidas;
 		this.nRepExpressoConcluidas = nRepExpressoConcluidas;
 		this.duracaoMediaRepProg = duracaoMediaRepProg;
-		this.duracaoMediaPrevistaRepProg = duracaoMediaPrevistaRepProg;
+		this.mediaDesvioRepProg = mediaDesvioRepProg;
 	}
 
 
@@ -81,22 +81,22 @@ public class Tecnico extends Funcionario {
 		this.duracaoMediaRepProg = duracaoMediaRepProg;
 	}
 
-	public float getDuracaoMediaPrevistaRepProg() {
-		return duracaoMediaPrevistaRepProg;
+	public float getMediaDesvioRepProg() {
+		return mediaDesvioRepProg;
 	}
 
-	protected void setDuracaoMediaPrevistaRepProg(float duracaoMediaPrevistaRepProg) {
-		this.duracaoMediaPrevistaRepProg = duracaoMediaPrevistaRepProg;
+	protected void setMediaDesvioRepProg(float mediaDesvioRepProg) {
+		this.mediaDesvioRepProg = mediaDesvioRepProg;
 	}
 
 	/**
 	 * 
 	 * @param duracao
-	 * @param duracaoPrevista
+	 * @param desvio
 	 */
-	public void incNrRepProgConcluidas(float duracao, float duracaoPrevista) {
-		duracaoMediaRepProg         += duracao;
-		duracaoMediaPrevistaRepProg += duracaoPrevista;
+	public void incNrRepProgConcluidas(float duracao, float desvio) {
+		duracaoMediaRepProg = atualizaMedia(nRepProgramadasConcluidas, duracaoMediaRepProg, duracao);
+		mediaDesvioRepProg  = atualizaMedia(nRepProgramadasConcluidas, mediaDesvioRepProg, desvio);
 		nRepProgramadasConcluidas++;
 	}
 
@@ -116,7 +116,20 @@ public class Tecnico extends Funcionario {
 				this.getnRepProgramadasConcluidas(),
 				this.getnRepExpressoConcluidas(),
 				this.getDuracaoMediaRepProg(),
-				this.getDuracaoMediaPrevistaRepProg());
+				this.getMediaDesvioRepProg());
 	}
 
+
+	// ****** Auxiliares ******
+
+	/**
+	 * @param nrValores número de valores que constituem a média atual
+	 * @param media média de valores
+	 * @param novoValor novo valor, do qual se pretende a participacao na media
+	 * @return média atualizada
+	 */
+	private static float atualizaMedia(int nrValores, float media, float novoValor){
+		if(nrValores == 0) return novoValor;
+		else return ((nrValores * media) + novoValor) / (nrValores + 1);
+	}
 }

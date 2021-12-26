@@ -147,6 +147,13 @@ public class SGCRFacade implements iSGCR, Serializable {
 	}
 
 	@Override
+	public boolean definirPrecoHoraServicos(float precoHora){
+		if(permissao == 2)
+			return servicosFacade.setPrecoHora(precoHora);
+		return false;
+	}
+
+	@Override
 	public boolean rejeitaPedidoOrcamento(PedidoOrcamento o) {
 		if(permissao == 1){
 			if(servicosFacade.addServicoPadraoIrreparavel(o.getIdEquipamento(), o.getNIFCliente(), idUtilizador, o.getDescricao())){
@@ -159,14 +166,14 @@ public class SGCRFacade implements iSGCR, Serializable {
 
 	@Override
 	public boolean aceitarOrcamento(String idServico) {
-		if(permissao >= 0) //TODO - vejam q permissao querem aqui
+		if(permissao == 0)
 			return servicosFacade.orcamentoAceite(idServico);
 		return false;
 	}
 
 	@Override
 	public boolean rejeitarOrcamento(String idServico) {
-		if(permissao >= 0) //TODO - vejam q permissao querem aqui
+		if(permissao == 0)
 			return servicosFacade.orcamentoRejeitado(idServico);
 		return false;
 	}
@@ -204,8 +211,9 @@ public class SGCRFacade implements iSGCR, Serializable {
 			if(servicosFacade.concluiServico(IDServico)){
 				Servico s = servicosFacade.getServico(IDServico);
 				if(s instanceof ServicoPadrao) {
-					ServicoPadrao sp = (ServicoPadrao) s;
-					funcionarioFacade.incNrRepProgConcluidas(idUtilizador, sp.duracaoPassos(), sp.duracaoPassosPrevistos());
+					ServicoPadrao sp    = (ServicoPadrao) s;
+					float duracaoPassos = sp.duracaoPassos();
+					funcionarioFacade.incNrRepProgConcluidas(idUtilizador, duracaoPassos, Math.abs(duracaoPassos - sp.duracaoPassosPrevistos()));
 				}
 				else funcionarioFacade.incNrRepExpConcluidas(idUtilizador);  //assumindo que não criamos novos servicos //TODO - luis wdym?
 				return true;
@@ -236,6 +244,9 @@ public class SGCRFacade implements iSGCR, Serializable {
 	}
 
 	@Override
+	public Passo getPassoAtual(String idServico){ return servicosFacade.getPassoAtual(idServico); }
+
+	@Override
 	public Passo proxPasso(String IDServico) {
 		if (permissao == 1 && funcionarioFacade.possuiServico(idUtilizador, IDServico))
 			return servicosFacade.proxPasso(IDServico);
@@ -249,6 +260,13 @@ public class SGCRFacade implements iSGCR, Serializable {
 			if(servico instanceof ServicoPadrao)
 				return ((ServicoPadrao) servico).getPassos();
 		}
+		return null;
+	}
+
+	@Override
+	public List<Servico> listarServicosEmEsperaDeConfirmacao() {
+		if(permissao == 1)
+			return servicosFacade.listaServicosEmEsperaDeConfirmacao();
 		return null;
 	}
 
@@ -295,7 +313,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	}
 
 	@Override
-	public Map<String, TreeSet<Servico>> listaIntervencoes() { //todo ja fazemos isto na estatisticas (remover do diagrama)
+	public Map<String, TreeSet<Servico>> listaIntervencoes() {
 		if(permissao == 2) {
 			//return servicosFacade.getServicos().stream().collect(Collectors.groupingBy(Servico::getIdTecnico, Collectors.toCollection(TreeSet::new))); //Ordem natural imposta pelo comparable do servico
 			return servicosFacade.listaIntervencoes();
@@ -303,13 +321,23 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return null;
 	}
 
-	//list
 	@Override
-	public Statistics estatisticas() { //todo mudar o return value no diagrama
-		if (permissao == 2) {
-			return new Statistics(servicosFacade, funcionarioFacade);
-		}
-		return null;
+	public List<TecnicoStats> estatisticasEficienciaCentro() {
+		return funcionarioFacade.listarTecnicos()
+								.stream()
+				 				.map(tecnico -> new TecnicoStats(tecnico.getnRepProgramadasConcluidas(),
+																 tecnico.getnRepExpressoConcluidas(),
+																 tecnico.getDuracaoMediaRepProg(),
+																 tecnico.getMediaDesvioRepProg()))
+								.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<BalcaoStats> rececoes_e_entregas() {
+		return funcionarioFacade.listarFuncionariosBalcao()
+								.stream()
+								.map(funcBalcao -> new BalcaoStats(funcBalcao.getnEntregas(), funcBalcao.getnRececoes()))
+								.collect(Collectors.toList());
 	}
 
 	// ****** Iniciar/Encerrar Aplicacao ******
