@@ -10,9 +10,14 @@ public class ServicoPadrao extends Servico implements Serializable {
 	private List<Passo> passos;
 	private Orcamento orcamento;
 	private float custoAtual;
-	private int   passoAtual;
-	private int   passoAtualOrcamento;
-	private long  inicioPassoAtual;
+	private int passoAtual;
+	private int passoAtualOrcamento;
+	private long inicioPassoAtual;
+	private boolean avisarCustoExcedido = true;
+
+	public static class CustoExcedidoException extends Exception{
+		public CustoExcedidoException() {}
+	}
 
 	// ****** Construtores ******
 
@@ -105,6 +110,9 @@ public class ServicoPadrao extends Servico implements Serializable {
 	/** @return float que indica o custo do serviço até ao momento */
 	public float getCusto() { return custoAtual; }
 
+	/** @return string com a descricao do servico */
+	public String getDescricao() { return this.orcamento.getDescricao(); }
+
 	/** @return data de criacao do orcamento **/
 	public LocalDateTime getDataOrcamento() { return orcamento.getData(); }
 
@@ -121,12 +129,19 @@ public class ServicoPadrao extends Servico implements Serializable {
 	}
 
 	/** @return Clone do próximo 'Passo' a ser executado, ou 'null' caso não exista. */
-	public Passo proxPasso() {
+	public Passo proxPasso() throws CustoExcedidoException {
 		//Guarda o tempo utilizado para executar o passo atual, e atualiza a variavel custoAtual, antes de saltar para o próximo passo
 		Passo passo = getPassoAtualPrivate();
 		if(passo != null) {
 			passo.addTempo(converteTimeMillisParaMinutos(System.currentTimeMillis() - inicioPassoAtual));
-			custoAtual += passo.getCusto();
+
+			//Verifica se o custo atingiu o patamar de 120% relativamente ao valor previsto
+			if(avisarCustoExcedido && !verificaCusto()){
+				avisarCustoExcedido = false;
+				inicioPassoAtual    = System.currentTimeMillis();
+				throw new CustoExcedidoException();
+			}
+			else custoAtual += passo.getCusto();
 		}
 
 		passoAtual++;

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 public class ServicoExpresso extends Servico implements Serializable {
 
 	private float custo;
+	private String descricao;
 
 	//Construtor
 
@@ -40,9 +41,13 @@ public class ServicoExpresso extends Servico implements Serializable {
 
 	//Setters e Getters
 
+	/** @return float que indica o custo do serviço */
 	public float getCusto() {
 		return this.custo;
 	}
+
+	/** @return string com a descricao do servico */
+	public String getDescricao() { return this.descricao; }
 
 	@Override
 	public boolean mudaEstado(EstadoServico estado) {

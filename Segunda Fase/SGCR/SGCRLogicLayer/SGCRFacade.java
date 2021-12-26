@@ -271,9 +271,14 @@ public class SGCRFacade implements iSGCR, Serializable {
 	public Passo getPassoAtual(String idServico){ return servicosFacade.getPassoAtual(idServico); }
 
 	@Override
-	public Passo proxPasso(String IDServico) {
-		if (permissao == 1 && funcionarioFacade.possuiServico(idUtilizador, IDServico))
-			return servicosFacade.proxPasso(IDServico);
+	public Passo proxPasso(String IDServico) throws CustoExcedidoException {
+		if (permissao == 1 && funcionarioFacade.possuiServico(idUtilizador, IDServico)) {
+			try { return servicosFacade.proxPasso(IDServico); }
+			catch (ServicoPadrao.CustoExcedidoException e) {
+				EmailHandler.emailExcesso(clientesFacade.getFichaCliente(servicosFacade.getServico(IDServico).getIdCliente()).getEmail());
+				throw new CustoExcedidoException();
+			}
+		}
 		return null;
 	}
 

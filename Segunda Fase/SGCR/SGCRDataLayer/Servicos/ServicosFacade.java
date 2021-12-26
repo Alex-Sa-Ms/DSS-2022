@@ -235,7 +235,7 @@ public class ServicosFacade implements Serializable {
 	 * @param idServico Identificador do servico do qual se pretende o proximmo passo
 	 * @return proximo passo a ser executado no servico
 	 */
-	public Passo proxPasso(String idServico){
+	public Passo proxPasso(String idServico) throws ServicoPadrao.CustoExcedidoException {
 		try {
 			servicoslock.lock();
 

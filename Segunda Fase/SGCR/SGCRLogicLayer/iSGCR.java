@@ -149,7 +149,7 @@ public interface iSGCR {
 	 *
 	 * @param IDServico
 	 */
-	Passo proxPasso(String IDServico);
+	Passo proxPasso(String IDServico) throws CustoExcedidoException;
 
 	/**
 	 *
@@ -199,4 +199,8 @@ public interface iSGCR {
 	 * @return 0 se não houve problemas, 1 se ocorreu um erro do tipo 'FileNotFound' e 2 se ocorreu um erro a escrever o estado da aplicacao para um ficheiro
 	 */
 	int encerraAplicacao(String filepath);
+
+	class CustoExcedidoException extends Exception{
+		public CustoExcedidoException() {}
+	}
 }
