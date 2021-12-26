@@ -13,7 +13,7 @@ import java.util.List;
 
 
 public class UIFacade {
-    private PrintMsg printer = new PrintMsg();
+    private final PrintMsg printer = new PrintMsg();
     private iSGCR logic= new SGCRFacade();
     private final String predefinedPath = "C:\\Users\\Utilizador\\Documents\\GitHub\\DSS-2022\\file.dat";
     private String newPath = null;
@@ -42,12 +42,19 @@ public class UIFacade {
                     else printer.printMsg("Erro no load");
                     break;
                 case 3:
-                    //TODO Carregar ficheiros de dados
+                    MenuInput filepath2 = new MenuInput("Insira o ficheiro de onde pretende carregar os dados","");
+                    filepath2.executa();
+                    iSGCR logic3= iSGCR.loadSGCRFacade(newPath);
+                    if (logic3 != null) {
+                        logic = logic3;
+                        printer.printMsg("Load concluido com sucesso");
+                    }
+                    else printer.printMsg("Erro no load");
                     break;
                 case 0:
                     return 90;
                 case 4:
-                    MenuInput filepath = new MenuInput("Insira o ficheiro onde pertende que sejam guardados os ficheiros","");
+                    MenuInput filepath = new MenuInput("Insira o ficheiro onde pretende que sejam guardados os ficheiros","");
                     filepath.executa();
                     newPath = filepath.getOpcao();
                     return 91;
@@ -333,7 +340,8 @@ public class UIFacade {
                 "Ver Pedidos de Orcamento",
                 "Ver Servicos",
                 "Comecar Reparacao",
-                "Retomar reparacoes"});
+                "Retomar reparacoes",
+                "Listar Fichas Cliente"});
 
         MenuSelect temp = new MenuSelect("", new String[]{});
         boolean flag=true;
@@ -345,12 +353,12 @@ public class UIFacade {
                     break;
                 case 2:
                     List<PedidoOrcamento> l2 = logic.listarPedidos();
-                    l2.forEach(x->printer.printPedido(x));
+                    l2.forEach(printer::printPedido);
                     temp.executa();
                     break;
                 case 3:
                     List<Servico> l = logic.listarServicosPendentes();
-                    l.forEach(x -> printer.printServico(x));
+                    l.forEach(printer::printServico);
                     temp.executa();
                     break;
                 case 4:
@@ -373,7 +381,10 @@ public class UIFacade {
                             controladorServicoExpresso(s);
                         }}
                     break;
-
+                case 6:
+                    printer.printLFichaCliente(logic.listarFichasCLiente());
+                    temp.executa();
+                    break;
                 case 0:
                     flag=false;
                     break;
