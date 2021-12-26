@@ -143,11 +143,9 @@ public class SGCRFacade implements iSGCR, Serializable {
 	@Override
 	public boolean criaServicoPadrao(PedidoOrcamento o, List<Passo> passos) {
 		if(permissao == 1){
-			boolean ret = servicosFacade.addServicoPadrao(o.getIdEquipamento(), o.getNIFCliente(), passos, o.getDescricao());
-			if(ret) {
-				LocalDateTime prazoMaximo = calcularPrazoMaximo(passos);
-				EmailHandler.emailOrcamento(clientesFacade.getFichaCliente(o.getNIFCliente()).getEmail(),o.toString());
-			}
+			LocalDateTime prazoMaximo = calcularPrazoMaximo(passos);
+			boolean ret = servicosFacade.addServicoPadrao(o.getIdEquipamento(), o.getNIFCliente(), passos, o.getDescricao(), prazoMaximo);
+			if(ret) EmailHandler.emailOrcamento(clientesFacade.getFichaCliente(o.getNIFCliente()).getEmail(), ((ServicoPadrao) servicosFacade.getServico(o.getNIFCliente())).getOrcamento().toString());
 			return ret;
 		} return false;
 	}

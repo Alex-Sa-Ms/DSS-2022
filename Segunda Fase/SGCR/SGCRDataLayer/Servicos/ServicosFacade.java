@@ -55,11 +55,12 @@ public class ServicosFacade implements Serializable {
 	 * @param idCliente Identificador do cliente
 	 * @param passos Lista de passos que se prevê que constituam o servico
 	 * @param descricao Descricao que deve estar presente no orcamento
+	 * @param prazoMaximo Data máxima para a qual se espera que o serviço esteja concluido
 	 */
-	public boolean addServicoPadrao(String idEquip, String idCliente, List<Passo> passos, String descricao) {
+	public boolean addServicoPadrao(String idEquip, String idCliente, List<Passo> passos, String descricao, LocalDateTime prazoMaximo) {
 		try {
 			servicoslock.lock();
-			estados.get(EstadoServico.AguardarConfirmacao).put(idEquip, new ServicoPadrao(idEquip, idCliente, passos, descricao));
+			estados.get(EstadoServico.AguardarConfirmacao).put(idEquip, new ServicoPadrao(idEquip, idCliente, passos, descricao, prazoMaximo));
 			return true;
 		}
 		finally { servicoslock.unlock(); }

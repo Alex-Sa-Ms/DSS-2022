@@ -13,17 +13,19 @@ public class Orcamento implements Serializable {
 	private float tempoPrevisto = 0;  //tempo calculado a partir das estimativas inseridas em cada passo
 	private final String descricao;   //string que define a razao pela qual foi efetuado o orcamento
 	private final LocalDateTime data; //Data em que o orcamento foi criado
+	private final LocalDateTime prazoMaximo;
 
 	/**
 	 * Construtor de um Orcamento
 	 * @param passos lista de passos que vão constituir o orcamento
 	 * @param descricao string que define a razao pela qual foi efetuado o orcamento
 	 */
-	public Orcamento(List<Passo> passos, String descricao) {
+	public Orcamento(List<Passo> passos, String descricao, LocalDateTime prazoMaximo) {
 		if(descricao == null) throw new IllegalArgumentException();
-		this.passos    = passos == null ? new ArrayList<>() : passos.stream().map(Passo::clone).collect(Collectors.toList());
-		this.descricao = descricao;
-		data  		   = LocalDateTime.now();
+		this.passos      = passos == null ? new ArrayList<>() : passos.stream().map(Passo::clone).collect(Collectors.toList());
+		this.descricao   = descricao;
+		this.data  		 = LocalDateTime.now();
+		this.prazoMaximo = prazoMaximo;
 		calculaValoresPrevisto();
 	}
 
@@ -60,9 +62,7 @@ public class Orcamento implements Serializable {
 
 	public LocalDateTime getData() { return data; }
 
-	public Orcamento clone(){ return new Orcamento(this.passos, this.descricao); }
-
-	//TODO: Remover depois da app estar feita
+	public Orcamento clone(){ return new Orcamento(this.passos, this.descricao, this.prazoMaximo); }
 
 	@Override
 	public String toString() {
@@ -71,6 +71,8 @@ public class Orcamento implements Serializable {
 				", precoPrevisto=" + precoPrevisto +
 				", tempoPrevisto=" + tempoPrevisto +
 				", descricao='" + descricao + '\'' +
+				", data=" + data +
+				", prazoMaximo=" + prazoMaximo +
 				'}';
 	}
 }
