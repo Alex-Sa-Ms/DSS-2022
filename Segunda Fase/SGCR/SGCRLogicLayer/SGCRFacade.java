@@ -342,10 +342,10 @@ public class SGCRFacade implements iSGCR, Serializable {
 
 	// ****** Iniciar/Encerrar Aplicacao ******
 
-	public static iSGCR loadSGCRFacade(){ //Deserialize
+	public static iSGCR loadSGCRFacade(String filepath){ //Deserialize
 		try {
 			SGCRFacade novo;
-			FileInputStream fileIn = new FileInputStream("save");
+			FileInputStream fileIn = new FileInputStream(filepath);
 			ObjectInputStream in = new ObjectInputStream(fileIn);
 			novo = (SGCRFacade) in.readObject();
 			in.close();
@@ -362,7 +362,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 		if(logout()){
 			try {
 				FileOutputStream fileOut;
-				fileOut = new FileOutputStream(caminho);
+				fileOut = new FileOutputStream(filepath);
 				ObjectOutputStream out;
 				out = new ObjectOutputStream(fileOut);
 				out.writeObject(this);
