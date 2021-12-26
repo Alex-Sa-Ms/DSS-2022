@@ -181,17 +181,18 @@ public interface iSGCR {
 
 	static iSGCR loadSGCRFacade(String s) {
 		try {
-		SGCRFacade novo;
-		FileInputStream fileIn = new FileInputStream(s);
-		ObjectInputStream in = new ObjectInputStream(fileIn);
-		novo = (SGCRFacade) in.readObject();
-		in.close();
-		fileIn.close();
-		novo.runTimer();
+			SGCRFacade novo;
+			FileInputStream fileIn = new FileInputStream(s);
+			ObjectInputStream in = new ObjectInputStream(fileIn);
+			novo = (SGCRFacade) in.readObject();
+			in.close();
+			fileIn.close();
+			novo.runTimer();
 		return novo;
-	} catch (IOException | ClassNotFoundException fnfe){
-		return null;
-	}}
+		} catch (IOException | ClassNotFoundException | NullPointerException fnfe){
+			return null;
+		}
+	}
 
 	void runTimer();
 	/**

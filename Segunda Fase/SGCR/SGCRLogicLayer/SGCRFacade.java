@@ -11,7 +11,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SGCRFacade implements iSGCR, Serializable {
-	private String caminho = "save";
 	private ClientesFacade clientesFacade;
 	private FuncionarioFacade funcionarioFacade;
 	private PedidosFacade pedidosFacade;
@@ -30,7 +29,8 @@ public class SGCRFacade implements iSGCR, Serializable {
 		this.pedidosFacade     = new PedidosFacade();
 		this.funcionarioFacade = new FuncionarioFacade();
 		this.servicosFacade    = new ServicosFacade();
-		timer = new Timer(servicosFacade);
+		runTimer();
+
 	}
 
 	// ****** Iniciar/Terminar Sessao ******
@@ -146,7 +146,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 			boolean ret = servicosFacade.addServicoPadrao(o.getIdEquipamento(), o.getNIFCliente(), passos, o.getDescricao());
 			if(ret) {
 				LocalDateTime prazoMaximo = calcularPrazoMaximo(passos);
-				//TODO - enviar mail aqui
+				EmailHandler.emailOrcamento(clientesFacade.getFichaCliente(o.getNIFCliente()).getEmail(),o.toString());
 			}
 			return ret;
 		} return false;
@@ -205,8 +205,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	public Servico comecarServico() {
 		if (permissao == 1){
 			Servico servico = servicosFacade.getProxServico(idUtilizador);
-			if(servico != null){
-				funcionarioFacade.addServicoTecnico(idUtilizador, servico.getId()); //TODO - cagamos no caso de se isto retornar falso?
+			if(servico != null && funcionarioFacade.addServicoTecnico(idUtilizador, servico.getId())){
 				return servico;
 			}
 		}
@@ -239,7 +238,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 					float duracaoPassos = sp.duracaoPassos();
 					funcionarioFacade.incNrRepProgConcluidas(idUtilizador, duracaoPassos, Math.abs(duracaoPassos - sp.duracaoPassosPrevistos()));
 				}
-				else funcionarioFacade.incNrRepExpConcluidas(idUtilizador);  //assumindo que não criamos novos servicos //TODO - luis wdym?
+				else funcionarioFacade.incNrRepExpConcluidas(idUtilizador);
 				return true;
 			}
 
@@ -344,7 +343,6 @@ public class SGCRFacade implements iSGCR, Serializable {
 	@Override
 	public Map<String, TreeSet<Servico>> listaIntervencoes() {
 		if(permissao == 2) {
-			//return servicosFacade.getServicos().stream().collect(Collectors.groupingBy(Servico::getIdTecnico, Collectors.toCollection(TreeSet::new))); //Ordem natural imposta pelo comparable do servico
 			return servicosFacade.listaIntervencoes();
 		}
 		return null;
@@ -352,27 +350,34 @@ public class SGCRFacade implements iSGCR, Serializable {
 
 	@Override
 	public List<TecnicoStats> estatisticasEficienciaCentro() {
-		return funcionarioFacade.listarTecnicos()
-								.stream()
-				 				.map(tecnico -> new TecnicoStats(tecnico.getId(),
-										 						 tecnico.getnRepProgramadasConcluidas(),
-																 tecnico.getnRepExpressoConcluidas(),
-																 tecnico.getDuracaoMediaRepProg(),
-																 tecnico.getMediaDesvioRepProg()))
-								.collect(Collectors.toList());
+		if(permissao == 2) {
+			return funcionarioFacade.listarTecnicos()
+					.stream()
+					.map(tecnico -> new TecnicoStats(tecnico.getId(),
+							tecnico.getnRepProgramadasConcluidas(),
+							tecnico.getnRepExpressoConcluidas(),
+							tecnico.getDuracaoMediaRepProg(),
+							tecnico.getMediaDesvioRepProg()))
+					.collect(Collectors.toList());
+		}
+		return null;
 	}
 
 	@Override
 	public List<BalcaoStats> rececoes_e_entregas() {
-		return funcionarioFacade.listarFuncionariosBalcao()
-								.stream()
-								.map(funcBalcao -> new BalcaoStats(funcBalcao.getId(),funcBalcao.getnEntregas(), funcBalcao.getnRececoes()))
-								.collect(Collectors.toList());
+		if(permissao == 2) {
+			return funcionarioFacade.listarFuncionariosBalcao()
+					.stream()
+					.map(funcBalcao -> new BalcaoStats(funcBalcao.getId(), funcBalcao.getnEntregas(), funcBalcao.getnRececoes()))
+					.collect(Collectors.toList());
+		}
+		return null;
 	}
 
 	@Override
 	public void runTimer() {
 		this.timer = new Timer(servicosFacade);
+		this.timer.start();
 	}
 
 	// ****** Iniciar/Encerrar Aplicacao ******

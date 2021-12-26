@@ -2,12 +2,13 @@ package SGCRLogicLayer;
 
 import SGCRDataLayer.Servicos.ServicosFacade;
 
+import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Timer extends Thread{
+public class Timer extends Thread implements Serializable {
 	ServicosFacade sf;
 	ReentrantLock rlock = new ReentrantLock();
 	Condition cond = rlock.newCondition();
