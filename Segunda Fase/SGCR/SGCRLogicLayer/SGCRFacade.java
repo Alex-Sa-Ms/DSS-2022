@@ -349,7 +349,8 @@ public class SGCRFacade implements iSGCR, Serializable {
 	public List<TecnicoStats> estatisticasEficienciaCentro() {
 		return funcionarioFacade.listarTecnicos()
 								.stream()
-				 				.map(tecnico -> new TecnicoStats(tecnico.getnRepProgramadasConcluidas(),
+				 				.map(tecnico -> new TecnicoStats(tecnico.getId(),
+										 						 tecnico.getnRepProgramadasConcluidas(),
 																 tecnico.getnRepExpressoConcluidas(),
 																 tecnico.getDuracaoMediaRepProg(),
 																 tecnico.getMediaDesvioRepProg()))
@@ -360,7 +361,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	public List<BalcaoStats> rececoes_e_entregas() {
 		return funcionarioFacade.listarFuncionariosBalcao()
 								.stream()
-								.map(funcBalcao -> new BalcaoStats(funcBalcao.getnEntregas(), funcBalcao.getnRececoes()))
+								.map(funcBalcao -> new BalcaoStats(funcBalcao.getId(),funcBalcao.getnEntregas(), funcBalcao.getnRececoes()))
 								.collect(Collectors.toList());
 	}
 
