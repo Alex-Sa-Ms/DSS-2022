@@ -292,7 +292,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	public List<Servico> listarServicosProntosLevantamento(String NIF) {
 		if(permissao == 0){
 			FichaCliente fichaCliente = clientesFacade.getFichaCliente(NIF);
-			if(fichaCliente == null) return null;
+			if(fichaCliente == null) return new ArrayList<>();
 			return fichaCliente.getEquipamentos()
 							   .stream()
 							   .map(id -> servicosFacade.getServico(id))
