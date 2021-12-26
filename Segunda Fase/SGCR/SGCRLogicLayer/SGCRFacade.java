@@ -143,7 +143,12 @@ public class SGCRFacade implements iSGCR, Serializable {
 	@Override
 	public boolean criaServicoPadrao(PedidoOrcamento o, List<Passo> passos) {
 		if(permissao == 1){
-			return servicosFacade.addServicoPadrao(o.getIdEquipamento(), o.getNIFCliente(), passos, o.getDescricao());
+			boolean ret = servicosFacade.addServicoPadrao(o.getIdEquipamento(), o.getNIFCliente(), passos, o.getDescricao());
+			if(ret) {
+				LocalDateTime prazoMaximo = calcularPrazoMaximo(passos);
+				//TODO - enviar mail aqui
+			}
+			return ret;
 		} return false;
 	}
 
@@ -164,10 +169,9 @@ public class SGCRFacade implements iSGCR, Serializable {
 	}
 
 	@Override
-	//TODO - decidam o que é q deve receber. Receber a lista de passos ou o id? Depois adicionar no diagrama de classes
-	public LocalDateTime calcularPrazoMaximo() {
-		float tempoServicoPretendido = 0; //TODO - calcular este valor depois de decidirem
-		return servicosFacade.calculaPrazoMaximo(funcionarioFacade.getNrTecnicos(), tempoServicoPretendido);
+	public LocalDateTime calcularPrazoMaximo(List<Passo> passos) {
+		float duracaoServicoPrevista = passos != null ? (float) passos.stream().mapToDouble(Passo::getTempo).sum() : 0;
+		return servicosFacade.calculaPrazoMaximo(funcionarioFacade.getNrTecnicos(), duracaoServicoPrevista);
 	}
 
 	@Override
