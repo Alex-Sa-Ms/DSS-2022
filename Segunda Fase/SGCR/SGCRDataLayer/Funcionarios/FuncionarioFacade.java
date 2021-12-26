@@ -105,8 +105,7 @@ public class FuncionarioFacade implements Serializable {
 	 */
 	public boolean addServicoTecnico(String idTecnico, String idServico) {
 		if(funcionarios.containsKey(idServico)) return false;
-		((Tecnico) funcionarios.get(idTecnico)).addServico(idServico);
-		return true;
+		return ((Tecnico) funcionarios.get(idTecnico)).addServico(idServico);
 	}
 
 	/**

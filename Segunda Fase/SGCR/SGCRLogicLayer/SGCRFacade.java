@@ -205,8 +205,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	public Servico comecarServico() {
 		if (permissao == 1){
 			Servico servico = servicosFacade.getProxServico(idUtilizador);
-			if(servico != null){
-				funcionarioFacade.addServicoTecnico(idUtilizador, servico.getId()); //TODO - cagamos no caso de se isto retornar falso?
+			if(servico != null && funcionarioFacade.addServicoTecnico(idUtilizador, servico.getId())){
 				return servico;
 			}
 		}
