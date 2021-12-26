@@ -4,6 +4,9 @@ import SGCRDataLayer.PedidosDeOrcamento.*;
 import SGCRDataLayer.Servicos.*;
 import SGCRDataLayer.Funcionarios.*;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -170,7 +173,18 @@ public interface iSGCR {
 
 	// ****** Iniciar/Encerrar Aplicacao ******
 
-	static iSGCR loadSGCRFacade() { return null; }
+	static iSGCR loadSGCRFacade(String s) {
+		try {
+		SGCRFacade novo;
+		FileInputStream fileIn = new FileInputStream(s);
+		ObjectInputStream in = new ObjectInputStream(fileIn);
+		novo = (SGCRFacade) in.readObject();
+		in.close();
+		fileIn.close();
+		return novo;
+	} catch (IOException | ClassNotFoundException fnfe){
+		return null;
+	}}
 
 	/**
 	 * Encerra a aplicacao, guardando o estado desta.

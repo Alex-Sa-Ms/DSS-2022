@@ -265,7 +265,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 
 	@Override
 	public List<Servico> listarServicosEmEsperaDeConfirmacao() {
-		if(permissao == 1)
+		if(permissao == 0)
 			return servicosFacade.listaServicosEmEsperaDeConfirmacao();
 		return null;
 	}
@@ -342,20 +342,6 @@ public class SGCRFacade implements iSGCR, Serializable {
 
 	// ****** Iniciar/Encerrar Aplicacao ******
 
-	public static iSGCR loadSGCRFacade(String filepath){ //Deserialize
-		try {
-			SGCRFacade novo;
-			FileInputStream fileIn = new FileInputStream(filepath);
-			ObjectInputStream in = new ObjectInputStream(fileIn);
-			novo = (SGCRFacade) in.readObject();
-			in.close();
-			fileIn.close();
-			return novo;
-		} catch (IOException | ClassNotFoundException fnfe){
-			return null;
-		}
-	}
-
 	//TODO - Deve ter em atencao o estado em que o Timer se encontra. Deve matar a thread e ao iniciar o programa voltar a inicia-la. Nao deveria terminar a sessao?
 	@Override
 	public int encerraAplicacao(String filepath) { //Serialize
@@ -374,7 +360,8 @@ public class SGCRFacade implements iSGCR, Serializable {
 			} catch (IOException e){
 				return 2;
 			}
-		}
-		return 0;
+			return 0;
+		}else return -1;
+
 	}
 }

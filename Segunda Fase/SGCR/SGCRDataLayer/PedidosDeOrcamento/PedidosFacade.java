@@ -16,7 +16,7 @@ public class PedidosFacade implements Serializable {
 	 * @param NIF
 	 */
 	public void addPedido(String descricao, String idEquip, String NIF) {
-		filaPedidos.addLast(new PedidoOrcamento(descricao, idEquip, NIF));
+		filaPedidos.addLast(new PedidoOrcamento(idEquip, descricao, NIF));
 	}
 
 	public PedidoOrcamento getProxPedido() {

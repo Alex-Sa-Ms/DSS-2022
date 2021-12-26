@@ -15,7 +15,7 @@ import java.util.List;
 public class UIFacade {
     private PrintMsg printer = new PrintMsg();
     private iSGCR logic= new SGCRFacade();
-    private String predefinedPath;
+    private final String predefinedPath = "C:\\Users\\Utilizador\\Documents\\GitHub\\DSS-2022\\file.dat";
     private String newPath = null;
 
 
@@ -34,7 +34,12 @@ public class UIFacade {
                     return logic.login(username.getOpcao(), password.getOpcao());
 
                 case 2:
-                    //TODO Carregar ficheiros dados
+                    iSGCR logic2= iSGCR.loadSGCRFacade(predefinedPath);
+                    if (logic2 != null) {
+                        logic = logic2;
+                        printer.printMsg("Load concluido com sucesso");
+                    }
+                    else printer.printMsg("Erro no load");
                     break;
                 case 3:
                     //TODO Carregar ficheiros de dados
@@ -82,7 +87,7 @@ public class UIFacade {
             }
         }
         printer.printMsg("Guardando os dados...");
-        if (retval == 90) logic.encerraAplicacao(predefinedPath);
+        if (retval == 90)logic.encerraAplicacao(predefinedPath);
         else logic.encerraAplicacao(newPath);
     }
     //////////////////////////////////////Parte do Gestor////////////////////////////////////////
@@ -182,12 +187,49 @@ public class UIFacade {
                     criarFichaCliente();
                     break;
                 case 5:
-                    //TODO
+                    confirmarOrcamento();
+                    break;
                 case 0:
                     flag=false;
             }
         }
 
+    }
+
+    private void confirmarOrcamento() {
+
+        MenuSelect menu2 = new MenuSelect("", new String[]{"Confirmar Orcamento", "Recusar Orcamento"});
+        boolean flag=true;
+        boolean temp;
+        int choice=0;
+        while(flag){
+            List<Servico> l = logic.listarServicosEmEsperaDeConfirmacao();
+            MenuSelect menu1 = new MenuSelect("Escolha o servico",  l.stream().map(s -> printer.servicoToString(s)).toArray(String[]::new));
+            menu1.executa();
+            Servico s = null;
+            if (menu1.getOpcao()!=0 && (s=l.get(menu1.getOpcao()-1)) != null){
+                while (choice == 0){
+                    menu2.executa();
+                    choice=menu2.getOpcao();
+                }
+                if (choice ==1) {
+                    temp =logic.aceitarOrcamento(s.getId());
+                    if (temp)printer.printMsg("Orcamento Aceite!");
+                    else printer.printMsg("Erro na confirmacao do orcamento");
+                }
+                else {
+                    temp =logic.rejeitarOrcamento(s.getId());
+                    if (temp)printer.printMsg("Orcamento Recusado!");
+                    else printer.printMsg("Erro na recusa do orcamento");
+                }
+
+            }else if(menu1.getOpcao() != 0){
+                printer.printMsg("Erro na confirmacao do orcamento");
+
+            }else if (menu1.getOpcao() == 0) flag=false;
+
+
+        }
     }
 
     private void criarServicoExpresso() {
@@ -267,7 +309,7 @@ public class UIFacade {
         List<Servico> l = logic.listarServicosProntosLevantamento(nif.getOpcao());
         boolean flag=true;
         while (flag && l.size()>0) {
-            MenuSelect equip = new MenuSelect("Servicos concluidos:", (String[]) l.stream().map(s -> printer.servicoToString(s)).toArray());
+            MenuSelect equip = new MenuSelect("Servicos concluidos:", l.stream().map(s -> printer.servicoToString(s)).toArray(String[]::new));
             equip.executa();
             if (equip.getOpcao()==0) flag=false;
             else {
@@ -382,21 +424,19 @@ public class UIFacade {
         boolean flag=true;
 
         printer.printServico(idS);
-
+        logic.proxPasso(id);
         while (flag) {
             List<Passo> l = logic.listarPassosServico(id);
             printer.printLPasso(l);
             reparacao.executa();
-            printer.printMsg("::::Passo Atual::::");
-            printer.printMsg(printer.passoToString(logic.proxPasso(id)));
             switch (reparacao.getOpcao()){
                 case 1:
                     Passo p = createPasso();
                     logic.addPassoServico(id,p);
                     break;
                 case 2:
-                    printer.printMsg("::::Passo Atual::::");
-                    printer.printMsg(printer.passoToString(logic.proxPasso(id)));
+                    if (logic.proxPasso(id) != null) printer.printMsg("Passo concluido");
+                    else printer.printMsg("Não existem mais passos");
                     break;
                 case 3:
                     if (logic.interromperServico(id)) {
