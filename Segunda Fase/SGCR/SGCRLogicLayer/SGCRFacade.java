@@ -17,6 +17,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	private ServicosFacade servicosFacade;
 	private int permissao;
 	private String idUtilizador;
+	private Timer timer;
 
 
 	//-1 login incorreto
@@ -28,7 +29,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 		this.pedidosFacade     = new PedidosFacade();
 		this.funcionarioFacade = new FuncionarioFacade();
 		this.servicosFacade    = new ServicosFacade();
-
+		timer = new Timer(servicosFacade);
 	}
 
 	// ****** Iniciar/Terminar Sessao ******
@@ -340,12 +341,24 @@ public class SGCRFacade implements iSGCR, Serializable {
 								.collect(Collectors.toList());
 	}
 
+	@Override
+	public void runTimer() {
+		this.timer = new Timer(servicosFacade);
+	}
+
 	// ****** Iniciar/Encerrar Aplicacao ******
 
-	//TODO - Deve ter em atencao o estado em que o Timer se encontra. Deve matar a thread e ao iniciar o programa voltar a inicia-la. Nao deveria terminar a sessao?
 	@Override
 	public int encerraAplicacao(String filepath) { //Serialize
 		if(logout()){
+			while (timer.isRunning()) {
+				try {
+					timer.getCond().await();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			timer.interrupt();
 			try {
 				FileOutputStream fileOut;
 				fileOut = new FileOutputStream(filepath);
