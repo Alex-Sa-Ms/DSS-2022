@@ -166,7 +166,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	public boolean rejeitaPedidoOrcamento(PedidoOrcamento o) {
 		if(permissao == 1){
 			if(servicosFacade.addServicoPadraoIrreparavel(o.getIdEquipamento(), o.getNIFCliente(), idUtilizador, o.getDescricao())){
-				EmailHandler.emailIrreparavel(); //TODO isto tem de receber argumentos
+				EmailHandler.emailIrreparavel(clientesFacade.getFichaCliente(o.getNIFCliente()).getEmail());
 				return true;
 			}
 		}
@@ -182,8 +182,10 @@ public class SGCRFacade implements iSGCR, Serializable {
 
 	@Override
 	public boolean rejeitarOrcamento(String idServico) {
-		if(permissao == 0)
+		if(permissao == 0) {
+			EmailHandler.emailCancelado(clientesFacade.getFichaCliente(servicosFacade.getServico(idServico).getIdCliente()).getEmail());
 			return servicosFacade.orcamentoRejeitado(idServico);
+		}
 		return false;
 	}
 
@@ -219,6 +221,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 
 			if(servicosFacade.concluiServico(IDServico)){
 				Servico s = servicosFacade.getServico(IDServico);
+				EmailHandler.emailPronto(clientesFacade.getFichaCliente(s.getIdCliente()).getEmail());
 				if(s instanceof ServicoPadrao) {
 					ServicoPadrao sp    = (ServicoPadrao) s;
 					float duracaoPassos = sp.duracaoPassos();
