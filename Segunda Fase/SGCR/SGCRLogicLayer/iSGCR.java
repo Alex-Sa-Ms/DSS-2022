@@ -189,7 +189,7 @@ public interface iSGCR {
 		fileIn.close();
 		novo.runTimer();
 		return novo;
-	} catch (IOException | ClassNotFoundException fnfe){
+	} catch (IOException | ClassNotFoundException | NullPointerException fnfe){
 		return null;
 	}}
 
