@@ -395,7 +395,7 @@ public class ServicosFacade implements Serializable {
 		finally { servicoslock.unlock(); }
 	}
 
-	public LocalDateTime calculaPrazoMaximo(int nrTecnicos, float tempoPrevistoServico){
+	public LocalDateTime calculaPrazoMaximo(int nrTecnicos, float duracaoPrevistaServico){
 		int nrServicos;
 		float tempoMax;
 		float tempoMedioPrevisto;
@@ -440,7 +440,7 @@ public class ServicosFacade implements Serializable {
 		float tempoMaxServicosAguardandoReparacao = ((float) nrServicos / nrTecnicos) * tempoMedioPrevisto;
 
 		//Calculo final, aproximado, do número máximo de minutos de trabalho necessários para o servico começar a ser executado por um técnico
-		int tempoMinutos = (int) ((tempoMax + tempoMaxServicosAguardandoReparacao + tempoPrevistoServico)
+		int tempoMinutos = (int) ((tempoMax + tempoMaxServicosAguardandoReparacao + duracaoPrevistaServico)
 								* (float) 1.25); // adicionada uma margem de 25%
 
 		//Calculo das horas
