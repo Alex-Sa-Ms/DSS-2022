@@ -34,7 +34,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	// ****** Iniciar/Terminar Sessao ******
 
 	@Override
-	public int logIn(String ID, String Password) {
+	public int login(String ID, String Password) {
 		if((permissao = funcionarioFacade.verificaCredenciais(ID,Password)) != -1){
 			idUtilizador = ID;
 		}
@@ -42,7 +42,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	}
 
 	@Override
-	public boolean logOut() {
+	public boolean logout() {
 		if (permissao != -1 && idUtilizador != null){
 			permissao =- 1;
 			idUtilizador = null;
@@ -331,7 +331,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	//TODO - Deve ter em atencao o estado em que o Timer se encontra. Deve matar a thread e ao iniciar o programa voltar a inicia-la. Nao deveria terminar a sessao?
 	@Override
 	public int encerraAplicacao() { //Serialize
-		if(logOut()){
+		if(logout()){
 			try {
 				FileOutputStream fileOut;
 				fileOut = new FileOutputStream(caminho);

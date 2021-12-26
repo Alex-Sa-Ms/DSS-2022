@@ -17,9 +17,9 @@ public interface iSGCR {
 	 * @param ID
 	 * @param Password
 	 */
-	int logIn(String ID, String Password);
+	int login(String ID, String Password);
 
-	boolean logOut();
+	boolean logout();
 
 
 	// ****** Metodos relativos a Clientes ******
