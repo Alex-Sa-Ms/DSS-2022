@@ -37,8 +37,9 @@ public class ClientesFacade implements Serializable {
 	 * @param NIF
 	 */
 	public FichaCliente getFichaCliente(String NIF) {
-
-		return clientes.get(NIF).clone();
+		FichaCliente c =  clientes.get(NIF);
+		if (c != null) return c.clone();
+		else return null;
 	}
 
 	/**

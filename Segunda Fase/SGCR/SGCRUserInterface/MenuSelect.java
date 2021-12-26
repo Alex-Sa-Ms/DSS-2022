@@ -41,7 +41,7 @@ public class MenuSelect {
             int op;
             Scanner is = new Scanner(System.in);
 
-            System.out.print("Opção: ");
+            System.out.print("Opcao: ");
             try {
                 op = is.nextInt();
             }

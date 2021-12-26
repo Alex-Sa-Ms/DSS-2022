@@ -13,13 +13,15 @@ import java.util.List;
 
 
 public class UIFacade {
-    PrintMsg printer = new PrintMsg();
-    iSGCR logic= new SGCRFacade();
+    private PrintMsg printer = new PrintMsg();
+    private iSGCR logic= new SGCRFacade();
+    private String predefinedPath;
+    private String newPath = null;
 
 
     public int login(){
         printer.printMsg("Bem vindo a Sistema de Gestao do Centro de Reparacoes!");
-        MenuSelect first = new MenuSelect("",new String[]{"Login", "Carregar dados de ficheiro predefinido", "Carrregar dados de ficheiro personalizado","Sair da aplicacao"});
+        MenuSelect first = new MenuSelect("",new String[]{"Login", "Carregar dados de ficheiro predefinido", "Carregar dados de ficheiro personalizado","Sair e guardar em ficheiro personalizado"});
         first.executa();
         while(true){
             switch (first.getOpcao()){
@@ -37,9 +39,12 @@ public class UIFacade {
                     //TODO Carregar ficheiros de dados
                     break;
                 case 0:
-                case 4:
                     return 90;
-
+                case 4:
+                    MenuInput filepath = new MenuInput("Insira o ficheiro onde pertende que sejam guardados os ficheiros","");
+                    filepath.executa();
+                    newPath = filepath.getOpcao();
+                    return 91;
             }
         }
     }
@@ -47,9 +52,10 @@ public class UIFacade {
     public void controlador(){
 
         boolean end = false;
+        int retval=0;
 
         while (!end){
-            switch (this.login()){
+            switch (retval =this.login()){
                 case -1:
                     printer.printMsg("Crendenciais erradas! Tente outra vez!");
                     break;
@@ -68,13 +74,15 @@ public class UIFacade {
                     controladorGestor();
                     break;
                 case 90:
+                case 91:
                     printer.printMsg("A aplicacao ira ser encerrada");
                     end=true;
                     break;
             }
         }
         printer.printMsg("Guardando os dados...");
-        logic.encerraAplicacao();
+        if (retval == 90) logic.encerraAplicacao(predefinedPath);
+        else logic.encerraAplicacao(newPath);
     }
     //////////////////////////////////////Parte do Gestor////////////////////////////////////////
 
@@ -108,9 +116,9 @@ public class UIFacade {
     private void controladorGestor() {
         MenuSelect gestor = new MenuSelect("",new String[]{
                 "Criar conta para Funcionario",
-                "Estatisticas1",
-                "Estatisticas2",
-                "Estatisticas3",
+                "Intervencoes Concluidas",
+                "Estatisticas da eficiencia do centro",
+                "Rececoes e entregas",
                 "Listar Funcionarios"});
         boolean flag=true;
         while (flag){
@@ -154,7 +162,8 @@ public class UIFacade {
         MenuSelect balcao = new MenuSelect("",new String[]{"Criar Novo Pedido de Orcamento",
                 "Entregar Equipamento",
                 "Criar Servico Expresso",
-                "Criar Ficha cliente"});
+                "Criar Ficha cliente",
+                "Resposta Orçamento do Cliente"});
         boolean flag= true;
         while (flag) {
             balcao.executa();
@@ -171,6 +180,8 @@ public class UIFacade {
                 case 4:
                     criarFichaCliente();
                     break;
+                case 5:
+                    //TODO
                 case 0:
                     flag=false;
             }
@@ -308,15 +319,16 @@ public class UIFacade {
                     break;
                 case 5:
                     List<Servico> lSI = logic.listarServicosInterrompidos();
-                    lSI.forEach(x -> printer.printServico(x));
-                    MenuSelect interompdidos = new MenuSelect("Escolha um servico a retomar",(String[]) lSI.stream().map(s -> printer.servicoToString(s)).toArray() );
-                    Servico s= lSI.get( interompdidos.getOpcao() -1);
-                    if (s instanceof ServicoPadrao){
-                        controladorServicoPadrao(s);
-                    }
-                    else if (s instanceof ServicoExpresso){
-                        controladorServicoExpresso(s);
-                    }
+                    MenuSelect interrompidos = new MenuSelect("Escolha um servico a retomar", lSI.stream().map(s -> printer.servicoToString(s)).toArray(String[]::new));
+                    interrompidos.executa();
+                    if (interrompidos.getOpcao() != 0 ) {
+                        Servico s= lSI.get( interrompidos.getOpcao() -1);
+                        if (s instanceof ServicoPadrao){
+                            controladorServicoPadrao(s);
+                        }
+                        else if (s instanceof ServicoExpresso){
+                            controladorServicoExpresso(s);
+                        }}
                     break;
 
                 case 0:
@@ -410,60 +422,60 @@ public class UIFacade {
 
     private void controladorPedidos() {
         PedidoOrcamento p = logic.resolverPedido();
-        List<Passo> lp = new ArrayList<>();
-        boolean flag = true;
-        MenuSelect criarOrcamento = new MenuSelect("Menu de Criacao de Orcamento:", new String[]{"Adicionar Passo", "Remover Passo", "Concluir Orcamento","Rejeitar Pedido"});
-
-        while (flag){
-            printer.printLPasso(lp);
-            criarOrcamento.executa();
-            switch (criarOrcamento.getOpcao()){
-                case 1:
-                    Passo temp=createPasso();
-                    lp.add(temp);
-                    break;
-                case 2:
-                    MenuInput n = new MenuInput("Introduza o index do passo", "");
-                    int index = 0;
-                    boolean idiotflag;
-                    do{
-                        n.executa();
-                        try {
-                            index = Integer.parseInt(n.getOpcao());
-                            idiotflag = false;
-                        }catch (NumberFormatException e){
-                            printer.printMsg("Introduza o index");
-                            idiotflag = true;
+        if (p == null) printer.printMsg("Não existem pedidos pendentes");
+        else {
+            List<Passo> lp = new ArrayList<>();
+            boolean flag = true;
+            MenuSelect criarOrcamento = new MenuSelect("Menu de Criacao de Orcamento:", new String[]{"Adicionar Passo", "Remover Passo", "Concluir Orcamento", "Rejeitar Pedido"});
+            printer.printPedido(p);
+            while (flag) {
+                printer.printLPasso(lp);
+                criarOrcamento.executa();
+                switch (criarOrcamento.getOpcao()) {
+                    case 1:
+                        Passo temp = createPasso();
+                        lp.add(temp);
+                        break;
+                    case 2:
+                        MenuInput n = new MenuInput("Introduza o index do passo", "");
+                        int index = 0;
+                        boolean idiotflag;
+                        do {
+                            n.executa();
+                            try {
+                                index = Integer.parseInt(n.getOpcao());
+                                idiotflag = false;
+                            } catch (NumberFormatException e) {
+                                printer.printMsg("Introduza o index");
+                                idiotflag = true;
+                            }
+                        } while (idiotflag);
+                        if (index < lp.size()) {
+                            lp.remove(index);
+                            printer.printMsg("Removido com sucesso");
+                        } else printer.printMsg("Nao foi possivel a remocao");
+                        break;
+                    case 4:
+                        MenuSelect m2 = new MenuSelect("Tem a certeza que pertende rejeitar o pedido:", new String[]{"Sim", "Nao, quero voltar"});
+                        m2.executa();
+                        if (m2.getOpcao() == 1 && logic.rejeitaPedidoOrcamento(p)) {
+                            flag = false;
+                            printer.printMsg("Concluido Pedido");
                         }
-                    }while(idiotflag);
-                    if (index < lp.size() ){
-                        lp.remove(index);
-                        printer.printMsg("Removido com sucesso");
-                    }
-                    else printer.printMsg("Nao foi possivel a remocao");
-                    break;
-                case 4:
-                    MenuSelect m2 = new MenuSelect("Tem a certeza que pertende rejeitar o pedido:", new String[]{"Sim", "Nao, quero voltar"});
-                    m2.executa();
-                    if (m2.getOpcao() ==1 && logic.rejeitaPedidoOrcamento(p)){
-                        flag=false;
-                        printer.printMsg("Concluido Pedido");
-                    }
-                    break;
-                case 3:
-                case 0:
-                    MenuSelect m = new MenuSelect("Tem a certeza que pertende concluir o orcamento:", new String[]{"Sim", "Nao, quero voltar"});
-                    m.executa();
-                    if (m.getOpcao() ==1 && logic.criaServicoPadrao(p,lp)){
-                        flag=false;
-                        printer.printMsg("Concluido Pedido");
-                    }
-                    else printer.printMsg("Nao foi possivel concluir orcamento");
-                    break;
+                        break;
+                    case 3:
+                    case 0:
+                        MenuSelect m = new MenuSelect("Tem a certeza que pertende concluir o orcamento:", new String[]{"Sim", "Nao, quero voltar"});
+                        m.executa();
+                        if (m.getOpcao() == 1 && logic.criaServicoPadrao(p, lp)) {
+                            flag = false;
+                            printer.printMsg("Concluido Pedido");
+                        } else printer.printMsg("Nao foi possivel concluir orcamento");
+                        break;
 
+                }
             }
         }
-
     }
 
     private void controladorServicoExpresso(Servico idS){
