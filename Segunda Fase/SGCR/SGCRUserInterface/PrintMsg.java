@@ -93,13 +93,13 @@ public class PrintMsg {
     }
 
     public void printTecnicoStats(TecnicoStats ts){
-        System.out.println("Tecnico " + ""+ ": Reparaçoes Padrão: " + ts.getNumeroReparacoesPadrao() + " | Reparacoes Expresso: " + ts.getNumeroReparacoesExpresso()
-                            + " | Duracao Media: " + ts.getDuracaoMedia() + " | Media do Desvio de Reparacao: "+ ts.getDuracaoMedia());
+        System.out.println("Tecnico " + ts.getId() + ": Reparaçoes Padrão: " + ts.getNumeroReparacoesPadrao() + " | Reparacoes Expresso: " + ts.getNumeroReparacoesExpresso()
+                            + " | Duracao Media: " + ts.getDuracaoMedia() + " | Media do Desvio de Reparacao: "+ ts.getMediaDoDesvio());
 
     }
 
     public void printBalcaoStats(BalcaoStats bs){
-        System.out.println("Funcionario do balcao " + "" + ": Entregas: " + bs.getEntregas() + " | Rececoes: " + bs.getRececoes() );
+        System.out.println("Funcionario do balcao " + bs.getId() + ": Entregas: " + bs.getEntregas() + " | Rececoes: " + bs.getRececoes() );
     }
 
 

@@ -29,7 +29,8 @@ public class SGCRFacade implements iSGCR, Serializable {
 		this.pedidosFacade     = new PedidosFacade();
 		this.funcionarioFacade = new FuncionarioFacade();
 		this.servicosFacade    = new ServicosFacade();
-		timer = new Timer(servicosFacade);
+		runTimer();
+
 	}
 
 	// ****** Iniciar/Terminar Sessao ******
@@ -371,6 +372,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	@Override
 	public void runTimer() {
 		this.timer = new Timer(servicosFacade);
+		this.timer.start();
 	}
 
 	// ****** Iniciar/Encerrar Aplicacao ******
