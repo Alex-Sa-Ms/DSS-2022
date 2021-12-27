@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class SGCRFacade implements iSGCR, Serializable {
+public class SGCRFacade implements iSGCR {
 	private ClientesFacade clientesFacade;
 	private FuncionarioFacade funcionarioFacade;
 	private PedidosFacade pedidosFacade;
