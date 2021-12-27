@@ -19,11 +19,6 @@ public class SGCRFacade implements iSGCR, Serializable {
 	private String idUtilizador;
 	private Timer timer;
 
-
-	//-1 login incorreto
-	// 0 funcionario balcao
-	// 1 tecnico
-	// 2 gestor
 	public SGCRFacade(){
 		this.clientesFacade    = new ClientesFacade();
 		this.pedidosFacade     = new PedidosFacade();
@@ -38,7 +33,10 @@ public class SGCRFacade implements iSGCR, Serializable {
 	 * Inicia a sessão de um funcionário.
 	 * @param ID Identificador do funcionário
 	 * @param  Password Senha iniciar a sessão
-	 * @return nível de permissão ou login incorreto
+	 * @return -1 caso o login esteja incorreto
+	 * 			0 caso seja um funcionario de balcao
+	 * 			1 caso seja um tecnico
+	 * 			2 caso seja um gestor
 	 */
 	@Override
 	public int login(String ID, String Password) {
@@ -275,8 +273,8 @@ public class SGCRFacade implements iSGCR, Serializable {
 	}
 
 	/**
-	 * Aceitar um pedido de orcamento e cria um serviço a espera de reparacao.
-	 * @return true se o pedido foi aceite.
+	 * Aceita um orcamento e muda o estado do serviço para espera de reparacao.
+	 * @return true se o  estado do servico foi alterado para espera de reparacao.
 	 */
 	@Override
 	public boolean aceitarOrcamento(String idServico) {
@@ -284,6 +282,11 @@ public class SGCRFacade implements iSGCR, Serializable {
 			return servicosFacade.orcamentoAceite(idServico);
 		return false;
 	}
+
+	/**
+	 * Rejeita um orcamento muda o estado do servico para orcamento recusado.
+	 * @return true se o  estado do servico foi alterado para orcamento recusado.
+	 */
 
 	@Override
 	public boolean rejeitarOrcamento(String idServico) {
@@ -294,17 +297,28 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return false;
 	}
 
+	/**
+	 * Comeca um servico e altera o seu estado para em execucao
+	 * @return servico caso haja um servico para ser reparado
+	 * 		   null caso contrário
+	 */
 	@Override
 	public Servico comecarServico() {
 		if (permissao == 1){
 			Servico servico = servicosFacade.getProxServico(idUtilizador);
-			if(servico != null && funcionarioFacade.addServicoTecnico(idUtilizador, servico.getId())){
+			if(servico != null){
+				funcionarioFacade.addServicoTecnico(idUtilizador, servico.getId());
 				return servico;
 			}
 		}
 		return null;
 	}
 
+	/**
+	 * Muda o estado de um servico em execucao para interrompido
+	 * @param IDServico relativo a reparacao
+	 * @return true caso o estado inicial do servico seja em execucao
+	 */
 	@Override
 	public boolean interromperServico(String IDServico) {
 		if (permissao == 1 && funcionarioFacade.possuiServico(idUtilizador, IDServico))
@@ -312,6 +326,11 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return false;
 	}
 
+	/**
+	 * Muda o estado de um servico interrompido para em execucao
+	 * @param IDServico relativo a reparacao
+	 * @return true caso o estado inicial do servico seja interrompido
+	 */
 	@Override
 	public Passo retomarServico(String IDServico) {
 		if (permissao == 1 && funcionarioFacade.possuiServico(idUtilizador, IDServico))
@@ -319,6 +338,11 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return null;
 	}
 
+	/**
+	 * Conclui um servico, envia email e atualizado dados do tecnico
+	 * @param IDServico relativo a reparacao
+	 * @return true caso o estado inicial do servico seja em execucao
+	 */
 	@Override
 	public boolean concluiServico(String IDServico) {
 		if (permissao == 1 && funcionarioFacade.possuiServico(idUtilizador, IDServico)){
@@ -339,6 +363,11 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return false;
 	}
 
+	/**
+	 * Entrega um equipamento
+	 * @param idServico relativo a reparacao
+	 * @return preço da reparacao
+	 */
 	@Override
 	public float entregarEquipamento(String idServico) {
 		if(permissao == 0){
@@ -351,6 +380,14 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return -1;
 	}
 
+
+	/**
+	 * Adiciona um passo de reparacao a um servico padrao
+	 * @param IDServico relativo a reparacao
+	 * @param passo adicionado ao conjunto de passos de reparacao
+	 * @return true caso o servico esteja em execucao e seja um servico padrao
+	 */
+
 	@Override
 	public boolean addPassoServico(String IDServico, Passo passo) {
 		if (permissao == 1 && funcionarioFacade.possuiServico(idUtilizador, IDServico)){
@@ -359,8 +396,19 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return false;
 	}
 
+	/**
+	 * Obtem o passo em que o tecnico se encontra na reparacao
+	 * @param idServico relativo a reparacao
+	 * @return passo atual se o servico existir
+	 */
+
 	@Override
-	public Passo getPassoAtual(String idServico){ return servicosFacade.getPassoAtual(idServico); }
+	public Passo getPassoAtual(String idServico){
+		if (permissao == 1){
+			return servicosFacade.getPassoAtual(idServico);
+		}
+		return null;
+	}
 
 	@Override
 	public Passo proxPasso(String IDServico) throws CustoExcedidoException {
@@ -468,6 +516,23 @@ public class SGCRFacade implements iSGCR, Serializable {
 	}
 
 	@Override
+	public void runTimer() {
+		this.timer = new Timer(servicosFacade);
+		this.timer.start();
+	}
+
+	// ****** Iniciar/Encerrar Aplicacao ******
+
+	private void encerraTimer(){
+		try {
+			timer.getLock().lock();
+			timer.interrupt();
+		} finally {
+			timer.getLock().unlock();
+		}
+	}
+
+	@Override
 	public int load(String s) {
 		try {
 			FileInputStream fileIn = new FileInputStream(s);
@@ -478,7 +543,10 @@ public class SGCRFacade implements iSGCR, Serializable {
 			this.pedidosFacade = (PedidosFacade) in.readObject();
 			in.close();
 			fileIn.close();
+
+			encerraTimer();
 			this.runTimer();
+
 			return 0;
 		} catch (IOException | ClassNotFoundException | NullPointerException fnfe){
 			return -1;
@@ -486,22 +554,9 @@ public class SGCRFacade implements iSGCR, Serializable {
 	}
 
 	@Override
-	public void runTimer() {
-		this.timer = new Timer(servicosFacade);
-		this.timer.start();
-	}
-
-	// ****** Iniciar/Encerrar Aplicacao ******
-
-	@Override
 	public int encerraAplicacao(String filepath) { //Serialize
 		if (logout()) {
-			try {
-				timer.getLock().lock();
-				timer.interrupt();
-			} finally {
-				timer.getLock().unlock();
-			}
+			encerraTimer();
 
 			try {
 				FileOutputStream fileOut;

@@ -25,7 +25,9 @@ public class Timer extends Thread {
 				sf.arquiva_e_sinalizaExpirados();
 			}finally { rlock.unlock(); }
 			try { TimeUnit.DAYS.sleep(1); }
-			catch (InterruptedException e) { return; }
+			catch (InterruptedException e) {
+				return;
+			}
 		}
 	}
 
