@@ -181,7 +181,6 @@ public interface iSGCR {
 
 	int load(String s);
 
-	void runTimer();
 	/**
 	 * Encerra a aplicacao, guardando o estado desta.
 	 * @return 0 se não houve problemas, 1 se ocorreu um erro do tipo 'FileNotFound' e 2 se ocorreu um erro a escrever o estado da aplicacao para um ficheiro

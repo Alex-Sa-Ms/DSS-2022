@@ -48,7 +48,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 
 	/**
 	 * Fecha a sessão do funcionário.
-	 * @return true caso o logout seja bem sucedido, false caso contrário
+	 * @return true caso um utilizador esteja logado, false caso contrário
 	 */
 	@Override
 	public boolean logout() {
@@ -410,6 +410,11 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return null;
 	}
 
+	/**
+	 * Obtem o proximo passo para a execucao da reparacao
+	 * @param IDServico relativo a reparacao
+	 * @return proximo passo caso exista
+	 */
 	@Override
 	public Passo proxPasso(String IDServico) throws CustoExcedidoException {
 		if (permissao == 1 && funcionarioFacade.possuiServico(idUtilizador, IDServico)) {
@@ -422,6 +427,11 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return null;
 	}
 
+	/**
+	 * Lista todos os passos necessarios para a reparacao do equipamento
+	 * @param IDServico relativo a reparacao
+	 * @return lista de passos
+	 */
 	@Override
 	public List<Passo> listarPassosServico(String IDServico) {
 		if(permissao == 1) {
@@ -432,6 +442,10 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return null;
 	}
 
+	/**
+	 * Lista servicos em espera de confirmacao de orcamento
+	 * @return lista de servicos
+	 */
 	@Override
 	public List<Servico> listarServicosEmEsperaDeConfirmacao() {
 		if(permissao == 0)
@@ -439,6 +453,10 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return null;
 	}
 
+	/**
+	 * Lista todos os servicos a espera de reparacao
+	 * @return lista de servicos
+	 */
 	@Override
 	public List<Servico> listarServicosPendentes() {
 		if(permissao == 1)
@@ -446,6 +464,10 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return null;
 	}
 
+	/**
+	 * Lista todos os servicos interrompidos
+	 * @return lista de servicos
+	 */
 	@Override
 	public List<Servico> listarServicosInterrompidos() {
 		if(permissao == 1)
@@ -457,6 +479,11 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return null;
 	}
 
+	/**
+	 * Lista todos os servicos prontos para leventamento de um cliente
+	 * @param NIF do cliente cujo servicos é desejado observar
+	 * @return lista de servicos
+	 */
 	@Override
 	public List<Servico> listarServicosProntosLevantamento(String NIF) {
 		if(permissao == 0){
@@ -481,6 +508,11 @@ public class SGCRFacade implements iSGCR, Serializable {
 				s.getEstado() == EstadoServico.Expirado);
 	}
 
+	/**
+	 * Lista todas a intervencoes de cada tecnico
+	 * @return mapa com cujas keys correspondem ao identificador do tecnico
+	 * e cujos values correspondem a um treeset de servicos organizados pela data
+	 */
 	@Override
 	public Map<String, TreeSet<Servico>> listaIntervencoes() {
 		if(permissao == 2) {
@@ -489,6 +521,12 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return null;
 	}
 
+	/**
+	 * Estatisticas acerca dos tecnicos
+	 * @return lista de tecnico stats (incluem o numero de reparacoes expresso e padrao,
+	 * para alem da duracao media de cada repracao e da media do desvio do tempo das reparacoes
+	 * em relacao ao tempo esperado)
+	 */
 	@Override
 	public List<TecnicoStats> estatisticasEficienciaCentro() {
 		if(permissao == 2) {
@@ -504,6 +542,10 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return null;
 	}
 
+	/**
+	 * Estatisticas acerca dos funcionarios de balcao
+	 * @return lista de balcaoStats (icluem o numero de entregas e rececoes)
+	 */
 	@Override
 	public List<BalcaoStats> rececoes_e_entregas() {
 		if(permissao == 2) {
@@ -515,14 +557,19 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return null;
 	}
 
-	@Override
-	public void runTimer() {
+	// ****** Iniciar/Encerrar Aplicacao ******
+
+	/**
+	 * Cria o timer e inicialaza-o
+	 */
+	private void runTimer() {
 		this.timer = new Timer(servicosFacade);
 		this.timer.start();
 	}
 
-	// ****** Iniciar/Encerrar Aplicacao ******
-
+	/**
+	 * Espera que o timer esteja a dormir para o interromper, e assim o fechar
+	 */
 	private void encerraTimer(){
 		try {
 			timer.getLock().lock();
@@ -532,6 +579,12 @@ public class SGCRFacade implements iSGCR, Serializable {
 		}
 	}
 
+	/**
+	 * Carrega dados de um ficheiro
+	 * @param s Nome do ficheiro cujo os dados vão ser carregados
+	 * @return 0 caso a operação tenha sido bem decorrida
+	 * 		   -1 caso contrario
+	 */
 	@Override
 	public int load(String s) {
 		try {
@@ -553,6 +606,14 @@ public class SGCRFacade implements iSGCR, Serializable {
 		}
 	}
 
+	/**
+	 * Guarda as informacoes referentes a data layer num ficheiro
+	 * @param filepath Nome do ficheiro cujo os dados vão ser guardados
+	 * @return 0 caso a operação tenha sido bem decorrida
+	 * 		   -1 caso o logout falhe
+	 * 		   1 caso não consiga encontrar o filepath
+	 * 		   2 caso haja uma IOException
+	 */
 	@Override
 	public int encerraAplicacao(String filepath) { //Serialize
 		encerraTimer();
