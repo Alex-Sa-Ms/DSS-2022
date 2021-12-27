@@ -555,9 +555,8 @@ public class SGCRFacade implements iSGCR, Serializable {
 
 	@Override
 	public int encerraAplicacao(String filepath) { //Serialize
+		encerraTimer();
 		if (logout()) {
-			encerraTimer();
-
 			try {
 				FileOutputStream fileOut;
 				fileOut = new FileOutputStream(filepath);
