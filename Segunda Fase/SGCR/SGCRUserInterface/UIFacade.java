@@ -261,6 +261,7 @@ public class UIFacade {
         MenuInput nif = new MenuInput("NIF do cliente","");
         nif.executa();
         MenuInput custos = new MenuInput("Precos Servico","");
+        MenuInput descr = new MenuInput("Descrição:","");
 
         if(!logic.existeCliente(nif.getOpcao())){
             criarFichaCliente(nif.getOpcao());
@@ -280,8 +281,8 @@ public class UIFacade {
         }while(idiotflag);
         
         boolean retflag;
-        //TODO servico expresso
-        retflag =logic.criarServicoExpresso(custo,nif.getOpcao(),"");
+        descr.executa();
+        retflag =logic.criarServicoExpresso(custo,nif.getOpcao(), descr.getOpcao());
         if (retflag) printer.printMsg("Servico Expresso adicionado com sucesso");
         else printer.printMsg("Erro na criacao de servico expresso");
 
