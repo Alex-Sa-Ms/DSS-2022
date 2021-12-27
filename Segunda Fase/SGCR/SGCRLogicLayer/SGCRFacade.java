@@ -117,7 +117,9 @@ public class SGCRFacade implements iSGCR, Serializable {
 		if(permissao == 0){
 			if(clientesFacade.getFichaCliente(nifCliente) != null){
 				funcionarioFacade.incNrRececoes(idUtilizador);
-				pedidosFacade.addPedido(descricao, clientesFacade.getIdProxEquip(), nifCliente);
+				String idProx = clientesFacade.getIdProxEquip();
+				pedidosFacade.addPedido(descricao, idProx, nifCliente);
+				clientesFacade.addEquipCliente(idProx,nifCliente);
 				return true;
 			}
 		}
@@ -200,8 +202,10 @@ public class SGCRFacade implements iSGCR, Serializable {
 	// ****** Metodos relativos a Servicos ******
 
 	/**
-	 * Lista todos os tecnicos.
-	 * @return lista de tecnicos.
+	 * Cria servico padrao
+	 * @param o  orcamento relativo ao servico
+	 * @param passos relativos a resolucao
+	 * @return true caso o pedido tenha sido adicionado ao sistema.
 	 */
 	@Override
 	public boolean criaServicoPadrao(PedidoOrcamento o, List<Passo> passos) {
@@ -213,15 +217,31 @@ public class SGCRFacade implements iSGCR, Serializable {
 		} return false;
 	}
 
+	/**
+	 * Cria servico expresso
+	 * @param custo de reparacao do produto
+	 * @param NIF do cliente
+	 * @return true caso o pedido tenha sido adicionado ao sistema.
+	 */
 	@Override
 	public boolean criarServicoExpresso(Float custo, String NIF) {
 		if(permissao == 0) {
 			funcionarioFacade.incNrRececoes(idUtilizador);
-			return servicosFacade.addServicoExpresso(clientesFacade.getIdProxEquip(), NIF, custo);
+			String idProx= clientesFacade.getIdProxEquip();
+			if(servicosFacade.addServicoExpresso(idProx, NIF, custo)){
+				clientesFacade.addEquipCliente(idProx,NIF);
+				return true;
+			}
+
 		}
 		return false;
 	}
 
+	/**
+	 * Definir o preço de uma hora de trabalho.
+	 * @param precoHora a definir.
+	 * @return true caso seja um preco a hora valido (>0).
+	 */
 	@Override
 	public boolean definirPrecoHoraServicos(float precoHora){
 		if(permissao == 2)
@@ -229,6 +249,10 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return false;
 	}
 
+	/**
+	 * Calcular o prazo maximo de uma reparação.
+	 * @return true caso seja um preco a hora valido (>0).
+	 */
 	@Override
 	public LocalDateTime calcularPrazoMaximo(List<Passo> passos) {
 		float duracaoServicoPrevista = passos != null ? (float) passos.stream().mapToDouble(Passo::getTempo).sum() : 0;
