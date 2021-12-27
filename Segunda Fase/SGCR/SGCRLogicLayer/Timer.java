@@ -11,31 +11,21 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Timer extends Thread implements Serializable {
 	ServicosFacade sf;
 	ReentrantLock rlock = new ReentrantLock();
-	Condition cond = rlock.newCondition();
-	boolean running;
 
-	public boolean isRunning() {
-		return running;
-	}
-
-	public Condition getCond() {
-		return cond;
-	}
+	public ReentrantLock getLock() { return rlock; }
 
 	public Timer(ServicosFacade sf){
-		this.sf=sf;
+		this.sf = sf;
 	}
+
 	public void run(){
 		while (true){
-			running = true;
-			sf.arquiva_e_sinalizaExpirados();
-			running=false;
-			try {
-				TimeUnit.DAYS.sleep(1);
-			} catch (InterruptedException e) {
-				break;
-			}
-			cond.signal();
+			try{
+				rlock.lock();
+				sf.arquiva_e_sinalizaExpirados();
+			}finally { rlock.unlock(); }
+			try { TimeUnit.DAYS.sleep(1); }
+			catch (InterruptedException e) { return; }
 		}
 	}
 
