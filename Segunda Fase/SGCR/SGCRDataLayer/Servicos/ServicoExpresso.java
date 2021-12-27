@@ -6,11 +6,12 @@ import java.time.LocalDateTime;
 public class ServicoExpresso extends Servico implements Serializable {
 
 	private float custo;
+	private String descricao;
 
 	//Construtor
 
 	/** Construtor ServicoPadrao para situação normal, i.e., orcamento feito, vai esperar pela resposta do cliente **/
-	public ServicoExpresso(String id, String idCliente, float custo) {
+	public ServicoExpresso(String id, String idCliente, float custo, String descricao) {
 		setId(id);
 		setIdCliente(idCliente);
 		setAbandonado(false);
@@ -18,6 +19,7 @@ public class ServicoExpresso extends Servico implements Serializable {
 		setEstado(EstadoServico.EsperandoReparacao);
 		setDataConclusao(null);
 		this.custo = custo;
+		this.descricao = descricao;
 	}
 
 	// Clone
@@ -30,6 +32,7 @@ public class ServicoExpresso extends Servico implements Serializable {
 		setAbandonado(sp.getAbandonado());
 		setDataConclusao(sp.getDataConclusao());
 		this.custo = sp.getCusto();
+		this.descricao = sp.descricao;
 	}
 
 	@Override
@@ -40,9 +43,13 @@ public class ServicoExpresso extends Servico implements Serializable {
 
 	//Setters e Getters
 
+	/** @return float que indica o custo do serviço */
 	public float getCusto() {
 		return this.custo;
 	}
+
+	/** @return string com a descricao do servico */
+	public String getDescricao() { return this.descricao; }
 
 	@Override
 	public boolean mudaEstado(EstadoServico estado) {

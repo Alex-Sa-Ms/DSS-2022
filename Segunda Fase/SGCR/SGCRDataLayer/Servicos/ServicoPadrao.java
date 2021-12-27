@@ -10,9 +10,14 @@ public class ServicoPadrao extends Servico implements Serializable {
 	private List<Passo> passos;
 	private Orcamento orcamento;
 	private float custoAtual;
-	private int   passoAtual;
-	private int   passoAtualOrcamento;
-	private long  inicioPassoAtual;
+	private int passoAtual;
+	private int passoAtualOrcamento;
+	private long inicioPassoAtual;
+	private boolean avisarCustoExcedido = true;
+
+	public static class CustoExcedidoException extends Exception{
+		public CustoExcedidoException() {}
+	}
 
 	// ****** Construtores ******
 
@@ -23,12 +28,12 @@ public class ServicoPadrao extends Servico implements Serializable {
 	 * @param passosOrcamento Lista de passos para o orcamento
 	 * @param descricaoOrcamento Descricao do problema que levou à requisicao do servico
 	 */
-	private void AuxiliarConstrutor(String id, String idCliente, List<Passo> passosOrcamento, String descricaoOrcamento){
+	private void AuxiliarConstrutor(String id, String idCliente, List<Passo> passosOrcamento, String descricaoOrcamento, LocalDateTime prazoMaximo){
 		setId(id);
 		setIdCliente(idCliente);
 		setAbandonado(false);
 		passos 				= new ArrayList<>();
-		orcamento 			= new Orcamento(passosOrcamento, descricaoOrcamento);
+		orcamento 			= new Orcamento(passosOrcamento, descricaoOrcamento, prazoMaximo);
 		custoAtual 			= 0;
 		inicioPassoAtual	= 0;
 		passoAtual          = -1; //-1 para sincronizar com o método 'proxPasso'
@@ -36,28 +41,29 @@ public class ServicoPadrao extends Servico implements Serializable {
 	}
 
 	/**
-	 * Construtor ServicoPadrao para situação normal, i.e., orcamento feito, vai esperar pela resposta do cliente
+	 * Construtor ServicoPadrao para situação normal, i.e., orcamento feito, vai esperar pela resposta do cliente.
+	 * o técnico é iniciado a null. Apenas lhe é atribuido o técnico posteriormente por meio de um setter.
 	 * @param id Identificador pretendido para o serviço
 	 * @param idCliente Identificador do cliente que requisitou o pedido
 	 * @param passosOrcamento Lista com os passos que constituem o orçamento
 	 * @param descricaoOrcamento Descricao do problema, pelo qual é necessário a execução do servico de reparacao
 	 */
-	public ServicoPadrao(String id, String idCliente, List<Passo> passosOrcamento, String descricaoOrcamento) {
-		AuxiliarConstrutor(id, idCliente, passosOrcamento, descricaoOrcamento);
+	public ServicoPadrao(String id, String idCliente, List<Passo> passosOrcamento, String descricaoOrcamento, LocalDateTime prazoMaximo) {
+		AuxiliarConstrutor(id, idCliente, passosOrcamento, descricaoOrcamento, prazoMaximo);
 		setIdTecnico(null); //É alterado depois aquando da atribuicao do servico a um técnico
 		setEstado(EstadoServico.AguardarConfirmacao);
 		setDataConclusao(null);
 	}
 
 	/**
-	 * ServicoPadrao iniciado com o Técnico a null. Apenas lhe é atribuido o técnico posteriormente por meio de um setter
+	 * Construtor ServicoPadrao para a situacao em que um equipamento é dito irreparável.
 	 * @param id Identificador pretendido para o serviço
 	 * @param idTecnico Identificador do técnico responsável pela execucao do servico
 	 * @param idCliente Identificador do cliente que requisitou o pedido
 	 * @param descricaoOrcamento Descricao do problema, pelo qual é necessário a execução do servico de reparacao
 	 */
 	public ServicoPadrao(String id, String idCliente, String idTecnico, String descricaoOrcamento) {
-		AuxiliarConstrutor(id, idCliente, null, descricaoOrcamento);
+		AuxiliarConstrutor(id, idCliente, null, descricaoOrcamento, null);
 		setIdTecnico(idTecnico);
 		setEstado(EstadoServico.Irreparavel);
 		setDataConclusao(LocalDateTime.now());
@@ -82,6 +88,7 @@ public class ServicoPadrao extends Servico implements Serializable {
 		this.passoAtualOrcamento = sp.passoAtualOrcamento;
 		this.inicioPassoAtual    = sp.inicioPassoAtual;
 		this.passoAtual			 = sp.passoAtual;
+		this.avisarCustoExcedido = sp.avisarCustoExcedido;
 	}
 
 	/**
@@ -105,6 +112,9 @@ public class ServicoPadrao extends Servico implements Serializable {
 	/** @return float que indica o custo do serviço até ao momento */
 	public float getCusto() { return custoAtual; }
 
+	/** @return string com a descricao do servico */
+	public String getDescricao() { return this.orcamento.getDescricao(); }
+
 	/** @return data de criacao do orcamento **/
 	public LocalDateTime getDataOrcamento() { return orcamento.getData(); }
 
@@ -121,12 +131,19 @@ public class ServicoPadrao extends Servico implements Serializable {
 	}
 
 	/** @return Clone do próximo 'Passo' a ser executado, ou 'null' caso não exista. */
-	public Passo proxPasso() {
+	public Passo proxPasso() throws CustoExcedidoException {
 		//Guarda o tempo utilizado para executar o passo atual, e atualiza a variavel custoAtual, antes de saltar para o próximo passo
 		Passo passo = getPassoAtualPrivate();
 		if(passo != null) {
 			passo.addTempo(converteTimeMillisParaMinutos(System.currentTimeMillis() - inicioPassoAtual));
-			custoAtual += passo.getCusto();
+
+			//Verifica se o custo atingiu o patamar de 120% relativamente ao valor previsto
+			if(avisarCustoExcedido && !verificaCusto()){
+				avisarCustoExcedido = false;
+				inicioPassoAtual    = System.currentTimeMillis();
+				throw new CustoExcedidoException();
+			}
+			else custoAtual += passo.getCusto();
 		}
 
 		passoAtual++;

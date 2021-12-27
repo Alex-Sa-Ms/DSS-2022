@@ -9,11 +9,15 @@ import SGCRDataLayer.Servicos.Passo;
 import SGCRDataLayer.Servicos.Servico;
 import SGCRDataLayer.Servicos.ServicoExpresso;
 import SGCRDataLayer.Servicos.ServicoPadrao;
+import SGCRLogicLayer.BalcaoStats;
+import SGCRLogicLayer.TecnicoStats;
 
 import javax.annotation.processing.SupportedSourceVersion;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class PrintMsg {
 
@@ -37,10 +41,10 @@ public class PrintMsg {
         StringBuilder sb = new StringBuilder();
         if (s instanceof ServicoPadrao) {
 
-            sb.append("Serviço Padrão #").append(s.getId()).append("::: Estado: ").append(s.getEstado()).append(" | Custo: ").append(((ServicoPadrao) s).getCusto()).append("\n");
+            sb.append("Serviço Padrão #").append(s.getId()).append("::: Estado: ").append(s.getEstado()).append(" | Custo: ").append(((ServicoPadrao) s).getCusto()).append(" | Descricao; ").append(s.getDescricao()).append("\n");
         } else if (s instanceof ServicoExpresso) {
 
-            sb.append("Serviço Expresso #").append(s.getId()).append("::: Estado: ").append(s.getEstado()).append(" | Custo: ").append(((ServicoExpresso) s).getCusto()).append("\n");
+            sb.append("Serviço Expresso #").append(s.getId()).append("::: Estado: ").append(s.getEstado()).append(" | Custo: ").append(((ServicoExpresso) s).getCusto()).append(" | Descricao; ").append(s.getDescricao()).append("\n");
         }
         return sb.toString();
 
@@ -53,14 +57,14 @@ public class PrintMsg {
     public void printLPasso (List<Passo> l){
         int counter=1;
         for(Passo p : l){
-            System.out.println("Passo #"+counter+ ":::: Custo : "+  p.getCusto() + " | Tempo: "+p.getTempo()+ " | Descrição: "+ p.getDescricao() );
+            System.out.println("Passo #"+counter+ ":::: Custo das Pecas : "+  p.getCustoPecas() + " | Tempo: "+p.getTempo()+ " | Descrição: "+ p.getDescricao()+ " | Custo total: "+p.getCusto() );
             System.out.flush();
             counter++;
         }
     }
 
     public String passoToString(Passo p){
-        String s = "Passo :::: Custo : "+ p.getCusto() + " | Tempo: "+p.getTempo()+ " | Descrição: "+ p.getDescricao();
+        String s = "Passo :::: Custo: "+ p.getCusto() + " | Tempo: "+p.getTempo()+ " | Descrição: "+ p.getDescricao();
         return s;
     }
 
@@ -80,10 +84,26 @@ public class PrintMsg {
         }
     }
 
-    private String Nome;
-    private String NIF;
-    private String Email;
-    private Set<String> equipamentos;
+    public void printIntervencoes (Map<String, TreeSet<Servico>> c){
+        for (String k: c.keySet()){
+            System.out.println("Tecnico: " + k);
+            for (Servico s : c.get(k))
+                printServico(s);
+        }
+    }
+
+    public void printTecnicoStats(TecnicoStats ts){
+        System.out.println("Tecnico " + ts.getId() + ": Reparaçoes Padrão: " + ts.getNumeroReparacoesPadrao() + " | Reparacoes Expresso: " + ts.getNumeroReparacoesExpresso()
+                            + " | Duracao Media: " + ts.getDuracaoMedia() + " | Media do Desvio de Reparacao: "+ ts.getMediaDoDesvio());
+
+    }
+
+    public void printBalcaoStats(BalcaoStats bs){
+        System.out.println("Funcionario do balcao " + bs.getId() + ": Entregas: " + bs.getEntregas() + " | Rececoes: " + bs.getRececoes() );
+    }
+
+
+
     /*
     public static void clrscr(){
 

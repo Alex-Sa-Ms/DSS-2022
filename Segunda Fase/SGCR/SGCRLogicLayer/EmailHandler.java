@@ -55,7 +55,7 @@ public class EmailHandler {
 		}
 	}
 
-	public static void emailOrcamento(String email,String orcamento) {
+	public static void emailOrcamento(String email, String orcamento) {
 		try {
 			HttpResponse<JsonNode> request = Unirest.post("https://api.mailgun.net/v3/sandbox5b0cd547ca7745e6925e828a839d8fe7.mailgun.org" + "/messages")
 					.basicAuth("api", "487b641651372aff037e27f95d0e33ed-1831c31e-9a85e1c3")

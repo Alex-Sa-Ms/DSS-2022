@@ -35,6 +35,8 @@ public abstract class Servico implements Comparable<Servico>, Serializable {
 
 	public Boolean getAbandonado() { return abandonado; }
 
+	public abstract String getDescricao();
+
 	public abstract float getCusto();
 
 	//Setters
