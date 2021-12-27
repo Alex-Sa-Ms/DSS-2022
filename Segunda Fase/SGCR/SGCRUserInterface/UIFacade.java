@@ -449,7 +449,14 @@ public class UIFacade {
         boolean flag=true;
 
         printer.printServico(idS);
-        if (!retomado) logic.proxPasso(id);
+
+        if (!retomado) {
+            try {
+                logic.proxPasso(id);
+            } catch (iSGCR.CustoExcedidoException e) {
+                printer.printMsg("Limite de Custo ultrapassado!");
+            }
+        }
         while (flag) {
             List<Passo> l = logic.listarPassosServico(id);
             printer.printLPasso(l);
@@ -460,8 +467,12 @@ public class UIFacade {
                     logic.addPassoServico(id,p);
                     break;
                 case 2:
-                    if (logic.proxPasso(id) != null) printer.printMsg("Passo concluido");
-                    else printer.printMsg("Não existem mais passos");
+                    try {
+                        if (logic.proxPasso(id) != null) printer.printMsg("Passo concluido");
+                        else printer.printMsg("Não existem mais passos");
+                    } catch (iSGCR.CustoExcedidoException e) {
+                        printer.printMsg("Limite de Custo ultrapassado!");
+                    }
                     break;
                 case 3:
                     if (logic.interromperServico(id)) {
