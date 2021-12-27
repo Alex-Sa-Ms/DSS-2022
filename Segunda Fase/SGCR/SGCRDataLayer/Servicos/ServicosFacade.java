@@ -37,11 +37,12 @@ public class ServicosFacade implements Serializable {
 	 * @param idCliente Identificador do cliente
 	 * @param custo Custo fixo do servico
 	 */
-	public boolean addServicoExpresso(String idEquip, String idCliente, float custo) {
+	public boolean addServicoExpresso(String idEquip, String idCliente, float custo, String descricao) {
 		try {
 			servicoslock.lock();
+			if(getApontadorServico(idEquip) != null) return false;
 			filaServicos.addFirst(idEquip);
-			estados.get(EstadoServico.EsperandoReparacao).put(idEquip, new ServicoExpresso(idEquip, idCliente, custo));
+			estados.get(EstadoServico.EsperandoReparacao).put(idEquip, new ServicoExpresso(idEquip, idCliente, custo, descricao));
 			return true;
 		}
 		finally {
@@ -60,6 +61,7 @@ public class ServicosFacade implements Serializable {
 	public boolean addServicoPadrao(String idEquip, String idCliente, List<Passo> passos, String descricao, LocalDateTime prazoMaximo) {
 		try {
 			servicoslock.lock();
+			if(getApontadorServico(idEquip) != null) return false;
 			estados.get(EstadoServico.AguardarConfirmacao).put(idEquip, new ServicoPadrao(idEquip, idCliente, passos, descricao, prazoMaximo));
 			return true;
 		}
@@ -76,6 +78,7 @@ public class ServicosFacade implements Serializable {
 	public boolean addServicoPadraoIrreparavel(String idEquip, String idCliente, String idTecnico, String descricao){
 		try {
 			servicoslock.lock();
+			if(getApontadorServico(idEquip) != null) return false;
 			estados.get(EstadoServico.Irreparavel).put(idEquip, new ServicoPadrao(idEquip, idCliente, idTecnico, descricao));
 			return true;
 		}
@@ -92,6 +95,46 @@ public class ServicosFacade implements Serializable {
 			servicoslock.lock();
 
 			Servico servico = getApontadorServico(id);
+
+			if(servico != null) return servico.clone();
+
+			return null;
+		}
+		finally {
+			servicoslock.unlock();
+		}
+	}
+
+	/**
+	 * Procura o servico nao arquivado com o identificador fornecido.
+	 * @param id Identificador do serviço que coincide com o id do equipamento
+	 * @return Clone do servico que possui o identificador fornecido
+	 */
+	public Servico getServicoNaoArquivado(String id) {
+		try {
+			servicoslock.lock();
+
+			Servico servico = getApontadorServicoNaoArquivado(id);
+
+			if(servico != null) return servico.clone();
+
+			return null;
+		}
+		finally {
+			servicoslock.unlock();
+		}
+	}
+
+	/**
+	 * Procura o servico nao arquivado com o identificador fornecido.
+	 * @param id Identificador do serviço que coincide com o id do equipamento
+	 * @return Clone do servico que possui o identificador fornecido
+	 */
+	public Servico getServicoArquivado(String id) {
+		try {
+			servicoslock.lock();
+
+			Servico servico = getApontadorServicoArquivado(id);
 
 			if(servico != null) return servico.clone();
 
@@ -471,6 +514,45 @@ public class ServicosFacade implements Serializable {
 			//Procura nos servicos não arquivados
 			for(Map<String,Servico> e : estados.values())
 				if ((servico = e.get(id)) != null) return servico;
+
+			//Procura nos servicos arquivados
+			if ((servico = arquivados.get(id)) != null) return servico;
+
+			//Não encontrou o servico
+			return null;
+		}
+		finally { servicoslock.unlock(); }
+	}
+
+	/**
+	 * Procura por um servico nao arquivado com o identificador fornecido
+	 * @param id Identificador do serviço que coincide com o id do equipamento
+	 * @return Apontador para o servico que possui o identificador fornecido
+	 */
+	private Servico getApontadorServicoNaoArquivado(String id){
+		try {
+			servicoslock.lock();
+			Servico servico = null;
+
+			//Procura nos servicos não arquivados
+			for(Map<String,Servico> e : estados.values())
+				if ((servico = e.get(id)) != null) return servico;
+
+			//Não encontrou o servico
+			return null;
+		}
+		finally { servicoslock.unlock(); }
+	}
+
+	/**
+	 * Procura por um servico arquivado com o identificador fornecido
+	 * @param id Identificador do serviço que coincide com o id do equipamento
+	 * @return Apontador para o servico que possui o identificador fornecido
+	 */
+	private Servico getApontadorServicoArquivado(String id){
+		try {
+			servicoslock.lock();
+			Servico servico = null;
 
 			//Procura nos servicos arquivados
 			if ((servico = arquivados.get(id)) != null) return servico;

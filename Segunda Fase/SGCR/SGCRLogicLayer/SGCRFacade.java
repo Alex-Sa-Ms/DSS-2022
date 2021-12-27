@@ -212,7 +212,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 		if(permissao == 1){
 			LocalDateTime prazoMaximo = calcularPrazoMaximo(passos);
 			boolean ret = servicosFacade.addServicoPadrao(o.getIdEquipamento(), o.getNIFCliente(), passos, o.getDescricao(), prazoMaximo);
-			if(ret) EmailHandler.emailOrcamento(clientesFacade.getFichaCliente(o.getNIFCliente()).getEmail(), ((ServicoPadrao) servicosFacade.getServico(o.getNIFCliente())).getOrcamento().toString());
+			if(ret) EmailHandler.emailOrcamento(clientesFacade.getFichaCliente(o.getNIFCliente()).getEmail(), ((ServicoPadrao) servicosFacade.getServicoNaoArquivado(o.getNIFCliente())).getOrcamento().toString());
 			return ret;
 		} return false;
 	}
@@ -288,7 +288,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	@Override
 	public boolean rejeitarOrcamento(String idServico) {
 		if(permissao == 0) {
-			EmailHandler.emailCancelado(clientesFacade.getFichaCliente(servicosFacade.getServico(idServico).getIdCliente()).getEmail());
+			EmailHandler.emailCancelado(clientesFacade.getFichaCliente(servicosFacade.getServicoNaoArquivado(idServico).getIdCliente()).getEmail());
 			return servicosFacade.orcamentoRejeitado(idServico);
 		}
 		return false;
@@ -324,7 +324,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 		if (permissao == 1 && funcionarioFacade.possuiServico(idUtilizador, IDServico)){
 
 			if(servicosFacade.concluiServico(IDServico)){
-				Servico s = servicosFacade.getServico(IDServico);
+				Servico s = servicosFacade.getServicoNaoArquivado(IDServico);
 				EmailHandler.emailPronto(clientesFacade.getFichaCliente(s.getIdCliente()).getEmail());
 				if(s instanceof ServicoPadrao) {
 					ServicoPadrao sp    = (ServicoPadrao) s;
@@ -367,7 +367,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 		if (permissao == 1 && funcionarioFacade.possuiServico(idUtilizador, IDServico)) {
 			try { return servicosFacade.proxPasso(IDServico); }
 			catch (ServicoPadrao.CustoExcedidoException e) {
-				EmailHandler.emailExcesso(clientesFacade.getFichaCliente(servicosFacade.getServico(IDServico).getIdCliente()).getEmail());
+				EmailHandler.emailExcesso(clientesFacade.getFichaCliente(servicosFacade.getServicoNaoArquivado(IDServico).getIdCliente()).getEmail());
 				throw new CustoExcedidoException();
 			}
 		}
@@ -377,7 +377,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 	@Override
 	public List<Passo> listarPassosServico(String IDServico) {
 		if(permissao == 1) {
-			Servico servico = servicosFacade.getServico(IDServico);
+			Servico servico = servicosFacade.getServicoNaoArquivado(IDServico);
 			if(servico instanceof ServicoPadrao)
 				return ((ServicoPadrao) servico).getPassos();
 		}
@@ -403,7 +403,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 		if(permissao == 1)
 			return funcionarioFacade.listarServicosTecnico(idUtilizador)
 									.stream()
-									.map(e -> servicosFacade.getServico(e))
+									.map(e -> servicosFacade.getServicoNaoArquivado(e))
 									.filter(e -> e.getEstado() == EstadoServico.Interrompido)
 									.collect(Collectors.toList());
 		return null;
@@ -416,7 +416,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 			if(fichaCliente == null) return new ArrayList<>();
 			return fichaCliente.getEquipamentos()
 							   .stream()
-							   .map(id -> servicosFacade.getServico(id))
+							   .map(id -> servicosFacade.getServicoNaoArquivado(id))
 							   .filter(servico -> servico != null && prontoParaLevantar(servico))
 							   .collect(Collectors.toList());
 		} else return null;

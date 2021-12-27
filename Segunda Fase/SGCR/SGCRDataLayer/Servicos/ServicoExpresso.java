@@ -11,7 +11,7 @@ public class ServicoExpresso extends Servico implements Serializable {
 	//Construtor
 
 	/** Construtor ServicoPadrao para situação normal, i.e., orcamento feito, vai esperar pela resposta do cliente **/
-	public ServicoExpresso(String id, String idCliente, float custo) {
+	public ServicoExpresso(String id, String idCliente, float custo, String descricao) {
 		setId(id);
 		setIdCliente(idCliente);
 		setAbandonado(false);
@@ -19,6 +19,7 @@ public class ServicoExpresso extends Servico implements Serializable {
 		setEstado(EstadoServico.EsperandoReparacao);
 		setDataConclusao(null);
 		this.custo = custo;
+		this.descricao = descricao;
 	}
 
 	// Clone
@@ -31,6 +32,7 @@ public class ServicoExpresso extends Servico implements Serializable {
 		setAbandonado(sp.getAbandonado());
 		setDataConclusao(sp.getDataConclusao());
 		this.custo = sp.getCusto();
+		this.descricao = sp.descricao;
 	}
 
 	@Override
