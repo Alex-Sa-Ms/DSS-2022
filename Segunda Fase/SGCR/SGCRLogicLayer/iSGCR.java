@@ -93,7 +93,7 @@ public interface iSGCR {
 	 * @param custo
 	 * @param NIF
 	 */
-	boolean criarServicoExpresso(Float custo, String NIF);
+	boolean criarServicoExpresso(Float custo, String NIF,String descricao);
 
 	public boolean definirPrecoHoraServicos(float precoHora);
 
@@ -179,20 +179,7 @@ public interface iSGCR {
 
 	// ****** Iniciar/Encerrar Aplicacao ******
 
-	static iSGCR loadSGCRFacade(String s) {
-		try {
-			SGCRFacade novo;
-			FileInputStream fileIn = new FileInputStream(s);
-			ObjectInputStream in = new ObjectInputStream(fileIn);
-			novo = (SGCRFacade) in.readObject();
-			in.close();
-			fileIn.close();
-			novo.runTimer();
-		return novo;
-		} catch (IOException | ClassNotFoundException | NullPointerException fnfe){
-			return null;
-		}
-	}
+	int load(String s);
 
 	void runTimer();
 	/**

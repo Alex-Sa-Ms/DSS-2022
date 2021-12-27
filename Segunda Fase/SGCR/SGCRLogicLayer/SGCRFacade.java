@@ -224,11 +224,11 @@ public class SGCRFacade implements iSGCR, Serializable {
 	 * @return true caso o pedido tenha sido adicionado ao sistema.
 	 */
 	@Override
-	public boolean criarServicoExpresso(Float custo, String NIF) {
+	public boolean criarServicoExpresso(Float custo, String NIF,String descricao) {
 		if(permissao == 0) {
 			funcionarioFacade.incNrRececoes(idUtilizador);
 			String idProx= clientesFacade.getIdProxEquip();
-			if(servicosFacade.addServicoExpresso(idProx, NIF, custo)){
+			if(servicosFacade.addServicoExpresso(idProx, NIF, custo,descricao)){
 				clientesFacade.addEquipCliente(idProx,NIF);
 				return true;
 			}
@@ -251,7 +251,7 @@ public class SGCRFacade implements iSGCR, Serializable {
 
 	/**
 	 * Calcular o prazo maximo de uma reparação.
-	 * @return true caso seja um preco a hora valido (>0).
+	 * @return data maxima para a reparação.
 	 */
 	@Override
 	public LocalDateTime calcularPrazoMaximo(List<Passo> passos) {
@@ -259,6 +259,10 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return servicosFacade.calculaPrazoMaximo(funcionarioFacade.getNrTecnicos(), duracaoServicoPrevista);
 	}
 
+	/**
+	 * Rejeitar um pedido de orcamento e cria um serviço irreparavel.
+	 * @return true se o pedido foi rejeitado.
+	 */
 	@Override
 	public boolean rejeitaPedidoOrcamento(PedidoOrcamento o) {
 		if(permissao == 1){
@@ -270,6 +274,10 @@ public class SGCRFacade implements iSGCR, Serializable {
 		return false;
 	}
 
+	/**
+	 * Aceitar um pedido de orcamento e cria um serviço a espera de reparacao.
+	 * @return true se o pedido foi aceite.
+	 */
 	@Override
 	public boolean aceitarOrcamento(String idServico) {
 		if(permissao == 0)
@@ -460,6 +468,24 @@ public class SGCRFacade implements iSGCR, Serializable {
 	}
 
 	@Override
+	public int load(String s) {
+		try {
+			FileInputStream fileIn = new FileInputStream(s);
+			ObjectInputStream in = new ObjectInputStream(fileIn);
+			this.clientesFacade = (ClientesFacade) in.readObject();
+			this.servicosFacade = (ServicosFacade) in.readObject();
+			this.funcionarioFacade = (FuncionarioFacade) in.readObject();
+			this.pedidosFacade = (PedidosFacade) in.readObject();
+			in.close();
+			fileIn.close();
+			this.runTimer();
+			return 0;
+		} catch (IOException | ClassNotFoundException | NullPointerException fnfe){
+			return -1;
+		}
+	}
+
+	@Override
 	public void runTimer() {
 		this.timer = new Timer(servicosFacade);
 		this.timer.start();
@@ -470,7 +496,6 @@ public class SGCRFacade implements iSGCR, Serializable {
 	@Override
 	public int encerraAplicacao(String filepath) { //Serialize
 		if (logout()) {
-
 			try {
 				timer.getLock().lock();
 				timer.interrupt();
@@ -483,7 +508,10 @@ public class SGCRFacade implements iSGCR, Serializable {
 				fileOut = new FileOutputStream(filepath);
 				ObjectOutputStream out;
 				out = new ObjectOutputStream(fileOut);
-				out.writeObject(this);
+				out.writeObject(this.clientesFacade);
+				out.writeObject(this.servicosFacade);
+				out.writeObject(this.funcionarioFacade);
+				out.writeObject(this.pedidosFacade);
 				out.flush();
 				out.close();
 				fileOut.close();
