@@ -7,6 +7,10 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class EmailHandler {
 
+	/**
+	 * Envia email que avisa o cliente que o orçamento foi excedido.
+	 *  @param email email do cliente
+	 *  */
 	public static void emailExcesso(String email) {
 		try {
 			HttpResponse<JsonNode> request = Unirest.post("https://api.mailgun.net/v3/sandbox5b0cd547ca7745e6925e828a839d8fe7.mailgun.org" + "/messages")
@@ -23,6 +27,9 @@ public class EmailHandler {
 		}
 	}
 
+	/**
+	 * Envia email que avisa o cliente que o equipamento esta reparado.
+	 * @param email email do cliente */
 	public static void emailPronto(String email) {
 		try {
 			HttpResponse<JsonNode> request = Unirest.post("https://api.mailgun.net/v3/sandbox5b0cd547ca7745e6925e828a839d8fe7.mailgun.org" + "/messages")
@@ -39,6 +46,9 @@ public class EmailHandler {
 		}
 	}
 
+	/**
+	 *  Envia email que avisa o cliente que o equipamento e irreparavel.
+	 *  @param email email do cliente*/
 	public static void emailIrreparavel(String email) {
 		try {
 			HttpResponse<JsonNode> request = Unirest.post("https://api.mailgun.net/v3/sandbox5b0cd547ca7745e6925e828a839d8fe7.mailgun.org" + "/messages")
@@ -55,6 +65,10 @@ public class EmailHandler {
 		}
 	}
 
+	/**
+	 * Envia email com orçamento ao cliente.
+	 * @param email email do cliente
+	 * @param orcamento orçamento a ser enviado*/
 	public static void emailOrcamento(String email, String orcamento) {
 		try {
 			HttpResponse<JsonNode> request = Unirest.post("https://api.mailgun.net/v3/sandbox5b0cd547ca7745e6925e828a839d8fe7.mailgun.org" + "/messages")
@@ -72,6 +86,9 @@ public class EmailHandler {
 		}
 	}
 
+	/**
+	 * Envia email que avisa o cliente que o orçamento foi excedido.
+	 * @param email email do cliente*/
 	public static void emailCancelado(String email) {
 		try {
 			HttpResponse<JsonNode> request = Unirest.post("https://api.mailgun.net/v3/sandbox5b0cd547ca7745e6925e828a839d8fe7.mailgun.org" + "/messages")

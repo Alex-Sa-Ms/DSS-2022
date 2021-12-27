@@ -12,12 +12,20 @@ public class Timer extends Thread {
 	ServicosFacade sf;
 	ReentrantLock rlock = new ReentrantLock();
 
+	/** @return  lock associada ao timer. */
 	public ReentrantLock getLock() { return rlock; }
 
+
+	/**
+	 * Construtor de um Orcamento
+	 * @param sf Serviços a que o Timer tera acesso
+	 */
 	public Timer(ServicosFacade sf){
 		this.sf = sf;
 	}
 
+
+	/** Run do timer, arquiva os serviços finalizados. */
 	public void run(){
 		while (true){
 			try{
