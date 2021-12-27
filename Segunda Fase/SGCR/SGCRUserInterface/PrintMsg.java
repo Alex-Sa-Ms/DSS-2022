@@ -41,7 +41,7 @@ public class PrintMsg {
         StringBuilder sb = new StringBuilder();
         if (s instanceof ServicoPadrao) {
 
-            sb.append("Serviço Padrão #").append(s.getId()).append("::: Estado: ").append(s.getEstado()).append(" | Custo: ").append(((ServicoPadrao) s).getCusto()).append("\n");
+            sb.append("Serviço Padrão #").append(s.getId()).append("::: Estado: ").append(s.getEstado()).append(" | Custo: ").append(((ServicoPadrao) s).getCusto()).append(" | Descricao; ").append(s.getDescricao()).append("\n");
         } else if (s instanceof ServicoExpresso) {
 
             sb.append("Serviço Expresso #").append(s.getId()).append("::: Estado: ").append(s.getEstado()).append(" | Custo: ").append(((ServicoExpresso) s).getCusto()).append("\n");

@@ -18,7 +18,7 @@ import java.util.List;
 public class UIFacade {
     private final PrintMsg printer = new PrintMsg();
     private iSGCR logic= new SGCRFacade();
-    private final String predefinedPath = "C:\\Users\\Utilizador\\Documents\\GitHub\\DSS-2022\\file.dat";
+    private final String predefinedPath = "file.dat";
     private String newPath = null;
 
 
@@ -37,9 +37,8 @@ public class UIFacade {
                     return logic.login(username.getOpcao(), password.getOpcao());
 
                 case 2:
-                    iSGCR logic2= iSGCR.loadSGCRFacade(predefinedPath);
-                    if (logic2 != null) {
-                        logic = logic2;
+                    int ret1 = logic.load(predefinedPath);
+                    if (ret1 == 0) {
                         printer.printMsg("Load concluido com sucesso");
                     }
                     else printer.printMsg("Erro no load");
@@ -48,9 +47,8 @@ public class UIFacade {
                     MenuInput filepath2 = new MenuInput("Insira o ficheiro de onde pretende carregar os dados","");
                     filepath2.executa();
                     newPath = filepath2.getOpcao();
-                    iSGCR logic3= iSGCR.loadSGCRFacade(newPath);
-                    if (logic3 != null) {
-                        logic = logic3;
+                    int ret2 = logic.load(newPath);
+                    if (ret2 == 0) {
                         printer.printMsg("Load concluido com sucesso");
                     }
                     else printer.printMsg("Erro no load");
@@ -78,16 +76,16 @@ public class UIFacade {
                     break;
 
                 case 0:
-                    printer.printMsg("Bem vindo Funcionario do Balcao xxx");
+                    printer.printMsg("Bem vindo Funcionario do Balcao");
                     controladorBalcao();
                     break;
 
                 case 1:
-                    printer.printMsg("Bem vindo tecnico xxx");
+                    printer.printMsg("Bem vindo tecnico");
                     controladorTecnico();
                     break;
                 case 2:
-                    printer.printMsg("Bem vindo Gestor xxx");
+                    printer.printMsg("Bem vindo Gestor");
                     controladorGestor();
                     break;
                 case 90:
@@ -98,7 +96,9 @@ public class UIFacade {
             }
         }
         printer.printMsg("Guardando os dados...");
-        if (retval == 90)logic.encerraAplicacao(predefinedPath);
+        if (retval == 90){
+            logic.encerraAplicacao(predefinedPath);
+        }
         else logic.encerraAplicacao(newPath);
     }
     //////////////////////////////////////Parte do Gestor////////////////////////////////////////
@@ -280,7 +280,8 @@ public class UIFacade {
         }while(idiotflag);
         
         boolean retflag;
-        retflag =logic.criarServicoExpresso(custo,nif.getOpcao());
+        //TODO servico expresso
+        retflag =logic.criarServicoExpresso(custo,nif.getOpcao(),"");
         if (retflag) printer.printMsg("Servico Expresso adicionado com sucesso");
         else printer.printMsg("Erro na criacao de servico expresso");
 
@@ -338,7 +339,7 @@ public class UIFacade {
             equip.executa();
             if (equip.getOpcao()==0) flag=false;
             else {
-                String idServ = l.get(equip.getOpcao()).getId();
+                String idServ = l.get(equip.getOpcao()-1).getId();
                 float preco = logic.entregarEquipamento(idServ);
                 if (preco == 0) printer.printMsg("Nao ha custo! Entrega Concluida");
                 else if (preco == -1) printer.printMsg("Erro na entrega!");
@@ -558,9 +559,10 @@ public class UIFacade {
     private void controladorServicoExpresso(Servico idS){
         String id = idS.getId();
         MenuSelect m = new MenuSelect("Menu de Servico Expresso",  new String[]{"Ver servico", "Concluir servico"});
-        m.executa();
+
         boolean flag=true;
         while(flag){
+            m.executa();
             if (m.getOpcao()== 1){
                 printer.printServico(idS);
             }
