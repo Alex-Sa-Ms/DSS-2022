@@ -14,7 +14,7 @@ public class EmailHandler {
 					.field("from", "Uminho@sandbox5b0cd547ca7745e6925e828a839d8fe7.mailgun.org.com")
 					.field("to", email)
 					.field("subject", "Orçamento excedido")
-					.field("text", "Caro Client" +
+					.field("text", "Caro Cliente" +
 							"\nA reparação do seu equipamento excedeou o orçamento previsto em 20%." +
 							"\nDeseja processiguir a reparação?")
 					.asJson();
@@ -30,7 +30,7 @@ public class EmailHandler {
 					.field("from", "Uminho@sandbox5b0cd547ca7745e6925e828a839d8fe7.mailgun.org.com")
 					.field("to", email)
 					.field("subject", "Equipamento pronto para recolha")
-					.field("text", "Caro Client" +
+					.field("text", "Caro Cliente" +
 							"\nA reparação do seu equipamento encontra-se concluida." +
 							"\nPoderá recolher o seu equipamento assim que possivel.")
 					.asJson();
@@ -46,7 +46,7 @@ public class EmailHandler {
 					.field("from", "Uminho@sandbox5b0cd547ca7745e6925e828a839d8fe7.mailgun.org.com")
 					.field("to", email)
 					.field("subject", "Equipamento irreparavel")
-					.field("text", "Caro Client" +
+					.field("text", "Caro Cliente" +
 							"\nA reparação do seu equipamento não e possivel de ser efetuada." +
 							"\nPoderá recolher o seu equipamento assim que possivel.")
 					.asJson();
@@ -62,10 +62,10 @@ public class EmailHandler {
 					.field("from", "Uminho@sandbox5b0cd547ca7745e6925e828a839d8fe7.mailgun.org.com")
 					.field("to", email)
 					.field("subject", "Orçamento de reparação")
-					.field("text", "Caro Client" +
+					.field("text", "Caro Cliente" +
 							"\nOrçamento de reparação do seu equipamento." +
-							"\n" + orcamento+
-							"\nDeseja processiguir a reparação?")
+							"\n" + orcamento +
+							"\nDeseja prosseguir a reparação?")
 					.asJson();
 		} catch (UnirestException e) {
 			e.printStackTrace();
@@ -79,7 +79,7 @@ public class EmailHandler {
 					.field("from", "Uminho@sandbox5b0cd547ca7745e6925e828a839d8fe7.mailgun.org.com")
 					.field("to", email)
 					.field("subject", "Confirmação de cancelamento")
-					.field("text", "Caro Client" +
+					.field("text", "Caro Cliente" +
 							"\nEsta confirmado o cancelamento da reparação do seu equipamento.")
 					.asJson();
 		} catch (UnirestException e) {
