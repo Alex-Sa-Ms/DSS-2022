@@ -210,7 +210,7 @@ public class SGCRFacade implements iSGCR {
 		if(permissao == 1){
 			LocalDateTime prazoMaximo = calcularPrazoMaximo(passos);
 			boolean ret = servicosFacade.addServicoPadrao(o.getIdEquipamento(), o.getNIFCliente(), passos, o.getDescricao(), prazoMaximo);
-			if(ret) EmailHandler.emailOrcamento(clientesFacade.getFichaCliente(o.getNIFCliente()).getEmail(), ((ServicoPadrao) servicosFacade.getServicoNaoArquivado(o.getNIFCliente())).getOrcamento().toString());
+			if(ret) EmailHandler.emailOrcamento(clientesFacade.getFichaCliente(o.getNIFCliente()).getEmail(), ((ServicoPadrao) servicosFacade.getServicoNaoArquivado(o.getIdEquipamento())).getOrcamento().toString());
 			return ret;
 		} return false;
 	}

@@ -134,7 +134,7 @@ public class UIFacade {
         MenuSelect gestor = new MenuSelect("",new String[]{
                 "Criar conta para Funcionario",
                 "Intervencoes Concluidas",
-                "Estatisticas dos Tecnicos:",
+                "Estatisticas dos Tecnicos",
                 "Rececoes e entregas",
                 "Listar Funcionarios"});
         MenuSelect temp = new MenuSelect("", new String[]{});
@@ -173,6 +173,7 @@ public class UIFacade {
                         List<Tecnico> l2 = logic.listarTecnicos();
                         l2.forEach(x->printer.printFuncionario(x));
                     }
+                    temp.executa();
                     break;
 
                 case 0:
@@ -474,6 +475,7 @@ public class UIFacade {
                         else printer.printMsg("Não existem mais passos");
                     } catch (iSGCR.CustoExcedidoException e) {
                         printer.printMsg("Limite de Custo ultrapassado!");
+                        printer.printMsg("Enviado Email de conhecimento ao cliente");
                     }
                     break;
                 case 3:
@@ -490,6 +492,7 @@ public class UIFacade {
                     m.executa();
                     if (m.getOpcao()== 1 && logic.concluiServico(id)) {
                         printer.printMsg("Servico Concluido com sucesso");
+                        printer.printMsg("Enviada notificação da conclusão do servico");
                         flag=false;
                     }else printer.printMsg("Erro a concluir servico");
                     break;
@@ -529,7 +532,7 @@ public class UIFacade {
                                 idiotflag = true;
                             }
                         } while (idiotflag);
-                        if (index < lp.size()) {
+                        if (index-1 < lp.size()) {
                             lp.remove(index-1);
                             printer.printMsg("Removido com sucesso");
                         } else printer.printMsg("Nao foi possivel a remocao");
@@ -548,7 +551,8 @@ public class UIFacade {
                         m.executa();
                         if (m.getOpcao() == 1 && logic.criaServicoPadrao(p, lp)) {
                             flag = false;
-                            printer.printMsg("Concluido Pedido");
+                            printer.printMsg("Pedido Concluido!");
+                            printer.printMsg("Enviado orcamento para o cliente!");
                         } else printer.printMsg("Nao foi possivel concluir orcamento");
                         break;
 
