@@ -10,6 +10,8 @@ import SGCRLogicLayer.BalcaoStats;
 import SGCRLogicLayer.SGCRFacade;
 import SGCRLogicLayer.TecnicoStats;
 import SGCRLogicLayer.iSGCR;
+
+import javax.management.StandardEmitterMBean;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -332,6 +334,7 @@ public class UIFacade {
 
     private void entregarEquipamentos(){
         MenuInput nif = new MenuInput("Nif do cliente","");
+        MenuSelect temp = new MenuSelect("", new String[]{});
         nif.executa();
 
         List<Servico> l = logic.listarServicosProntosLevantamento(nif.getOpcao());
@@ -341,12 +344,20 @@ public class UIFacade {
             equip.executa();
             if (equip.getOpcao()==0) flag=false;
             else {
-                String idServ = l.get(equip.getOpcao()-1).getId();
+                Servico servico = l.get(equip.getOpcao()-1);
+                String idServ = servico.getId();
                 float preco = logic.entregarEquipamento(idServ);
-                if (preco == 0) printer.printMsg("Nao ha custo! Entrega Concluida");
-                else if (preco == -1) printer.printMsg("Erro na entrega!");
+                if (preco == 0) {
+                    printer.printMsg("Nao ha custo!  Equipamento numero: " + servico.getId() );
+                    temp.executa();
+                    printer.printMsg("Entrega concluída");
+                }else if (preco == -1) printer.printMsg("Erro na entrega!");
                 else {
-                    printer.printMsg("Custo a cobrar ao cliente: "+ preco +". Entrega Concluida");
+                    printer.printMsg("Custo a cobrar ao cliente: "+ preco + ". Equipamento numero: " + servico.getId() );
+
+                    temp.executa();
+                    printer.printMsg("Entrega concluída");
+
                 }
                 l = logic.listarServicosProntosLevantamento(nif.getOpcao());
             }
