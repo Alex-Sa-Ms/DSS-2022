@@ -273,6 +273,24 @@ public class SGCRFacade implements iSGCR {
 	}
 
 	/**
+	 * Rejeitar um servico e cria um serviço irreparavel.
+	 * @return true se o servico foi rejeitado.
+	 */
+	@Override
+	public boolean rejeitaServico(String id) {
+		if(permissao == 1){
+
+			if(servicosFacade.servicoIrreparavel(id)){
+				Servico s = servicosFacade.getServico(id);
+				EmailHandler.emailIrreparavel(clientesFacade.getFichaCliente(s.getIdCliente()).getEmail());
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	/**
 	 * Aceita um orcamento e muda o estado do serviço para espera de reparacao.
 	 * @return true se o  estado do servico foi alterado para espera de reparacao.
 	 */

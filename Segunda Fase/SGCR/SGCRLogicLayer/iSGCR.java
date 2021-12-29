@@ -145,6 +145,8 @@ public interface iSGCR {
 
 	public Passo getPassoAtual(String idServico);
 
+	public boolean rejeitaServico(String id);
+
 	/**
 	 *
 	 * @param IDServico
