@@ -210,7 +210,7 @@ public class SGCRFacade implements iSGCR {
 		if(permissao == 1){
 			LocalDateTime prazoMaximo = calcularPrazoMaximo(passos);
 			boolean ret = servicosFacade.addServicoPadrao(o.getIdEquipamento(), o.getNIFCliente(), passos, o.getDescricao(), prazoMaximo);
-			if(ret) EmailHandler.emailOrcamento(clientesFacade.getFichaCliente(o.getNIFCliente()).getEmail(), ((ServicoPadrao) servicosFacade.getServicoNaoArquivado(o.getNIFCliente())).getOrcamento().toString());
+			if(ret) EmailHandler.emailOrcamento(clientesFacade.getFichaCliente(o.getNIFCliente()).getEmail(), ((ServicoPadrao) servicosFacade.getServicoNaoArquivado(o.getIdEquipamento())).getOrcamento().toString());
 			return ret;
 		} return false;
 	}
@@ -271,6 +271,24 @@ public class SGCRFacade implements iSGCR {
 		}
 		return false;
 	}
+
+	/**
+	 * Rejeitar um servico e cria um serviço irreparavel.
+	 * @return true se o servico foi rejeitado.
+	 */
+	@Override
+	public boolean rejeitaServico(String id) {
+		if(permissao == 1){
+
+			if(servicosFacade.servicoIrreparavel(id)){
+				Servico s = servicosFacade.getServico(id);
+				EmailHandler.emailIrreparavel(clientesFacade.getFichaCliente(s.getIdCliente()).getEmail());
+				return true;
+			}
+		}
+		return false;
+	}
+
 
 	/**
 	 * Aceita um orcamento e muda o estado do serviço para espera de reparacao.

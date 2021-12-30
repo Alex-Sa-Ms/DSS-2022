@@ -49,7 +49,7 @@ public class MenuSelect {
                 op = -1;
             }
             if (op<0 || op>this.options.size()) {
-                System.out.println("Opção Inválida!!!");
+                System.out.println("Opção Invalida!!!");
                 op = -1;
             }
             return op;

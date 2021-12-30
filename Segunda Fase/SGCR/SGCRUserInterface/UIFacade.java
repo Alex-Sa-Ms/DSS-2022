@@ -10,6 +10,8 @@ import SGCRLogicLayer.BalcaoStats;
 import SGCRLogicLayer.SGCRFacade;
 import SGCRLogicLayer.TecnicoStats;
 import SGCRLogicLayer.iSGCR;
+
+import javax.management.StandardEmitterMBean;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,7 +136,7 @@ public class UIFacade {
         MenuSelect gestor = new MenuSelect("",new String[]{
                 "Criar conta para Funcionario",
                 "Intervencoes Concluidas",
-                "Estatisticas dos Tecnicos:",
+                "Estatisticas dos Tecnicos",
                 "Rececoes e entregas",
                 "Listar Funcionarios"});
         MenuSelect temp = new MenuSelect("", new String[]{});
@@ -173,6 +175,7 @@ public class UIFacade {
                         List<Tecnico> l2 = logic.listarTecnicos();
                         l2.forEach(x->printer.printFuncionario(x));
                     }
+                    temp.executa();
                     break;
 
                 case 0:
@@ -188,7 +191,7 @@ public class UIFacade {
                 "Entregar Equipamento",
                 "Criar Servico Expresso",
                 "Criar Ficha cliente",
-                "Resposta Orçamento do Cliente",
+                "Resposta Orcamento do Cliente",
                 "Listar Fichas Cliente do Sistema"});
         MenuSelect temp = new MenuSelect("", new String[]{});
         boolean flag= true;
@@ -261,7 +264,7 @@ public class UIFacade {
         MenuInput nif = new MenuInput("NIF do cliente","");
         nif.executa();
         MenuInput custos = new MenuInput("Precos Servico","");
-        MenuInput descr = new MenuInput("Descrição:","");
+        MenuInput descr = new MenuInput("Descricao:","");
 
         if(!logic.existeCliente(nif.getOpcao())){
             criarFichaCliente(nif.getOpcao());
@@ -331,6 +334,7 @@ public class UIFacade {
 
     private void entregarEquipamentos(){
         MenuInput nif = new MenuInput("Nif do cliente","");
+        MenuSelect temp = new MenuSelect("", new String[]{});
         nif.executa();
 
         List<Servico> l = logic.listarServicosProntosLevantamento(nif.getOpcao());
@@ -340,12 +344,20 @@ public class UIFacade {
             equip.executa();
             if (equip.getOpcao()==0) flag=false;
             else {
-                String idServ = l.get(equip.getOpcao()-1).getId();
+                Servico servico = l.get(equip.getOpcao()-1);
+                String idServ = servico.getId();
                 float preco = logic.entregarEquipamento(idServ);
-                if (preco == 0) printer.printMsg("Nao ha custo! Entrega Concluida");
-                else if (preco == -1) printer.printMsg("Erro na entrega!");
+                if (preco == 0) {
+                    printer.printMsg("Nao ha custo!  Equipamento numero: " + servico.getId() );
+                    temp.executa();
+                    printer.printMsg("Entrega concluída");
+                }else if (preco == -1) printer.printMsg("Erro na entrega!");
                 else {
-                    printer.printMsg("Custo a cobrar ao cliente: "+ preco +". Entrega Concluida");
+                    printer.printMsg("Custo a cobrar ao cliente: "+ preco + ". Equipamento numero: " + servico.getId() );
+
+                    temp.executa();
+                    printer.printMsg("Entrega concluída");
+
                 }
                 l = logic.listarServicosProntosLevantamento(nif.getOpcao());
             }
@@ -446,7 +458,7 @@ public class UIFacade {
 
 
     private void controladorServicoPadrao(Servico idS, boolean retomado) {
-        MenuSelect reparacao = new MenuSelect("Opcoes:", new String[]{"Adicionar Passo","Concluir Passo","Interromper Servico","Concluir Servico"});
+        MenuSelect reparacao = new MenuSelect("Opcoes:", new String[]{"Adicionar Passo","Concluir Passo","Interromper Servico","Concluir Servico","Servico Irreparável"});
         String id = idS.getId();
         boolean flag=true;
 
@@ -471,9 +483,10 @@ public class UIFacade {
                 case 2:
                     try {
                         if (logic.proxPasso(id) != null) printer.printMsg("Passo concluido");
-                        else printer.printMsg("Não existem mais passos");
+                        else printer.printMsg("Nao existem mais passos");
                     } catch (iSGCR.CustoExcedidoException e) {
                         printer.printMsg("Limite de Custo ultrapassado!");
+                        printer.printMsg("Enviado Email de conhecimento ao cliente");
                     }
                     break;
                 case 3:
@@ -490,8 +503,18 @@ public class UIFacade {
                     m.executa();
                     if (m.getOpcao()== 1 && logic.concluiServico(id)) {
                         printer.printMsg("Servico Concluido com sucesso");
+                        printer.printMsg("Enviada notificacao da conclusao do servico");
                         flag=false;
                     }else printer.printMsg("Erro a concluir servico");
+                    break;
+                case 5:
+                    MenuSelect m1 = new MenuSelect("Tem a certeza que pretende considerar o servico irreparavel", new String[]{"Sim", "Nao, quero voltar"});
+                    m1.executa();
+                    if (m1.getOpcao()== 1 && logic.rejeitaServico(id)) {
+                        printer.printMsg("Servico Rejeitado");
+                        printer.printMsg("Enviada notificacao da rejeicao do servico");
+                        flag=false;
+                    }else printer.printMsg("Erro a rejeitar servico");
                     break;
             }
 
@@ -501,7 +524,7 @@ public class UIFacade {
 
     private void controladorPedidos() {
         PedidoOrcamento p = logic.resolverPedido();
-        if (p == null) printer.printMsg("Não existem pedidos pendentes");
+        if (p == null) printer.printMsg("Nao existem pedidos pendentes");
         else {
             List<Passo> lp = new ArrayList<>();
             boolean flag = true;
@@ -529,7 +552,7 @@ public class UIFacade {
                                 idiotflag = true;
                             }
                         } while (idiotflag);
-                        if (index < lp.size()) {
+                        if (index-1 < lp.size()) {
                             lp.remove(index-1);
                             printer.printMsg("Removido com sucesso");
                         } else printer.printMsg("Nao foi possivel a remocao");
@@ -548,7 +571,8 @@ public class UIFacade {
                         m.executa();
                         if (m.getOpcao() == 1 && logic.criaServicoPadrao(p, lp)) {
                             flag = false;
-                            printer.printMsg("Concluido Pedido");
+                            printer.printMsg("Pedido Concluido!");
+                            printer.printMsg("Enviado orcamento para o cliente!");
                         } else printer.printMsg("Nao foi possivel concluir orcamento");
                         break;
 
