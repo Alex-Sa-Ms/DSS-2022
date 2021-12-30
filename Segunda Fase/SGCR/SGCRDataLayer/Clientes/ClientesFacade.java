@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ClientesFacade implements Serializable {
+public class ClientesFacade implements Serializable,iClientes {
 
 	Map<String,FichaCliente> clientes;
 	private int idProxEquipamento;
