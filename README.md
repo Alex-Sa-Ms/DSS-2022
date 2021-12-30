@@ -12,7 +12,7 @@ Para obter um exemplo com algumas reparações e funcionários do sistema, dever
 
 
 
-Alternativamente é possivel compilar o código, mas tenha em atenção o facto das lib externas necessárias para o funcionamento do programa.
+Alternativamente é possivel compilar o código, mas tenha em atenção o facto de existirem lib's externas necessárias para o funcionamento do programa.
 
 
 Projeto da Unidade Curricular de Desenvolvimento de Sistemas de Software, Licenciatura em Engenharia Informática, Universidade do Minho.
