@@ -23,8 +23,12 @@ public class ServicosFacade implements Serializable {
 			estados.put(e, new HashMap<>());
 	}
 
-	//TODO - Maybe usar o getPrecoServico e só dps confirmar a arquivacao do servico com o entregarEquipamento
 
+	/**
+	 * Atribui o preco por hora global dos servicos programados.
+	 * @param precoHora Preço por hora
+	 * @return true se foi possível alterar o preco por hora.
+	 */
 	public boolean setPrecoHora(float precoHora){
 		return Passo.setPrecoHora(precoHora);
 	}
@@ -264,6 +268,11 @@ public class ServicosFacade implements Serializable {
 		finally { servicoslock.unlock(); }
 	}
 
+	/**
+	 * Retorna o passo que está a ser executado no momento.
+	 * @param idServico Identificador do servico
+	 * @return Retorna o passo que está a ser executado no momento.
+	 */
 	public Passo getPassoAtual(String idServico){
 		try {
 			servicoslock.lock();
@@ -379,6 +388,7 @@ public class ServicosFacade implements Serializable {
 		finally { servicoslock.unlock(); }
 	}
 
+	/** @return lista de pedidos em espera de confirmacao */
 	public List<Servico> listaServicosEmEsperaDeConfirmacao(){
 		try {
 			servicoslock.lock();
@@ -439,6 +449,12 @@ public class ServicosFacade implements Serializable {
 		finally { servicoslock.unlock(); }
 	}
 
+	/**
+	 * Calcula a data na qual se espera que o serviço esteja concluído, tendo em conta o número de técnicos e a duração prevista do serviço a efetuar.
+	 * @param nrTecnicos Número de técnicos do centro
+	 * @param duracaoPrevistaServico Duração prevista do serviço a efetuar
+	 * @return data na qual se espera que o serviço esteja concluído
+	 */
 	public LocalDateTime calculaPrazoMaximo(int nrTecnicos, float duracaoPrevistaServico){
 		int nrServicos;
 		float tempoMax;
