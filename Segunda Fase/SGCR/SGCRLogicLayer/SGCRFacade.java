@@ -11,10 +11,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SGCRFacade implements iSGCR {
-	private ClientesFacade clientesFacade;
-	private FuncionarioFacade funcionarioFacade;
-	private PedidosFacade pedidosFacade;
-	private ServicosFacade servicosFacade;
+	private iClientes clientesFacade;
+	private iFuncionario funcionarioFacade;
+	private iPedidos pedidosFacade;
+	private iServico servicosFacade;
 	private int permissao;
 	private String idUtilizador;
 	private Timer timer;

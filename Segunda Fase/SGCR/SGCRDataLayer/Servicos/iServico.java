@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
 
-interface iServico extends Serializable{
+public interface iServico extends Serializable{
 
     /**
      * Atribui o preco por hora global dos servicos programados.
