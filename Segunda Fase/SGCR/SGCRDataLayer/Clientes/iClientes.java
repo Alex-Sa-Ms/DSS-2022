@@ -1,8 +1,9 @@
 package SGCRDataLayer.Clientes;
 
+import java.io.Serializable;
 import java.util.List;
 
-public interface iClientes {
+public interface iClientes extends Serializable {
     /**
      * cria um novo cliente
      * @param Nome string que é o nome do novo cliente
