@@ -1,9 +1,8 @@
 package SGCRDataLayer.PedidosDeOrcamento;
 
-import java.io.Serializable;
 import java.util.*;
 
-public class PedidosFacade implements Serializable,iPedidosFacade {
+public class PedidosFacade implements iPedidos {
 
 	Deque<PedidoOrcamento> filaPedidos = new ArrayDeque<>();
 
