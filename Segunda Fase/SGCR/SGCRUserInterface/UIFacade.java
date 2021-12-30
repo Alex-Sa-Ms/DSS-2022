@@ -118,7 +118,7 @@ public class UIFacade {
     private void criarConta(){
         boolean flag=false;
 
-        MenuSelect m = new MenuSelect("Qual o tipo de funcionario que pertende criar",
+        MenuSelect m = new MenuSelect("Qual o tipo de funcionario que pretende criar",
                 new String[]{"Funcionario de Balcao", "Tecnico de Reparacoes"});
         m.executa();
 
