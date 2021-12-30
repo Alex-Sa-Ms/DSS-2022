@@ -3,7 +3,7 @@ package SGCRDataLayer.Funcionarios;
 import java.io.Serializable;
 import java.util.*;
 
-public class FuncionarioFacade implements Serializable,iFuncionario {
+public class FuncionarioFacade implements iFuncionario {
 
 	Map<String,Funcionario> funcionarios;
 

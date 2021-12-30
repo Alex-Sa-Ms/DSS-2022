@@ -1,9 +1,10 @@
 package SGCRDataLayer.Funcionarios;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface iFuncionario {
+public interface iFuncionario extends Serializable {
     public int getNrTecnicos();
 
     /**
