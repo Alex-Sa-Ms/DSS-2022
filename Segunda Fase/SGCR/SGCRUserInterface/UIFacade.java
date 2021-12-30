@@ -23,6 +23,10 @@ public class UIFacade {
     private final String predefinedPath = "file.dat";
     private String newPath = null;
 
+    /**
+     * Método apresenta o menu inicial
+     * @return inteiro que servirá de flag
+     */
 
     public int login(){
         printer.printMsg("Bem vindo a Sistema de Gestao do Centro de Reparacoes!");
@@ -66,6 +70,9 @@ public class UIFacade {
         }
     }
 
+    /**
+     * Controlador de toda a aplicação
+     */
     public void controlador(){
 
         boolean end = false;
@@ -105,6 +112,9 @@ public class UIFacade {
     }
     //////////////////////////////////////Parte do Gestor////////////////////////////////////////
 
+    /**
+     * Menu que permite a criação da conta de funcionários
+     */
     private void criarConta(){
         boolean flag=false;
 
@@ -131,7 +141,9 @@ public class UIFacade {
 
 
 
-
+    /**
+     * Controlador do gestor
+     */
     private void controladorGestor() {
         MenuSelect gestor = new MenuSelect("",new String[]{
                 "Criar conta para Funcionario",
@@ -186,6 +198,9 @@ public class UIFacade {
 
     //////////////////////////////////////Parte do Balcao////////////////////////////////////////
 
+    /**
+     * Controlador do balcão
+     */
     private void controladorBalcao() {
         MenuSelect balcao = new MenuSelect("",new String[]{"Criar Novo Pedido de Orcamento",
                 "Entregar Equipamento",
@@ -224,6 +239,9 @@ public class UIFacade {
 
     }
 
+    /**
+     * Menu para alterar o estado de um serviço a espera de resposta
+     */
     private void confirmarOrcamento() {
 
         MenuSelect menu2 = new MenuSelect("", new String[]{"Confirmar Orcamento", "Recusar Orcamento"});
@@ -260,6 +278,9 @@ public class UIFacade {
         }
     }
 
+    /**
+     * Menu para criar um serviço expresso
+     */
     private void criarServicoExpresso() {
         MenuInput nif = new MenuInput("NIF do cliente","");
         nif.executa();
@@ -291,6 +312,9 @@ public class UIFacade {
 
     }
 
+    /**
+     * Menu para criar um pedido de orçamento
+     */
     private void criarPedidoOrcamento() {
         boolean flag;
         MenuInput nif = new MenuInput("Nif do cliente","");
@@ -307,6 +331,10 @@ public class UIFacade {
         else printer.printMsg("Erro na criacao do pedido");
     }
 
+
+    /**
+     * Menu para criar uma ficha cliente
+     */
     private void criarFichaCliente(){
         MenuInput nif = new MenuInput("Nif do cliente","");
         MenuInput nome =new MenuInput("Nome do cliente","");
@@ -321,6 +349,10 @@ public class UIFacade {
 
     }
 
+
+    /**
+     * Menu para criar uma ficha cliente com o nif
+     */
     private void criarFichaCliente(String nif){
         MenuInput nome =new MenuInput("Nome do cliente","");
         MenuInput email =new MenuInput("Email do cliente","");
@@ -332,6 +364,9 @@ public class UIFacade {
         else printer.printMsg("Erro na criacao da Ficha Cliente");
     }
 
+    /**
+     * Menu para entregar Equipamentos
+     */
     private void entregarEquipamentos(){
         MenuInput nif = new MenuInput("Nif do cliente","");
         MenuSelect temp = new MenuSelect("", new String[]{});
@@ -366,7 +401,9 @@ public class UIFacade {
 
     //////////////////////////////////////Parte do Tecnico////////////////////////////////////////
 
-
+    /**
+     * Controlador dos menus do tecnico
+     */
     private void controladorTecnico() {
         MenuSelect tecnico = new MenuSelect("", new String[]{"Resolver Pedido",
                 "Ver Pedidos de Orcamento",
@@ -421,6 +458,10 @@ public class UIFacade {
         }
     }
 
+    /**
+     *  Cria um novo passo
+     * @return um passo novo
+     */
     private Passo createPasso(){
         MenuInput custoM = new MenuInput("Introduza o custo do passo","");
         MenuInput descrM = new MenuInput("Introduza uma descricao","");
@@ -456,7 +497,11 @@ public class UIFacade {
         return new Passo(custo,descrM.getOpcao(),tempo);
     }
 
-
+    /**
+     * Controlador que permite resolver um serviço padrão
+     * @param idS Serviço em questão
+     * @param retomado booleano que indica se o serviço ja foi começado anteriormente
+     */
     private void controladorServicoPadrao(Servico idS, boolean retomado) {
         MenuSelect reparacao = new MenuSelect("Opcoes:", new String[]{"Adicionar Passo","Concluir Passo","Interromper Servico","Concluir Servico","Servico Irreparável"});
         String id = idS.getId();
@@ -522,6 +567,10 @@ public class UIFacade {
         }
     }
 
+    /**
+     * Controlador que permite resolver um pedido de orçamento
+     *
+     */
     private void controladorPedidos() {
         PedidoOrcamento p = logic.resolverPedido();
         if (p == null) printer.printMsg("Nao existem pedidos pendentes");
@@ -580,6 +629,11 @@ public class UIFacade {
             }
         }
     }
+
+    /**
+     * Controlador de menus da execução de um serviço padrão
+     * @param idS Serviço em questão
+     */
 
     private void controladorServicoExpresso(Servico idS){
         String id = idS.getId();
