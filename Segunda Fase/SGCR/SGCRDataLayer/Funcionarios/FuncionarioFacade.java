@@ -3,7 +3,7 @@ package SGCRDataLayer.Funcionarios;
 import java.io.Serializable;
 import java.util.*;
 
-public class FuncionarioFacade implements Serializable {
+public class FuncionarioFacade implements Serializable,iFuncionario {
 
 	Map<String,Funcionario> funcionarios;
 
@@ -23,6 +23,10 @@ public class FuncionarioFacade implements Serializable {
 		this.funcionarios = funcionarios != null ? new HashMap<>(funcionarios) : new HashMap<>();
 	}
 
+	/**
+	 * Consulta e devolve o numero de tecnicos
+	 * @return numero de tecnicos
+	 */
 	public int getNrTecnicos(){
 		int nr = 0;
 		for(Funcionario f : funcionarios.values())
@@ -31,9 +35,9 @@ public class FuncionarioFacade implements Serializable {
 	}
 
 	/**
-	 * 
-	 * @param id
-	 * @param password
+	 * Adiciona um tecnico ao mapa de funcionarios
+	 * @param id do tecnico
+	 * @param password do tecnico
 	 */
 	public boolean addTecnico(String id, String password) {
 		if(funcionarios.containsKey(id)) return false;
@@ -42,9 +46,9 @@ public class FuncionarioFacade implements Serializable {
 	}
 
 	/**
-	 * 
-	 * @param id
-	 * @param password
+	 * Adiciona um funcionario de balcao ao mapa de funcionarios
+	 * @param id do funcionario de balcao
+	 * @param password do funcionario de balcao
 	 */
 	public boolean addFuncBalcao(String id, String password) {
 		if(funcionarios.containsKey(id)) return false;
