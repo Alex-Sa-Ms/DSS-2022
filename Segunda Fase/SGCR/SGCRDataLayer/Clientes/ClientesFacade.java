@@ -18,16 +18,6 @@ public class ClientesFacade implements Serializable,iClientes {
 	}
 
 	/**
-	 * Construtor do ClientesFacade
-	 * @param clientes mapa que associa o identificador do cliente(chave) à sua FichaCliente(valor)
-	 * @param idProxEquipamento string que é o identificador do próximo equipamento a ser registado
-	 */
-	public ClientesFacade(Map<String, FichaCliente> clientes, int idProxEquipamento) {
-		this.clientes = clientes;
-		this.idProxEquipamento = idProxEquipamento;
-	}
-
-	/**
 	 * cria um novo cliente
 	 * @param Nome string que é o nome do novo cliente
 	 * @param NIF string que é o identificador/NIF do novo cliente
